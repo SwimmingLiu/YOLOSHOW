@@ -1,0 +1,37 @@
+# Usage: pip install -r requirements.txt
+
+# Base ----------------------------------------
+matplotlib
+numpy>=1.18.5,<1.24.0
+opencv-python
+Pillow
+PyYAML
+requests
+scipy
+tqdm
+protobuf
+
+# Logging -------------------------------------
+tensorboard
+# wandb
+
+# Plotting ------------------------------------
+pandas
+seaborn
+
+# Export --------------------------------------
+# coremltools  # CoreML export
+# onnx  # ONNX export
+# onnx-simplifier  # ONNX simplifier
+# scikit-learn  # CoreML quantization
+# tensorflow  # TFLite export
+# tensorflowjs  # TF.js export
+# openvino-dev  # OpenVINO export
+
+# Extras --------------------------------------
+ipython  # interactive notebook
+psutil  # system utilization
+thop  # FLOPs computation
+albumentations>=1.0.3
+pycocotools  # COCO mAP
+ultralytics

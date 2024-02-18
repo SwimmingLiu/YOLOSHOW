@@ -1,0 +1,40 @@
+<RCC>
+  <qresource prefix="leftbox">
+    <file>../images/newsize/scalling.png</file>
+    <file>../images/newsize/setting.png</file>
+    <file>../images/newsize/close.png</file>
+    <file>../images/newsize/max.png</file>
+    <file>../images/newsize/min.png</file>
+    <file>../images/swimmingliu_icon.png</file>
+    <file>../images/SwimmingLiu.png</file>
+    <file>../images/newsize/folder.png</file>
+    <file>../images/newsize/gallery.png</file>
+    <file>../images/newsize/menu.png</file>
+    <file>../images/newsize/photo-camera.png</file>
+    <file>../images/newsize/security-camera.png</file>
+  </qresource>
+  <qresource prefix="statusbar">
+    <file>../images/newsize/fpsBar.png</file>
+    <file>../images/newsize/modelBar.png</file>
+    <file>../images/newsize/targetBar.png</file>
+    <file>../images/newsize/classesBar.png</file>
+  </qresource>
+  <qresource prefix="rightbox">
+    <file>../images/newsize/stop.png</file>
+    <file>../images/newsize/pause.png</file>
+    <file>../images/newsize/play.png</file>
+  </qresource>
+  <qresource prefix="setting ">
+    <file>../images/newsize/check_no.png</file>
+    <file>../images/newsize/check_yes.png</file>
+    <file>../images/newsize/line.png</file>
+    <file>../images/newsize/save.png</file>
+    <file>../images/newsize/import.png</file>
+    <file>../images/newsize/box_down.png</file>
+    <file>../images/newsize/box_up.png</file>
+    <file>../images/newsize/conf.png</file>
+    <file>../images/newsize/delay.png</file>
+    <file>../images/newsize/IOU.png</file>
+    <file>../images/newsize/model.png</file>
+  </qresource>
+</RCC>
