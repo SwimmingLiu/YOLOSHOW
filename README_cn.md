@@ -4,6 +4,8 @@
 
 ***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` 算法的图形化界面程序. 
 
+[English](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README.md)  | 简体中文
+
 ![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
 
 ## 演示视频
