@@ -4,7 +4,13 @@
 
 ***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` algorithm. 
 
+English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md) 
+
 ![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
+
+## Demo Video
+
+Bilibili Demo Video : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
 
 ## Functions
 
