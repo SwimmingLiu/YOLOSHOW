@@ -12,6 +12,11 @@
 
 B站演示视频 : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
 
+## 待做清单
+
+- [ ] 调整UI (菜单栏)
+- [ ] 加入YOLOv9算法
+
 ## 功能
 
 ### 1. 支持 图片 / 视频 / 摄像头 / 文件夹（批量） 目标检测

@@ -12,6 +12,11 @@ English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/REA
 
 Bilibili Demo Video : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
 
+## Todo List
+
+- [ ] Adjust User Interface (Menu Bar)
+- [ ] Add YOLOv9 Algorithm
+
 ## Functions
 
 ### 1. Support Image / Video / Webcam / Folder (Batch ) Object Detection
