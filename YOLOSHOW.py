@@ -1,8 +1,7 @@
 from ui.YOLOSHOWUI import Ui_mainWindow
 from utils import glo
-
 glo._init()
-glo.set_value('yoloname', "yolov5 yolov7 yolov8")
+glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9")
 
 import json
 import os
@@ -21,12 +20,14 @@ from PySide6 import QtCore, QtGui
 from PIL import Image
 from qfluentwidgets import RoundMenu, MenuAnimationType, Action
 
-from models import common, yolo
+from models import common, yolo, experimental
 from ui.webCamera import Camera, WebcamThread
 from utils.custom_grips import CustomGrip
 from yolocode.yolov5.YOLOv5Thread import YOLOv5Thread
 from yolocode.yolov7.YOLOv7Thread import YOLOv7Thread
 from yolocode.yolov8.YOLOv8Thread import YOLOv8Thread
+from yolocode.yolov9.YOLOv9Thread import YOLOv9Thread
+
 # from YoloClass import YoloThread
 
 GLOBAL_WINDOW_STATE = True
@@ -142,6 +143,11 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         self.initModel("yolov8")
         # --- YOLOv8 QThread --- #
 
+        # --- YOLOv9 QThread --- #
+        self.yolov9_thread = YOLOv9Thread()
+        self.initModel("yolov9")
+        # --- YOLOv9 QThread --- #
+
         # --- Setting栏 初始化 --- #
         self.loadConfig()
         # --- Setting栏 初始化 --- #
@@ -198,6 +204,22 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.run_button.clicked.connect(self.runorContinue)
             self.stop_button.clicked.connect(self.stopDetect)
         # --- YOLOv8 QThread --- #
+
+        # --- YOLOv9 QThread --- #
+        elif yoloname == "yolov9":
+            self.yolov9_thread.parent_workpath = self.current_workpath + '\yolocode\yolov9'
+            self.yolov9_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
+            self.yolov9_thread.progress_value = self.progress_bar.maximum()
+            self.yolov9_thread.send_input.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+            self.yolov9_thread.send_output.connect(lambda x: self.showImg(x, self.main_rightbox, 'img'))
+            self.yolov9_thread.send_msg.connect(lambda x: self.showStatus(x))
+            self.yolov9_thread.send_progress.connect(lambda x: self.progress_bar.setValue(x))
+            self.yolov9_thread.send_fps.connect(lambda x: self.fps_label.setText(str(x)))
+            self.yolov9_thread.send_class_num.connect(lambda x: self.Class_num.setText(str(x)))
+            self.yolov9_thread.send_target_num.connect(lambda x: self.Target_num.setText(str(x)))
+            self.run_button.clicked.connect(self.runorContinue)
+            self.stop_button.clicked.connect(self.stopDetect)
+        # --- YOLOv9 QThread --- #
 
     # 阴影效果
     def shadowStyle(self, widget, Color, top_bottom=None):
@@ -466,12 +488,20 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
                 self.yolov5_thread.quit()  # end process
             elif self.yolov7_thread.isRunning():
                 self.yolov7_thread.quit()
+            elif self.yolov8_thread.isRunning():
+                self.yolov8_thread.quit()
+            elif self.yolov9_thread.isRunning():
+                self.yolov9_thread.quit()
             self.save_status_button.setEnabled(True)
         elif msg == 'Stop Detection':
             if self.yolov5_thread.isRunning():
                 self.yolov5_thread.quit()  # end process
             elif self.yolov7_thread.isRunning():
                 self.yolov7_thread.quit()
+            elif self.yolov8_thread.isRunning():
+                self.yolov8_thread.quit()
+            elif self.yolov9_thread.isRunning():
+                self.yolov9_thread.quit()
             self.run_button.setChecked(False)
             self.save_status_button.setEnabled(True)
             self.progress_bar.setValue(0)
@@ -514,17 +544,20 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.save_res = False
             self.yolov7_thread.save_res = False
             self.yolov8_thread.save_res = False
+            self.yolov9_thread.save_res = False
             self.save_button.setEnabled(False)
         elif self.save_status_button.checkState() == Qt.CheckState.Checked:
             self.showStatus('NOTE: Run image results will be saved.')
             self.yolov5_thread.save_res = True
             self.yolov7_thread.save_res = True
             self.yolov8_thread.save_res = True
+            self.yolov9_thread.save_res = True
             self.save_button.setEnabled(True)
 
     # 导出结果
     def saveResult(self):
-        if not self.yolov5_thread.res_status and not self.yolov7_thread.res_status and not self.yolov8_thread.res_status:
+        if (not self.yolov5_thread.res_status and not self.yolov7_thread.res_status
+                and not self.yolov8_thread.res_status and not self.yolov9_thread.res_status):
             self.showStatus("Please select the Image/Video before starting detection...")
             return
         config_file = f'{self.current_workpath}/config/save.json'
@@ -581,6 +614,20 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
+            elif "yolov9" in self.model_name:
+                try:
+                    output_dir = os.path.dirname(self.yolov9_thread.res_path)
+                    if os.path.exists(output_dir):
+                        for filename in os.listdir(output_dir):
+                            source_path = os.path.join(output_dir, filename)
+                            destination_path = os.path.join( self.OutputDir, filename)
+                            if os.path.isfile(source_path):
+                                shutil.copy(source_path, destination_path)
+                        self.showStatus('Saved Successfully in {}'.format(self.OutputDir))
+                    else:
+                        self.showStatus('Please wait for the result to be generated')
+                except Exception as err:
+                    self.showStatus(f"Error occurred while saving the result: {err}")
         else:
             self.OutputDir, _ = QFileDialog.getSaveFileName(
                 self,  # 父窗口对象
@@ -615,7 +662,15 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
-
+            elif "yolov9" in self.model_name:
+                try:
+                    if os.path.exists(self.yolov9_thread.res_path):
+                        shutil.copy(self.yolov9_thread.res_path, self.OutputDir)
+                        self.showStatus('Saved Successfully in {}'.format(self.OutputDir))
+                    else:
+                        self.showStatus('Please wait for the result to be generated')
+                except Exception as err:
+                    self.showStatus(f"Error occurred while saving the result: {err}")
         config['save_path'] = self.OutputDir
         config_json = json.dumps(config, ensure_ascii=False, indent=2)
         with open(config_file, 'w', encoding='utf-8') as f:
@@ -631,6 +686,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.iou_thres = x / 100
             self.yolov7_thread.iou_thres = x / 100
             self.yolov8_thread.iou_thres = x / 100
+            self.yolov9_thread.iou_thres = x / 100
         elif flag == 'conf_spinbox':
             self.conf_slider.setValue(int(x * 100))
         elif flag == 'conf_slider':
@@ -639,6 +695,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.conf_thres = x / 100
             self.yolov7_thread.conf_thres = x / 100
             self.yolov8_thread.conf_thres = x / 100
+            self.yolov9_thread.conf_thres = x / 100
         elif flag == 'speed_spinbox':
             self.speed_slider.setValue(x)
         elif flag == 'speed_slider':
@@ -647,6 +704,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.speed_thres = x  # ms
             self.yolov7_thread.speed_thres = x  # ms
             self.yolov8_thread.speed_thres = x  # ms
+            self.yolov9_thread.speed_thres = x  # ms
         elif flag == 'line_spinbox':
             self.line_slider.setValue(x)
         elif flag == 'line_slider':
@@ -655,6 +713,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.line_thickness = x
             self.yolov7_thread.line_thickness = x
             self.yolov8_thread.line_thickness = x
+            self.yolov9_thread.line_thickness = x
 
     # 加载 Setting 栏
     def loadConfig(self):
@@ -725,6 +784,11 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov8_thread = YOLOv8Thread()
             self.initModel("yolov8")
             self.runModel(True)
+        elif yoloname == "yolov9":
+            del self.yolov9_thread
+            self.yolov9_thread = YOLOv9Thread()
+            self.initModel("yolov9")
+            self.runModel(True)
 
     # 停止其他模型
     def stopOtherModel(self,yoloname):
@@ -740,6 +804,10 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov8_thread.quit()
             self.yolov8_thread.stop_dtc = True
             self.yolov8_thread.finished.connect(lambda: self.resignModel(yoloname))
+        elif self.yolov9_thread.isRunning() and yoloname == "yolov9":
+            self.yolov9_thread.quit()
+            self.yolov9_thread.stop_dtc = True
+            self.yolov9_thread.finished.connect(lambda: self.resignModel(yoloname))
 
     # Model 变化
     def changeModel(self, x):
@@ -752,9 +820,11 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             import importlib
             importlib.reload(common)
             importlib.reload(yolo)
+            importlib.reload(experimental)
             # 停止其他模型
             self.stopOtherModel("yolov7")
             self.stopOtherModel("yolov8")
+            self.stopOtherModel("yolov9")
         elif "yolov7" in self.model_name:
             self.yolov7_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
@@ -762,9 +832,11 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             import importlib
             importlib.reload(common)
             importlib.reload(yolo)
+            importlib.reload(experimental)
             # 停止其他模型
             self.stopOtherModel("yolov5")
             self.stopOtherModel("yolov8")
+            self.stopOtherModel("yolov9")
         elif "yolov8" in self.model_name:
             self.yolov8_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
@@ -772,13 +844,28 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             import importlib
             importlib.reload(common)
             importlib.reload(yolo)
+            importlib.reload(experimental)
             # 停止其他模型
             self.stopOtherModel("yolov5")
             self.stopOtherModel("yolov7")
+            self.stopOtherModel("yolov9")
+        elif "yolov9" in self.model_name:
+            self.yolov9_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
+            # 重载 common 和 yolo 模块
+            glo.set_value('yoloname', "yolov9")
+            import importlib
+            importlib.reload(common)
+            importlib.reload(yolo)
+            importlib.reload(experimental)
+            # 停止其他模型
+            self.stopOtherModel("yolov5")
+            self.stopOtherModel("yolov7")
+            self.stopOtherModel("yolov8")
         else:
             self.stopOtherModel("yolov5")
             self.stopOtherModel("yolov7")
             self.stopOtherModel("yolov8")
+            self.stopOtherModel("yolov9")
 
     def runModel(self,runbuttonStatus=None):
         self.save_status_button.setEnabled(False)
@@ -814,6 +901,16 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             else:
                 self.yolov8_thread.is_continue = False
                 self.showStatus('Pause Detection')
+        elif "yolov9" in self.model_name:
+            self.yolov9_thread.source = self.inputPath
+            self.yolov9_thread.stop_dtc = False
+            if self.run_button.isChecked():
+                self.yolov9_thread.is_continue = True
+                if not self.yolov9_thread.isRunning():
+                    self.yolov9_thread.start()
+            else:
+                self.yolov9_thread.is_continue = False
+                self.showStatus('Pause Detection')
         else:
             self.showStatus('The current model is not supported')
             if self.run_button.isChecked():
@@ -841,6 +938,10 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             if self.yolov8_thread.isRunning():
                 self.yolov8_thread.quit()
             self.yolov8_thread.stop_dtc = True
+        elif "yolov9" in self.model_name:
+            if self.yolov9_thread.isRunning():
+                self.yolov9_thread.quit()
+            self.yolov9_thread.stop_dtc = True
         self.run_button.setChecked(False)
         self.save_status_button.setEnabled(True)
         self.progress_bar.setValue(0)

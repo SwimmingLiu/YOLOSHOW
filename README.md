@@ -1,8 +1,8 @@
-# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 GUI based on Pyside6
+# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 GUI based on Pyside6
 
 ## Introduction
 
-***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` algorithm. 
+***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` algorithm. 
 
 English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md) 
 
@@ -10,12 +10,15 @@ English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/REA
 
 ## Demo Video
 
-Bilibili Demo Video : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
+Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
 
 ## Todo List
 
-- [ ] Adjust User Interface (Menu Bar)
-- [ ] Add YOLOv9 Algorithm
+- [x] Add YOLOv9 Algorithm
+
+- [x] Adjust User Interface (Menu Bar)
+
+- [ ] Complete Rtsp Function
 
 ## Functions
 
@@ -27,16 +30,16 @@ Choose Image / Video / Webcam / Folder (Batch ) in the menu bar on the left to d
 
 When the program is running to detect targets, you can change models / hyper Parameters
 
-1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` dynamically
+1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` dynamically
 2. Support changing `IOU` / `Confidence` / `Delay time ` / `line thickness` dynamically
 
 ### 3. Loading Model Automatically
 
-Our program will automatically detect  `pt` files including [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/) that were previously added to the `ptfiles` folder.
+Our program will automatically detect  `pt` files including [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/)  that were previously added to the `ptfiles` folder.
 
 If you need add the new `pt` file, please click `Import Model` button in `Settings` box to select your `pt` file. Then our program will put it into  `ptfiles` folder.
 
-**Notice :**  All `pt` files are named including `yolov5` / `yolov7` / `yolov8`.  (e.g. `yolov8-test.pt`)
+**Notice :**  All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` .  (e.g. `yolov8-test.pt`)
 
 ### 4. Loading Configures
 
@@ -103,7 +106,7 @@ Copy all font files `*.ttf` in `fonts` folder into `C:\Windows\Fonts`
 
 ### YOLO Algorithm
 
-[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics) 
+[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics)  [YOLOv9](https://github.com/WongKinYiu/yolov9) 
 
 ### YOLO Graphical User Interface
 

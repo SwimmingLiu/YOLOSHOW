@@ -28,7 +28,7 @@ class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         if not mainWindow.objectName():
             mainWindow.setObjectName(u"mainWindow")
-        mainWindow.resize(1433, 826)
+        mainWindow.resize(1433, 827)
         mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
 "	border: 1px solid rgba(0, 0, 0, 40%);\n"
 "	border-top:none;\n"
@@ -1926,7 +1926,7 @@ class Ui_mainWindow(object):
         self.label.setText(QCoreApplication.translate("mainWindow", u"YOLO SHOW", None))
         self.label_3.setText(QCoreApplication.translate("mainWindow", u"SwimmingLiu", None))
         self.src_menu.setText(QCoreApplication.translate("mainWindow", u" Menu   ", None))
-        self.src_img.setText(QCoreApplication.translate("mainWindow", u" Images ", None))
+        self.src_img.setText(QCoreApplication.translate("mainWindow", u"Media", None))
         self.src_webcam.setText(QCoreApplication.translate("mainWindow", u" Webcam", None))
         self.src_folder.setText(QCoreApplication.translate("mainWindow", u" Folder  ", None))
 #if QT_CONFIG(shortcut)

@@ -1,8 +1,8 @@
-# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8  基于 Pyside6 的图形化界面
+# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9  基于 Pyside6 的图形化界面
 
 ## 介绍
 
-***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` 算法的图形化界面程序. 
+***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` 算法的图形化界面程序. 
 
 [English](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README.md)  | 简体中文
 
@@ -10,12 +10,13 @@
 
 ## 演示视频
 
-B站演示视频 : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
+B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
 
 ## 待做清单
 
-- [ ] 调整UI (菜单栏)
-- [ ] 加入YOLOv9算法
+- [x] 加入YOLOv9算法
+- [x] 调整UI (菜单栏)
+- [ ] 完成Rtsp功能
 
 ## 功能
 
@@ -27,16 +28,16 @@ B站演示视频 : [YOLOSHOW-YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/
 
 程序开始检测时，支持动态切换模型 / 调整超参数
 
-1. 支持动态切换 `YOLOv5` / ` YOLOv7` / `YOLOv8` 模型
+1. 支持动态切换 `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` 模型
 2. 支持动态修改 `IOU` / `Confidence` / `Delay time ` / `line thickness` 超参数
 
 ### 3. 动态加载模型
 
-程序可以自动检测`ptfiles` 文件夹中包含 [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)   `pt`  模型.
+程序可以自动检测`ptfiles` 文件夹中包含 [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/)  `pt`  模型.
 
 如果你需要导入新的 `pt` 文件, 请点击 `Settings` 框中的 `Import Model` 按钮 来选择需要导入的 `pt` 文件. 然后程序会把该文件复制到  `ptfiles` 文件夹下.
 
-**Notice :**  所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` 中的任意一个版本.  (如 `yolov8-test.pt`)
+**Notice :**  所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` 中的任意一个版本.  (如 `yolov8-test.pt`)
 
 ### 4. 加载超参数配置
 
@@ -103,7 +104,7 @@ pip install -U Pyside6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ### YOLO 算法
 
-[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics) 
+[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics)  [YOLOv9](https://github.com/WongKinYiu/yolov9) 
 
 ### YOLO 图形化界面
 
