@@ -20,6 +20,8 @@ Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bil
 
 - [ ] Complete Rtsp Function
 
+- [ ] Support Instance Segmentation
+
 ## Functions
 
 ### 1. Support Image / Video / Webcam / Folder (Batch ) Object Detection

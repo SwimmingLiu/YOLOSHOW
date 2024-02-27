@@ -17,6 +17,7 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 - [x] 加入YOLOv9算法
 - [x] 调整UI (菜单栏)
 - [ ] 完成Rtsp功能
+- [ ] 支持实例分割
 
 ## 功能
 
@@ -41,8 +42,8 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 
 ### 4. 加载超参数配置
 
-1.  程序启动时, 自动加载最近保存的超参数配置.
-2.  程序启动时, 自动保存最近修改的超参数配置.
+1.  程序启动后, 自动加载最近保存的超参数配置.
+2.  程序关闭后, 自动保存最近修改的超参数配置.
 
 ### 5. 保存检测结果
 
