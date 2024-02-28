@@ -57,7 +57,7 @@ If you need Save results, please click `Save MP4/JPG` before detection. Then you
 
 ### 6. Support Object Detection and Instance Segmentation
 
-From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation。Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` 目Object Detection task to `YOLOv8` instance task.
+From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation。Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
 
 ## Preparation
 
