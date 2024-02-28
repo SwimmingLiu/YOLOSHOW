@@ -167,10 +167,12 @@ class YOLOv7Thread(QThread):
             if self.is_continue:
                 if self.is_file:
                     self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
-                elif self.webcam:
+                elif self.webcam and not self.is_url:
                     self.send_msg.emit("Detecting Webcam: Camera_{}".format(self.source))
                 elif self.is_folder:
                     self.send_msg.emit("Detecting Folder: {}".format(os.path.dirname(self.source[0])))
+                elif self.is_url:
+                    self.send_msg.emit("Detecting URL: {}".format(self.source))
                 else:
                     self.send_msg.emit("Detecting: {}".format(self.source))
                 path, img, im0s, self.vid_cap = next(datasets)

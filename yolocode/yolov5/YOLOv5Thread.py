@@ -162,10 +162,12 @@ class YOLOv5Thread(QThread):
             if self.is_continue:
                 if self.is_file:
                     self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
-                elif self.webcam:
+                elif self.webcam and not self.is_url:
                     self.send_msg.emit("Detecting Webcam: Camera_{}".format(self.source))
                 elif self.is_folder:
                     self.send_msg.emit("Detecting Folder: {}".format(os.path.dirname(self.source[0])))
+                elif self.is_url:
+                    self.send_msg.emit("Detecting URL: {}".format(self.source))
                 else:
                     self.send_msg.emit("Detecting: {}".format(self.source))
                 path, im, im0s, self.vid_cap, s = next(datasets)
@@ -195,7 +197,7 @@ class YOLOv5Thread(QThread):
                 with dt[1]:
                     visualize = False
                     visualize = increment_path(self.save_path / Path(path).stem, mkdir=True) if visualize else False
-                    if  self.model.xml and im.shape[0] > 1:
+                    if self.model.xml and im.shape[0] > 1:
                         pred = None
                         for image in ims:
                             if pred is None:

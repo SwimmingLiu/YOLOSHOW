@@ -1,22 +1,33 @@
 
 import os.path
 import time
-
-import cv2
 import numpy as np
 import torch
 from PySide6.QtCore import QThread, Signal
 from pathlib import Path
-
 from models.common import DetectMultiBackend
-from yolocode.yolov9.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
-from yolocode.yolov9.utils.plots import Annotator, colors, save_one_box
-from yolocode.yolov9.utils.torch_utils import select_device, smart_inference_mode
+from yolocode.yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from ultralytics.utils.plotting import Annotator, colors
+from yolocode.yolov5.utils.general import (
+    LOGGER,
+    Profile,
+    check_file,
+    check_img_size,
+    check_imshow,
+    check_requirements,
+    colorstr,
+    cv2,
+    increment_path,
+    non_max_suppression,
+    print_args,
+    scale_boxes,
+    strip_optimizer,
+    xyxy2xywh,
+)
+from yolocode.yolov5.utils.segment.general import process_mask, process_mask_native
+from yolocode.yolov5.utils.torch_utils import select_device, smart_inference_mode
 
-
-class YOLOv9Thread(QThread):
+class YOLOv5SegThread(QThread):
     # 输入 输出 消息
     send_input = Signal(np.ndarray)
     send_output = Signal(np.ndarray)
@@ -29,7 +40,7 @@ class YOLOv9Thread(QThread):
     send_target_num = Signal(int)  # Targets detected
 
     def __init__(self):
-        super(YOLOv9Thread, self).__init__()
+        super(YOLOv5SegThread, self).__init__()
         # YOLOSHOW 界面参数设置
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
@@ -45,33 +56,30 @@ class YOLOv9Thread(QThread):
         self.res_status = False # result status
         self.parent_workpath = None  # parent work path
 
-        # YOLOv9 参数设置
+        # YOLOv5 参数设置
         self.model = None
-        self.data = 'yolocode/yolov9/data/coco.yaml'  # data_dict
-        self.imgsz = (640,640)
+        self.data = 'yolocode/yolov5/data/coco128-seg.yaml'  # data_dict
+        self.imgsz = (640, 640)
         self.device = ''
         self.dataset = None
-        self.task = 'detect'
-        self.dnn = False
-        self.half = False
-        self.agnostic_nms = False
-        self.stream_buffer = False
-        self.crop_fraction = 1.0
-        self.done_warmup = False
         self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
+        self.annotator = None
+        self.data_path = None
+        self.source_type = None
         self.batch = None
-        self.project = 'runs/detect'
+        self.project = 'runs/segment'
         self.name = 'exp'
         self.exist_ok = False
         self.vid_stride = 1     # 视频帧率
         self.max_det = 1000     # 最大检测数
         self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
+        self.retina_masks = False
 
 
     def run(self):
-
         source = str(self.source)
+        # save_img = not nosave and not source.endswith(".txt")  # save inference images
         # 判断输入源类型
         self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
         self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
@@ -79,15 +87,21 @@ class YOLOv9Thread(QThread):
         self.screenshot = source.lower().startswith("screen")
         # 判断输入源是否是文件夹，如果是列表，则是文件夹
         self.is_folder = isinstance(self.source, list)
+        if self.is_url and self.is_file:
+            source = check_file(source)  # download
+
         if self.save_res:
+            # 保存文件的路径
             self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
 
-        # Load model
+
+        # 加载模型
         device = select_device(self.device)
         weights = self.new_model_name
         self.current_model_name = self.new_model_name
-        model = DetectMultiBackend(weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
+        self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
+        model = DetectMultiBackend(weights, device=device, dnn=False, data=self.data, fp16=False)
         self.stride, self.names, self.pt = model.stride, model.names, model.pt
         self.imgsz = check_img_size(self.imgsz, s=self.stride)  # check image size
 
@@ -102,11 +116,10 @@ class YOLOv9Thread(QThread):
             dataset = LoadScreenshots(source, img_size=self.imgsz, stride=self.stride, auto=self.pt)
         elif self.is_folder:
             for source_i in self.source:
-                dataset_list.append(
-                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                dataset_list.append(LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
         else:
             dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
-        self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
+        self.vid_path, self.vid_writer = [None] * bs, [None] * bs     # 视频路径 视频写入器
         model.warmup(imgsz=(1 if self.pt or model.triton else bs, 3, *self.imgsz))  # warmup
         self.model = model
         if self.is_folder:
@@ -114,7 +127,6 @@ class YOLOv9Thread(QThread):
                 self.detect(dataset, device, bs)
         else:
             self.detect(dataset, device, bs)
-
 
     def detect(self,dataset,device,bs):
         seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
@@ -144,7 +156,7 @@ class YOLOv9Thread(QThread):
                 self.model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
                 stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
-                self.model.warmup(imgsz=(1 if pt or  self.model.triton else bs, 3, *imgsz))  # warmup
+                self.model.warmup(imgsz=(1 if pt or self.model.triton else bs, 3, *imgsz))  # warmup
                 seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
                 self.current_model_name = self.new_model_name
             # 开始推理
@@ -183,36 +195,40 @@ class YOLOv9Thread(QThread):
 
                 # Inference
                 with dt[1]:
-                    visualize = False
-                    pred = self.model(im, augment=False, visualize=visualize)
+                    pred, proto = self.model(im, augment=False, visualize=False)[:2]
 
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms, max_det=self.max_det)
-
-                # Second-stage classifier (optional)
-                # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
+                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False, max_det=self.max_det,nm=32)
 
                 # Process predictions
-                for i, det in enumerate(pred):  # per image
+                for i, det in enumerate(pred):
                     seen += 1
+                    # per image
                     if self.webcam:  # batch_size >= 1
                         p, im0, frame = path[i], im0s[i].copy(), dataset.count
-                        s += f'{i}: '
                     else:
-                        p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+                        p, im0, frame = path, im0s.copy(), getattr(dataset, "frame", 0)
 
                     p = Path(p)  # to Path
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
                         self.res_path = save_path
                     annotator = Annotator(im0, line_width=self.line_thickness, example=str(self.names))
+
                     # 类别数量 目标数量
                     class_nums = 0
                     target_nums = 0
                     if len(det):
-                        # Rescale boxes from img_size to im0 size
-                        det[:, :4] = scale_boxes(im.shape[2:], det[:, :4], im0.shape).round()
+                        if self.retina_masks:
+                            # scale bbox first the crop masks
+                            det[:, :4] = scale_boxes(im.shape[2:], det[:, :4],
+                                                     im0.shape).round()  # rescale boxes to im0 size
+                            masks = process_mask_native(proto[i], det[:, 6:], det[:, :4], im0.shape[:2])  # HWC
+                        else:
+                            masks = process_mask(proto[i], det[:, 6:], det[:, :4], im.shape[2:], upsample=True)  # HWC
+                            det[:, :4] = scale_boxes(im.shape[2:], det[:, :4],
+                                                     im0.shape).round()  # rescale boxes to im0 size
 
                         # Print results
                         for c in det[:, 5].unique():
@@ -221,24 +237,33 @@ class YOLOv9Thread(QThread):
                             class_nums += 1
                             target_nums += int(n)
 
+                        # Mask plotting
+                        annotator.masks(
+                            masks,
+                            colors=[colors(x, True) for x in det[:, 5]],
+                            im_gpu=torch.as_tensor(im0, dtype=torch.float16).to(device).permute(2, 0, 1).flip(
+                                0).contiguous() /
+                                   255 if self.retina_masks else im[i])
+
                         # Write results
                         for *xyxy, conf, cls in reversed(det):
                             c = int(cls)  # integer class
-                            label = f'{self.names[c]} {conf:.2f}'
+                            label = self.names[c]
+                            confidence = float(conf)
+                            confidence_str = f"{confidence:.2f}"
+                            c = int(cls)  # integer class
+                            label = f"{self.names[c]} {conf:.2f}"
                             annotator.box_label(xyxy, label, color=colors(c, True))
 
-                    # Stream results
-                    im0 = annotator.result()
+
                     # 发送结果
                     im0 = annotator.result()
                     self.send_output.emit(im0)  # 输出图片
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
 
-
-                    # Save results (image with detections)
                     if self.save_res:
-                        if dataset.mode == 'image':
+                        if dataset.mode == "image":
                             cv2.imwrite(save_path, im0)
                         else:  # 'video' or 'stream'
                             if self.vid_path[i] != save_path:  # new video
@@ -251,9 +276,8 @@ class YOLOv9Thread(QThread):
                                     h = int(self.vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                                 else:  # stream
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
-                                save_path = str(
-                                    Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                                save_path = str(Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
+                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:
@@ -268,5 +292,4 @@ class YOLOv9Thread(QThread):
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
                     break
-
 

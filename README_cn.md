@@ -16,8 +16,8 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 
 - [x] 加入YOLOv9算法
 - [x] 调整UI (菜单栏)
-- [ ] 完成Rtsp功能
-- [ ] 支持实例分割
+- [x] 完成Rtsp功能
+- [x] 支持实例分割 （ `YOLOv5` & `YOLOv8` ）
 
 ## 功能
 
@@ -38,7 +38,10 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 
 如果你需要导入新的 `pt` 文件, 请点击 `Settings` 框中的 `Import Model` 按钮 来选择需要导入的 `pt` 文件. 然后程序会把该文件复制到  `ptfiles` 文件夹下.
 
-**Notice :**  所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` 中的任意一个版本.  (如 `yolov8-test.pt`)
+**Notice :**  
+
+1. 所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` 中的任意一个版本.  (如 `yolov8-test.pt`)
+2. 如果是分割类型的 `pt` 文件, 命名中应包含 `yolov5n-seg` / `yolov8s-seg` 中的任意一个版本.  (如 `yolov8n-seg-test.pt`)
 
 ### 4. 加载超参数配置
 
@@ -48,6 +51,10 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 ### 5. 保存检测结果
 
 如果需要保存检测结果，请在检测前点击 `Save MP4/JPG` . 然后等待检测完毕，选择需要保存的路径进行结果保存.
+
+### 6. 同时支持目标检测和实例分割
+
+从 ***YOLOSHOW v1.2*** 起 ，支持目标检测和实例分割多任务。同时支持不同版本的任务切换，如从`YOLOv5` 目标检测任务 切换到 `YOLOv8` 实例分割任务。
 
 ## 运行准备工作
 

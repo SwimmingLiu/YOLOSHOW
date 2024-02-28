@@ -18,9 +18,9 @@ Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bil
 
 - [x] Adjust User Interface (Menu Bar)
 
-- [ ] Complete Rtsp Function
+- [x] Complete Rtsp Function
 
-- [ ] Support Instance Segmentation
+- [x] Support Instance Segmentation （ `YOLOv5` & `YOLOv8` ）
 
 ## Functions
 
@@ -41,7 +41,10 @@ Our program will automatically detect  `pt` files including [YOLOv5 Models](http
 
 If you need add the new `pt` file, please click `Import Model` button in `Settings` box to select your `pt` file. Then our program will put it into  `ptfiles` folder.
 
-**Notice :**  All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` .  (e.g. `yolov8-test.pt`)
+**Notice :** 
+
+1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` .  (e.g. `yolov8-test.pt`)
+2. If it is a `pt` file of  segmentation mode, please name it including `yolov5n-seg` / `yolov8s-seg` .  (e.g. `yolov8n-seg-test.pt`)
 
 ### 4. Loading Configures
 
@@ -51,6 +54,10 @@ If you need add the new `pt` file, please click `Import Model` button in `Settin
 ### 5. Save Results
 
 If you need Save results, please click `Save MP4/JPG` before detection. Then you can save your detection results in selected path.
+
+### 6. Support Object Detection and Instance Segmentation
+
+From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation。Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` 目Object Detection task to `YOLOv8` instance task.
 
 ## Preparation
 

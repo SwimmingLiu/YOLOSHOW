@@ -21,7 +21,7 @@ from yolocode.yolov8.utils.checks import check_imgsz
 from yolocode.yolov8.utils.torch_utils import select_device
 
 
-class YOLOv8Thread(QThread):
+class YOLOv8SegThread(QThread):
     # 输入 输出 消息
     send_input = Signal(np.ndarray)
     send_output = Signal(np.ndarray)
@@ -34,7 +34,7 @@ class YOLOv8Thread(QThread):
     send_target_num = Signal(int)  # Targets detected
 
     def __init__(self):
-        super(YOLOv8Thread, self).__init__()
+        super(YOLOv8SegThread, self).__init__()
         # YOLOSHOW 界面参数设置
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
@@ -52,11 +52,11 @@ class YOLOv8Thread(QThread):
 
         # YOLOv8 参数设置
         self.model = None
-        self.data = 'yolocode/yolov8/cfg/datasets/coco.yaml'  # data_dict
+        self.data = 'yolocode/yolov8/cfg/datasets/coco128-seg.yaml'  # data_dict
         self.imgsz = 640
         self.device = ''
         self.dataset = None
-        self.task = 'detect'
+        self.task = 'segment'
         self.dnn = False
         self.half = False
         self.agnostic_nms = False
@@ -65,7 +65,7 @@ class YOLOv8Thread(QThread):
         self.done_warmup = False
         self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
         self.batch = None
-        self.project = 'runs/detect'
+        self.project = 'runs/segment'
         self.name = 'exp'
         self.exist_ok = False
         self.vid_stride = 1     # 视频帧率
@@ -267,13 +267,14 @@ class YOLOv8Thread(QThread):
         self.vid_frame = [None] * self.dataset.bs
 
     def postprocess(self, preds, img, orig_imgs):
-        """Post-processes predictions and returns a list of Results objects."""
-        preds = ops.non_max_suppression(
-            preds,
+        """Applies non-max suppression and processes detections for each image in an input batch."""
+        p = ops.non_max_suppression(
+            preds[0],
             self.conf_thres,
             self.iou_thres,
             agnostic=self.agnostic_nms,
             max_det=self.max_det,
+            nc=len(self.model.names),
             classes=self.classes,
         )
 
@@ -281,11 +282,16 @@ class YOLOv8Thread(QThread):
             orig_imgs = ops.convert_torch2numpy_batch(orig_imgs)
 
         results = []
-        for i, pred in enumerate(preds):
+        proto = preds[1][-1] if isinstance(preds[1], tuple) else preds[1]  # tuple if PyTorch model or array if exported
+        for i, pred in enumerate(p):
             orig_img = orig_imgs[i]
-            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
             img_path = self.batch[0][i]
-            results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
+            if not len(pred):  # save empty boxes
+                masks = None
+            else:
+                masks = ops.process_mask(proto[i], pred[:, 6:], pred[:, :4], img.shape[2:], upsample=True)  # HWC
+                pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+            results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred[:, :6], masks=masks))
         return results
 
     def preprocess(self, im):

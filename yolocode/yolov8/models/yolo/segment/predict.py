@@ -55,3 +55,10 @@ class SegmentationPredictor(DetectionPredictor):
                 pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
             results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred[:, :6], masks=masks))
         return results
+
+if __name__ == "__main__":
+    predictor = SegmentationPredictor()
+    predictor.args.imgsz = 640
+    predictor.setup_model(model=r"E:\YOLO\YOLOSHOW\ptfiles\yolov8n-seg.pt")
+    predictor.args.data = 'E:\YOLO\YOLOGUI\yolocode\yolov8\cfg\datasets\coco128-seg.yaml'
+    predictor.predict_cli(source=r"D:\ChromeDownload\ImagesTest\CrystalLiu1.jpg")
