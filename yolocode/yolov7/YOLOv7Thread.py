@@ -230,18 +230,22 @@ class YOLOv7Thread(QThread):
                     if len(det):
                         # Rescale boxes from img_size to im0 size
                         det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+
+                        # Print results
+                        for c in det[:, 5].unique():
+                            n = (det[:, 5] == c).sum()  # detections per class
+                            class_nums += 1
+                            target_nums += int(n)
+
                         # Write results
                         for *xyxy, conf, cls in reversed(det):
                             # Add bbox to image
                             c = int(cls)  # integer class
-                            class_nums += 1
-                            statistic_dic[names[c]] += 1
                             label = f'{names[int(cls)]} {conf:.2f}'
                             plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=self.line_thickness)
 
 
                     self.send_output.emit(im0)  # 输出图片
-                    target_nums = sum(statistic_dic.values())
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
                     if self.save_res:
