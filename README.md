@@ -14,13 +14,15 @@ Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bil
 
 ## Todo List
 
-- [x] Add YOLOv9 Algorithm
+- [x] Add `YOLOv9` Algorithm
 
 - [x] Adjust User Interface (Menu Bar)
 
 - [x] Complete Rtsp Function
 
 - [x] Support Instance Segmentation （ `YOLOv5` & `YOLOv8` ）
+
+- [x] Add `RT-DETR` Algorithm ( `Ultralytics` repo)
 
 ## Functions
 

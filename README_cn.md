@@ -14,10 +14,11 @@ B站演示视频 : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibi
 
 ## 待做清单
 
-- [x] 加入YOLOv9算法
+- [x] 加入 `YOLOv9` 算法
 - [x] 调整UI (菜单栏)
 - [x] 完成Rtsp功能
 - [x] 支持实例分割 （ `YOLOv5` & `YOLOv8` ）
+- [x] 加入 `RT-DETR` 算法 ( `Ultralytics` 仓库)
 
 ## 功能
 
