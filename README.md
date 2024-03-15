@@ -4,7 +4,9 @@
 
 ***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` `RT-DETR` algorithm. 
 
- <center>English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md) </center>
+ <p align="center"> 
+  English &nbsp; | &nbsp; <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md">简体中文</a>
+ </p>
 
 ![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
 
@@ -132,4 +134,3 @@ Copy all font files `*.ttf` in `fonts` folder into `C:\Windows\Fonts`
 ### YOLO Graphical User Interface
 
 [YOLOSIDE](https://github.com/Jai-wei/YOLOv8-PySide6-GUI)	[PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
-
