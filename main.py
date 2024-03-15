@@ -41,16 +41,30 @@ def vs2yoloshow():
 
 
 if __name__ == '__main__':
-    app = QApplication([])
-    app.setWindowIcon(QIcon('images/swimmingliu.ico'))
+    app = QApplication([])  # 创建应用程序实例
+    app.setWindowIcon(QIcon('images/swimmingliu.ico'))  # 设置应用程序图标
+
+    # 为整个应用程序设置样式表，去除所有QFrame的边框
+    app.setStyleSheet("QFrame { border: none; }")
+
+    # 创建窗口实例
     yoloshow = yoloshowWindow()
     yoloshowvs = yoloshowVSWindow()
-    glo._init()
-    glo.set_value('yoloshow', yoloshow)
-    glo.set_value('yoloshowvs', yoloshowvs)
+
+    # 初始化全局变量管理器，并设置值
+    glo._init()  # 初始化全局变量空间
+    glo.set_value('yoloshow', yoloshow)  # 存储yoloshow窗口实例
+    glo.set_value('yoloshowvs', yoloshowvs)  # 存储yoloshowvs窗口实例
+
+    # 从全局变量管理器中获取窗口实例
     yoloshow_glo = glo.get_value('yoloshow')
     yoloshowvs_glo = glo.get_value('yoloshowvs')
+
+    # 显示yoloshow窗口
     yoloshow_glo.show()
-    yoloshow_glo.src_vsmode.clicked.connect(yoloshow2vs)
-    yoloshowvs_glo.src_singlemode.clicked.connect(vs2yoloshow)
-    app.exec()
+
+    # 连接信号和槽，以实现界面之间的切换
+    yoloshow_glo.src_vsmode.clicked.connect(yoloshow2vs)  # 从单模式切换到对比模式
+    yoloshowvs_glo.src_singlemode.clicked.connect(vs2yoloshow)  # 从对比模式切换回单模式
+
+    app.exec()  # 启动应用程序的事件循环
