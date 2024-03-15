@@ -20,7 +20,7 @@ import torch
 import importlib
 from PySide6.QtGui import QPixmap, QImage, QMouseEvent, QGuiApplication, QColor
 from PySide6.QtWidgets import QMessageBox, QFileDialog, QMainWindow, QWidget, QApplication, QGraphicsBlurEffect, \
-    QGraphicsDropShadowEffect, QMenu
+    QGraphicsDropShadowEffect, QMenu, QFrame, QPushButton
 from PySide6.QtUiTools import QUiLoader, loadUiType
 from PySide6.QtCore import QFile, QTimer, Qt, QEventLoop, QThread, QPropertyAnimation, QEasingCurve, \
     QParallelAnimationGroup, QPoint, Signal
@@ -40,7 +40,15 @@ from yolocode.yolov8.YOLOv8SegThread import YOLOv8SegThread
 from yolocode.yolov8.RTDETRThread import RTDETRThread
 
 GLOBAL_WINDOW_STATE = True
-formType, baseType = loadUiType(r"ui\YOLOSHOWUIVS.ui")
+
+PATH_YOLO_SHOW = os.path.join("ui/YOLOSHOWUIVS.ui")
+formType, baseType = loadUiType(PATH_YOLO_SHOW)
+
+WIDTH_LEFT_BOX_STANDARD = 80
+WIDTH_LEFT_BOX_EXTENDED = 200
+WIDTH_LOGO = 60
+
+KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
 
 
 # YOLOSHOW窗口类 动态加载UI文件 和 Ui_mainWindow
@@ -55,6 +63,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景
         self.setWindowFlags(Qt.FramelessWindowHint)  # 无头窗口
         # --- 加载UI --- #
+
+        # 初始化侧边栏
+        self.initSiderWidget()
 
         # --- 最大化 最小化 关闭 --- #
         self.maximizeButton.clicked.connect(self.maxorRestore)
@@ -381,6 +392,23 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.rtdetr_thread2.send_class_num.connect(lambda x: self.Class_num2.setText(str(x)))
                 self.rtdetr_thread2.send_target_num.connect(lambda x: self.Target_num2.setText(str(x)))
         # --- rtdetr QThread --- #
+
+    def initSiderWidget(self):
+        # --- 侧边栏 --- #
+        self.leftBox.setFixedWidth(WIDTH_LEFT_BOX_STANDARD)
+        # logo
+        self.logo.setFixedSize(WIDTH_LOGO, WIDTH_LOGO)
+
+        # 将左侧菜单栏的按钮固定宽度
+        for child_left_box_widget in self.leftbox_bottom.children():
+
+            if isinstance(child_left_box_widget, QFrame):
+                child_left_box_widget.setFixedWidth(WIDTH_LEFT_BOX_EXTENDED)
+
+                for child_left_box_widget_btn in child_left_box_widget.children():
+                    if isinstance(child_left_box_widget_btn, QPushButton):
+                        child_left_box_widget_btn.setFixedWidth(WIDTH_LEFT_BOX_EXTENDED)
+
     # 阴影效果
     def shadowStyle(self, widget, Color, top_bottom=None):
         shadow = QGraphicsDropShadowEffect(self)
@@ -411,6 +439,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         self.animation.setEndValue(widthExtended)
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
+
     # 设置栏缩放
     def scalSetting(self):
         # GET WIDTH

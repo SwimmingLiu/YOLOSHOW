@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1433</width>
-    <height>827</height>
+    <height>830</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,10 +45,10 @@
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 	border-radius:30%;
-/*	
+	background-color: white;
+	/*	
 	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B5FFFC, stop:0.2 #e0c3fc, stop:1 #FFDEE9);
-*/
-	background-color:white;
+	*/
 }</string>
      </property>
      <property name="frameShape">
@@ -57,7 +57,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4" stretch="5,95">
+     <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,95">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -219,6 +219,7 @@ QPushButton:pressed {
     background-color: none;
 	font-size: 22px;
 	font-family: &quot;Shojumaru&quot;;
+	color: black;
 }
 Spacer{
 	border:none;
@@ -253,6 +254,9 @@ Spacer{
               </property>
               <property name="text">
                <string>YOLO SHOW -YOLO Graphical User Interface based on Pyside6</string>
+              </property>
+              <property name="indent">
+               <number>-1</number>
               </property>
              </widget>
             </item>
@@ -311,13 +315,13 @@ Spacer{
            </property>
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>200</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>180</width>
              <height>16777215</height>
             </size>
            </property>
@@ -396,6 +400,18 @@ Spacer{
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>60</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>60</height>
+                  </size>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">image: url(:/leftbox/images/swimmingliu_icon.png);
@@ -1023,6 +1039,18 @@ QFrame#vsBox:hover{
                </item>
                <item>
                 <widget class="QFrame" name="vsBox">
+                 <property name="minimumSize">
+                  <size>
+                   <width>180</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>180</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
@@ -1102,7 +1130,7 @@ QFrame#vsBox:hover{
                 <widget class="QFrame" name="manageBox">
                  <property name="minimumSize">
                   <size>
-                   <width>180</width>
+                   <width>200</width>
                    <height>0</height>
                   </size>
                  </property>
@@ -1144,13 +1172,13 @@ QFrame#vsBox:hover{
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>180</width>
+                      <width>200</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>180</width>
+                      <width>200</width>
                       <height>16777215</height>
                      </size>
                     </property>
@@ -1279,6 +1307,9 @@ QFrame#main_rightbox{
                  </property>
                  <property name="frameShadow">
                   <enum>QFrame::Raised</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>1</number>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_22">
                   <property name="spacing">
