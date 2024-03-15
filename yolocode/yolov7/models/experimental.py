@@ -5,7 +5,7 @@ import random
 import torch
 import torch.nn as nn
 
-from yolocode.yolov7.models.common import Conv, DWConv
+from yolocode.yolov7.models.common import Conv, DWConv_YOLOV7
 from yolocode.yolov7.utils.google_utils import attempt_download
 
 

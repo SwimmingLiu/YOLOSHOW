@@ -77,7 +77,7 @@ def safe_download(file, url, url2=None, min_bytes=1e0, error_msg=""):
         LOGGER.info("")
 
 
-def attempt_download(file, repo="ultralytics/yolov5", release="v7.0"):
+def attempt_download_YOLOV5(file, repo="ultralytics/yolov5", release="v7.0"):
     # Attempt file download from GitHub release assets if not found locally. release = 'latest', 'v7.0', etc.
     from yolocode.yolov5.utils.general import LOGGER
 

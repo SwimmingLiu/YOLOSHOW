@@ -38,7 +38,7 @@ class RTDETRThread(QThread):
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
         self.source = None  # input source
-        self.stop_dtc = False  # 停止检测
+        self.stop_dtc = True  # 停止检测
         self.is_continue = True  # continue/pause
         self.save_res = False  # Save test results
         self.iou_thres = 0.45  # iou
@@ -64,6 +64,7 @@ class RTDETRThread(QThread):
         self.done_warmup = False
         self.vid_path, self.vid_writerm, self.vid_cap = None, None, None
         self.batch = None
+        self.batchsize = 16
         self.project = 'runs/detect'
         self.name = 'exp'
         self.exist_ok = False
@@ -141,7 +142,8 @@ class RTDETRThread(QThread):
                 else:
                     self.send_msg.emit("Detecting: {}".format(self.source))
                 self.batch = next(datasets)
-                path, im0s, self.vid_cap, s = self.batch
+                path, im0s, s = self.batch
+                self.vid_cap = self.dataset.cap if self.dataset.mode == "video" else None
                 # 原始图片送入 input框
                 self.send_input.emit(im0s if isinstance(im0s, np.ndarray) else im0s[0])
                 count += 1
@@ -249,12 +251,16 @@ class RTDETRThread(QThread):
             else None
         )
         self.dataset = load_inference_source(
-            source=source, vid_stride=self.vid_stride, buffer=self.stream_buffer
+            source=source,
+            batch=self.batchsize,
+            vid_stride=self.vid_stride,
+            buffer=self.stream_buffer,
         )
         self.source_type = self.dataset.source_type
         if not getattr(self, "stream", True) and (
-                self.dataset.mode == "stream"  # streams
-                or len(self.dataset) > 1000  # images
+                self.source_type.stream
+                or self.source_type.screenshot
+                or len(self.dataset) > 1000  # many images
                 or any(getattr(self.dataset, "video_flag", [False]))
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
@@ -365,13 +371,6 @@ class RTDETRThread(QThread):
         """Write inference results to a file or directory."""
         p, im, _ = batch
         log_string = ""
-        if len(im.shape) == 3:
-            im = im[None]  # expand for batch dim
-        if self.source_type.webcam or self.source_type.from_img or self.source_type.tensor:  # batch_size >= 1
-            log_string += f"{idx}: "
-            frame = self.dataset.count
-        else:
-            frame = getattr(self.dataset, "frame", 0)
         self.data_path = p
         result = results[idx]
         log_string += result.verbose()

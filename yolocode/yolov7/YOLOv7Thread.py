@@ -34,7 +34,7 @@ class YOLOv7Thread(QThread):
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
         self.source = None  # input source
-        self.stop_dtc = False  # 停止检测
+        self.stop_dtc = True  # 停止检测
         self.is_continue = True  # continue/pause
         self.save_res = False  # Save test results
         self.iou_thres = 0.45  # iou

@@ -8,7 +8,7 @@ import torch
 from PySide6.QtCore import QThread, Signal
 from pathlib import Path
 
-from models.common import DetectMultiBackend
+from models.common import DetectMultiBackend_YOLOv9
 from yolocode.yolov9.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
 from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
                            increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
@@ -34,7 +34,7 @@ class YOLOv9Thread(QThread):
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
         self.source = None  # input source
-        self.stop_dtc = False  # 停止检测
+        self.stop_dtc = True  # 停止检测
         self.is_continue = True  # continue/pause
         self.save_res = False  # Save test results
         self.iou_thres = 0.45  # iou
@@ -87,7 +87,8 @@ class YOLOv9Thread(QThread):
         device = select_device(self.device)
         weights = self.new_model_name
         self.current_model_name = self.new_model_name
-        model = DetectMultiBackend(weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
+        self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
+        model = DetectMultiBackend_YOLOv9(weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
         self.stride, self.names, self.pt = model.stride, model.names, model.pt
         self.imgsz = check_img_size(self.imgsz, s=self.stride)  # check image size
 
@@ -141,7 +142,7 @@ class YOLOv9Thread(QThread):
                 weights = self.current_model_name
                 data = self.data
                 self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
-                self.model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
+                self.model = DetectMultiBackend_YOLOv9(weights, device=device, dnn=False, data=data, fp16=False)
                 stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
                 self.model.warmup(imgsz=(1 if pt or  self.model.triton else bs, 3, *imgsz))  # warmup

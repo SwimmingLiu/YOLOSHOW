@@ -117,7 +117,7 @@ QPushButton#closeButton {
 }
 
 QPushButton#maximizeButton {
-    background-color: rgb(255, 214, 10); /* 黄色 */
+    background-color: rgb(40, 205, 65); /* 黄色 */
     border: none;
     border-radius: 10px; /* 使按钮圆形 */
     min-width: 20px;
@@ -127,7 +127,7 @@ QPushButton#maximizeButton {
 }
 
 QPushButton#minimizeButton {
-    background-color: rgb(40, 205, 65); /* 绿色 */
+    background-color: rgb(255, 214, 10); /* 绿色 */
     border: none;
     border-radius: 10px; /* 使按钮圆形 */
     min-width: 20px;
@@ -176,11 +176,11 @@ QPushButton:pressed {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="maximizeButton">
+             <widget class="QPushButton" name="minimizeButton">
               <property name="styleSheet">
                <string notr="true">QPushButton:hover{
 	background-color:rgb(139, 29, 31);
-	border-image: url(:/leftbox/images/newsize/max.png);
+	border-image: url(:/leftbox/images/newsize/min.png);
 }
 QPushButton:pressed {
 	background-color:  rgb(255, 214, 5);
@@ -194,11 +194,11 @@ QPushButton:pressed {
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="minimizeButton">
+             <widget class="QPushButton" name="maximizeButton">
               <property name="styleSheet">
                <string notr="true">QPushButton:hover{
 	background-color:rgb(139, 29, 31);
-	border-image: url(:/leftbox/images/newsize/min.png);
+	border-image: url(:/leftbox/images/newsize/max.png);
 }
 QPushButton:pressed {
 	background-color: rgb(40, 205, 60);
@@ -337,7 +337,7 @@ Spacer{
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,55,35">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,60,30">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -505,6 +505,9 @@ QPushButton#src_webcam{
 QPushButton#src_setting{
 	background-image:url(:/leftbox/images/newsize/setting.png);
 }
+QPushButton#src_vsmode{
+	background-image:url(:/leftbox/images/newsize/vs.png);
+}
 QPushButton{
 	border:none;
 	text-align: center;
@@ -533,6 +536,9 @@ QFrame#webcamBox:hover{
 }
 QFrame#manageBox:hover{
 	background-color: rgba(114, 129, 214, 59);
+}
+QFrame#vsBox:hover{
+	background-color: rgba(114, 129, 214, 59);
 }</string>
               </property>
               <property name="frameShape">
@@ -541,7 +547,7 @@ QFrame#manageBox:hover{
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,1,4,1,4,1,4,1,4,1,4">
+              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,1,4,1,4,1,4,1,4,1,4,1,4">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -1016,6 +1022,83 @@ QFrame#manageBox:hover{
                 </spacer>
                </item>
                <item>
+                <widget class="QFrame" name="vsBox">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_26">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="src_vsmode">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>180</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>180</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true"/>
+                    </property>
+                    <property name="text">
+                     <string>VS Mode</string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="shortcut">
+                     <string>Ctrl+S</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
                 <widget class="QFrame" name="manageBox">
                  <property name="minimumSize">
                   <size>
@@ -1117,7 +1200,7 @@ QFrame#manageBox:hover{
 	margin-top: -1px;
 	margin-right: -1px;
 	margin-bottom: -1px;
-    background-color:  #fffff;
+    background-color:  #ffffff;
     border: 1px solid rgba(0, 0, 0, 15%);
 	border-radius: 30%;
 	background-color: rgb(245, 249, 254);
@@ -2434,7 +2517,7 @@ color: rgba(0, 0, 0, 140);</string>
 	margin-top: -1px;
 	margin-right: -1px;
 	margin-bottom: -1px;
-    background-color:  #fffff;
+    background-color:  #ffffff;
     border: 1px solid rgba(0, 0, 0, 15%);
 	border-radius: 30%;
 	border-top-left-radius: 0;
@@ -3797,9 +3880,9 @@ QPushButton:hover{
  </customwidgets>
  <tabstops>
   <tabstop>run_button</tabstop>
-  <tabstop>maximizeButton</tabstop>
-  <tabstop>closeButton</tabstop>
   <tabstop>minimizeButton</tabstop>
+  <tabstop>closeButton</tabstop>
+  <tabstop>maximizeButton</tabstop>
   <tabstop>stop_button</tabstop>
   <tabstop>src_menu</tabstop>
   <tabstop>src_img</tabstop>

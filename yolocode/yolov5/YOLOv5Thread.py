@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from PySide6.QtCore import QThread, Signal
 from pathlib import Path
-from models.common import DetectMultiBackend
+from models.common import DetectMultiBackend_YOLOv5
 from yolocode.yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
 from ultralytics.utils.plotting import Annotator, colors
 from yolocode.yolov5.utils.general import (
@@ -44,7 +44,7 @@ class YOLOv5Thread(QThread):
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
         self.source = None  # input source
-        self.stop_dtc = False  # 停止检测
+        self.stop_dtc = True  # 停止检测
         self.is_continue = True  # continue/pause
         self.save_res = False  # Save test results
         self.iou_thres = 0.45  # iou
@@ -100,7 +100,7 @@ class YOLOv5Thread(QThread):
         self.current_model_name = self.new_model_name
         data = self.data
         self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
-        model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
+        model = DetectMultiBackend_YOLOv5(weights, device=device, dnn=False, data=data, fp16=False)
         self.stride, self.names, self.pt = model.stride, model.names, model.pt
         self.imgsz = check_img_size(self.imgsz, s=self.stride)  # check image size
 
@@ -152,7 +152,7 @@ class YOLOv5Thread(QThread):
                 weights = self.current_model_name
                 data = self.data
                 self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
-                self.model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
+                self.model = DetectMultiBackend_YOLOv5(weights, device=device, dnn=False, data=data, fp16=False)
                 stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
                 self.model.warmup(imgsz=(1 if pt or  self.model.triton else bs, 3, *imgsz))  # warmup

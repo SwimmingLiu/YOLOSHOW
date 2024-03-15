@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from yolocode.yolov5.utils.downloads import attempt_download
+from yolocode.yolov5.utils.downloads import attempt_download_YOLOV5
 
 
 class Sum(nn.Module):
@@ -71,13 +71,13 @@ class Ensemble(nn.ModuleList):
 
 def attempt_load(weights, device=None, inplace=True, fuse=True):
     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
-    from models.yolo import Detect, Model
+    from models.yolo import Detect_YOLOv5, Model_YOLOv5
     # import sys
     # sys.path.insert(0, self.parent_workpath + 'yolocode/yolov7')
     # os.chdir(self.parent_workpath + 'yolocode/yolov7')
     model = Ensemble()
     for w in weights if isinstance(weights, list) else [weights]:
-        ckpt = torch.load(attempt_download(w), map_location="cpu")  # load
+        ckpt = torch.load(attempt_download_YOLOV5(w), map_location="cpu")  # load
         ckpt = (ckpt.get("ema") or ckpt["model"]).to(device).float()  # FP32 model
 
         # Model compatibility updates
@@ -91,9 +91,9 @@ def attempt_load(weights, device=None, inplace=True, fuse=True):
     # Module updates
     for m in model.modules():
         t = type(m)
-        if t in (nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6, nn.SiLU, Detect, Model):
+        if t in (nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6, nn.SiLU, Detect_YOLOv5, Model_YOLOv5):
             m.inplace = inplace
-            if t is Detect and not isinstance(m.anchor_grid, list):
+            if t is Detect_YOLOv5 and not isinstance(m.anchor_grid, list):
                 delattr(m, "anchor_grid")
                 setattr(m, "anchor_grid", [torch.zeros(1)] * m.nl)
         elif t is nn.Upsample and not hasattr(m, "recompute_scale_factor"):

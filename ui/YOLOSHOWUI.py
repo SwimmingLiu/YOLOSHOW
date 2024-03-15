@@ -81,7 +81,7 @@ class Ui_mainWindow(object):
 "}\n"
 "\n"
 "QPushButton#maximizeButton {\n"
-"    background-color: rgb(255, 214, 10); /* \u9ec4\u8272 */\n"
+"    background-color: rgb(40, 205, 65); /* \u9ec4\u8272 */\n"
 "    border: none;\n"
 "    border-radius: 10px; /* \u4f7f\u6309\u94ae\u5706\u5f62 */\n"
 "    min-width: 20px;\n"
@@ -91,7 +91,7 @@ class Ui_mainWindow(object):
 "}\n"
 "\n"
 "QPushButton#minimizeButton {\n"
-"    background-color: rgb(40, 205, 65); /* \u7eff\u8272 */\n"
+"    background-color: rgb(255, 214, 10); /* \u7eff\u8272 */\n"
 "    border: none;\n"
 "    border-radius: 10px; /* \u4f7f\u6309\u94ae\u5706\u5f62 */\n"
 "    min-width: 20px;\n"
@@ -118,20 +118,6 @@ class Ui_mainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.closeButton)
 
-        self.maximizeButton = QPushButton(self.left_top)
-        self.maximizeButton.setObjectName(u"maximizeButton")
-        self.maximizeButton.setStyleSheet(u"QPushButton:hover{\n"
-"	background-color:rgb(139, 29, 31);\n"
-"	border-image: url(:/leftbox/images/newsize/max.png);\n"
-"}\n"
-"QPushButton:pressed {\n"
-"	background-color:  rgb(255, 214, 5);\n"
-"}\n"
-"\n"
-"")
-
-        self.horizontalLayout_2.addWidget(self.maximizeButton)
-
         self.minimizeButton = QPushButton(self.left_top)
         self.minimizeButton.setObjectName(u"minimizeButton")
         self.minimizeButton.setStyleSheet(u"QPushButton:hover{\n"
@@ -139,10 +125,24 @@ class Ui_mainWindow(object):
 "	border-image: url(:/leftbox/images/newsize/min.png);\n"
 "}\n"
 "QPushButton:pressed {\n"
+"	background-color:  rgb(255, 214, 5);\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_2.addWidget(self.minimizeButton)
+
+        self.maximizeButton = QPushButton(self.left_top)
+        self.maximizeButton.setObjectName(u"maximizeButton")
+        self.maximizeButton.setStyleSheet(u"QPushButton:hover{\n"
+"	background-color:rgb(139, 29, 31);\n"
+"	border-image: url(:/leftbox/images/newsize/max.png);\n"
+"}\n"
+"QPushButton:pressed {\n"
 "	background-color: rgb(40, 205, 60);\n"
 "}")
 
-        self.horizontalLayout_2.addWidget(self.minimizeButton)
+        self.horizontalLayout_2.addWidget(self.maximizeButton)
 
 
         self.topBox.addWidget(self.left_top)
@@ -308,6 +308,9 @@ class Ui_mainWindow(object):
 "QPushButton#src_setting{\n"
 "	background-image:url(:/leftbox/images/newsize/setting.png);\n"
 "}\n"
+"QPushButton#src_vsmode{\n"
+"	background-image:url(:/leftbox/images/newsize/vs.png);\n"
+"}\n"
 "QPushButton{\n"
 "	border:none;\n"
 "	text-align: center;\n"
@@ -319,12 +322,12 @@ class Ui_mainWindow(object):
 "	font-weight: bold;\n"
 "	padding-left: 15px;\n"
 "}\n"
-"QFrame#cameraBox:hover{\n"
+"QFrame#cameraBox:hover"
+                        "{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#folderBox:hover{\n"
-"	backg"
-                        "round-color: rgba(114, 129, 214, 59);\n"
+"	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#imgBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
@@ -336,6 +339,9 @@ class Ui_mainWindow(object):
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#manageBox:hover{\n"
+"	background-color: rgba(114, 129, 214, 59);\n"
+"}\n"
+"QFrame#vsBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}")
         self.leftbox_bottom.setFrameShape(QFrame.StyledPanel)
@@ -492,6 +498,32 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addItem(self.zSpacer3)
 
+        self.vsBox = QFrame(self.leftbox_bottom)
+        self.vsBox.setObjectName(u"vsBox")
+        self.vsBox.setFrameShape(QFrame.StyledPanel)
+        self.vsBox.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_26 = QHBoxLayout(self.vsBox)
+        self.horizontalLayout_26.setSpacing(0)
+        self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
+        self.horizontalLayout_26.setContentsMargins(0, 0, 0, 0)
+        self.src_vsmode = QPushButton(self.vsBox)
+        self.src_vsmode.setObjectName(u"src_vsmode")
+        sizePolicy2.setHeightForWidth(self.src_vsmode.sizePolicy().hasHeightForWidth())
+        self.src_vsmode.setSizePolicy(sizePolicy2)
+        self.src_vsmode.setMinimumSize(QSize(180, 0))
+        self.src_vsmode.setMaximumSize(QSize(180, 16777215))
+        self.src_vsmode.setStyleSheet(u"")
+        self.src_vsmode.setIconSize(QSize(30, 30))
+
+        self.horizontalLayout_26.addWidget(self.src_vsmode)
+
+
+        self.verticalLayout_3.addWidget(self.vsBox)
+
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_4)
+
         self.manageBox = QFrame(self.leftbox_bottom)
         self.manageBox.setObjectName(u"manageBox")
         self.manageBox.setMinimumSize(QSize(180, 0))
@@ -526,6 +558,8 @@ class Ui_mainWindow(object):
         self.verticalLayout_3.setStretch(9, 4)
         self.verticalLayout_3.setStretch(10, 1)
         self.verticalLayout_3.setStretch(11, 4)
+        self.verticalLayout_3.setStretch(12, 1)
+        self.verticalLayout_3.setStretch(13, 4)
 
         self.verticalLayout_2.addWidget(self.leftbox_bottom)
 
@@ -534,8 +568,8 @@ class Ui_mainWindow(object):
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
         self.verticalLayout_2.setStretch(0, 10)
-        self.verticalLayout_2.setStretch(1, 55)
-        self.verticalLayout_2.setStretch(2, 35)
+        self.verticalLayout_2.setStretch(1, 60)
+        self.verticalLayout_2.setStretch(2, 30)
 
         self.mainBox.addWidget(self.leftBox)
 
@@ -548,7 +582,7 @@ class Ui_mainWindow(object):
 "	margin-top: -1px;\n"
 "	margin-right: -1px;\n"
 "	margin-bottom: -1px;\n"
-"    background-color:  #fffff;\n"
+"    background-color:  #ffffff;\n"
 "    border: 1px solid rgba(0, 0, 0, 15%);\n"
 "	border-radius: 30%;\n"
 "	background-color: rgb(245, 249, 254);\n"
@@ -1137,7 +1171,7 @@ class Ui_mainWindow(object):
 "	margin-top: -1px;\n"
 "	margin-right: -1px;\n"
 "	margin-bottom: -1px;\n"
-"    background-color:  #fffff;\n"
+"    background-color:  #ffffff;\n"
 "    border: 1px solid rgba(0, 0, 0, 15%);\n"
 "	border-radius: 30%;\n"
 "	border-top-left-radius: 0;\n"
@@ -1881,10 +1915,10 @@ class Ui_mainWindow(object):
 
         self.verticalLayout.addWidget(self.mainBody)
 
-        QWidget.setTabOrder(self.run_button, self.maximizeButton)
-        QWidget.setTabOrder(self.maximizeButton, self.closeButton)
-        QWidget.setTabOrder(self.closeButton, self.minimizeButton)
-        QWidget.setTabOrder(self.minimizeButton, self.stop_button)
+        QWidget.setTabOrder(self.run_button, self.minimizeButton)
+        QWidget.setTabOrder(self.minimizeButton, self.closeButton)
+        QWidget.setTabOrder(self.closeButton, self.maximizeButton)
+        QWidget.setTabOrder(self.maximizeButton, self.stop_button)
         QWidget.setTabOrder(self.stop_button, self.src_menu)
         QWidget.setTabOrder(self.src_menu, self.src_img)
         QWidget.setTabOrder(self.src_img, self.src_camera)
@@ -1920,8 +1954,8 @@ class Ui_mainWindow(object):
     def retranslateUi(self, mainWindow):
         mainWindow.setWindowTitle(QCoreApplication.translate("mainWindow", u"YOLOSHOW", None))
         self.closeButton.setText("")
-        self.maximizeButton.setText("")
         self.minimizeButton.setText("")
+        self.maximizeButton.setText("")
         self.title.setText(QCoreApplication.translate("mainWindow", u"YOLO SHOW -YOLO Graphical User Interface based on Pyside6", None))
         self.label.setText(QCoreApplication.translate("mainWindow", u"YOLO SHOW", None))
         self.label_3.setText(QCoreApplication.translate("mainWindow", u"SwimmingLiu", None))
@@ -1933,6 +1967,10 @@ class Ui_mainWindow(object):
         self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
         self.src_camera.setText(QCoreApplication.translate("mainWindow", u"Rtsp   ", None))
+        self.src_vsmode.setText(QCoreApplication.translate("mainWindow", u"VS Mode", None))
+#if QT_CONFIG(shortcut)
+        self.src_vsmode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
+#endif // QT_CONFIG(shortcut)
         self.src_setting.setText(QCoreApplication.translate("mainWindow", u"Setting", None))
         self.classesLabel.setText("")
         self.label_5.setText(QCoreApplication.translate("mainWindow", u"Classes", None))

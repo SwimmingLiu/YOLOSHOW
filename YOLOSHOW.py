@@ -3,13 +3,13 @@ import socket
 from urllib.parse import urlparse
 
 import requests
-
+import importlib
 from ui.YOLOSHOWUI import Ui_mainWindow
 from ui.rtspDialog import CustomMessageBox
 from utils import glo
 
 glo._init()
-glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg")
+glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
 
 import json
 import os
@@ -23,7 +23,7 @@ from PySide6.QtWidgets import QMessageBox, QFileDialog, QMainWindow, QWidget, QA
     QGraphicsDropShadowEffect, QMenu
 from PySide6.QtUiTools import QUiLoader, loadUiType
 from PySide6.QtCore import QFile, QTimer, Qt, QEventLoop, QThread, QPropertyAnimation, QEasingCurve, \
-    QParallelAnimationGroup, QPoint
+    QParallelAnimationGroup, QPoint, Signal
 from PySide6 import QtCore, QtGui
 from PIL import Image
 from qfluentwidgets import RoundMenu, MenuAnimationType, Action
@@ -38,7 +38,6 @@ from yolocode.yolov9.YOLOv9Thread import YOLOv9Thread
 from yolocode.yolov5.YOLOv5SegThread import YOLOv5SegThread
 from yolocode.yolov8.YOLOv8SegThread import YOLOv8SegThread
 from yolocode.yolov8.RTDETRThread import RTDETRThread
-# from YoloClass import YoloThread
 
 GLOBAL_WINDOW_STATE = True
 formType, baseType = loadUiType(r"ui\YOLOSHOWUI.ui")
@@ -185,7 +184,6 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         # --- MessageBar Init --- #
         self.showStatus("Welcome to YOLOSHOW")
         # --- MessageBar Init --- #
-
     def initModel(self,yoloname=None):
         # --- YOLOv5 QThread --- #
         if yoloname == "yolov5":
@@ -284,7 +282,6 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.rtdetr_thread.send_class_num.connect(lambda x: self.Class_num.setText(str(x)))
             self.rtdetr_thread.send_target_num.connect(lambda x: self.Target_num.setText(str(x)))
         # --- rtdetr QThread --- #
-
     # 阴影效果
     def shadowStyle(self, widget, Color, top_bottom=None):
         shadow = QGraphicsDropShadowEffect(self)
@@ -297,11 +294,11 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         shadow.setBlurRadius(10)  # 阴影半径
         shadow.setColor(Color)  # 阴影颜色
         widget.setGraphicsEffect(shadow)
-
     # 侧边栏缩放
     def scaleMenu(self):
         standard = 80
         maxExtend = 180
+
         width = self.leftBox.width()
 
         if width == 80:
@@ -316,7 +313,6 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         self.animation.setEndValue(widthExtended)
         self.animation.setEasingCurve(QEasingCurve.InOutQuint)
         self.animation.start()
-
     # 设置栏缩放
     def scalSetting(self):
         # GET WIDTH
@@ -583,42 +579,33 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         self.top_grip.setGeometry(0, 0, self.width(), 10)
         self.bottom_grip.setGeometry(0, self.height() - 10, self.width(), 10)
 
+    # 停止运行中的模型
+    def quitRunningModel(self):
+        if self.yolov5_thread.isRunning():
+            self.yolov5_thread.quit()  # end process
+        elif self.yolov7_thread.isRunning():
+            self.yolov7_thread.quit()
+        elif self.yolov8_thread.isRunning():
+            self.yolov8_thread.quit()
+        elif self.yolov9_thread.isRunning():
+            self.yolov9_thread.quit()
+        elif self.yolov5seg_thread.isRunning():
+            self.yolov5seg_thread.quit()
+        elif self.yolov8seg_thread.isRunning():
+            self.yolov8seg_thread.quit()
+        elif self.rtdetr_thread.isRunning():
+            self.rtdetr_thread.quit()
+
     # 在MessageBar显示消息
     def showStatus(self, msg):
         self.message_bar.setText(msg)
         if msg == 'Finish Detection':
             self.run_button.setChecked(False)
             self.progress_bar.setValue(0)
-            if self.yolov5_thread.isRunning():
-                self.yolov5_thread.quit()  # end process
-            elif self.yolov7_thread.isRunning():
-                self.yolov7_thread.quit()
-            elif self.yolov8_thread.isRunning():
-                self.yolov8_thread.quit()
-            elif self.yolov9_thread.isRunning():
-                self.yolov9_thread.quit()
-            elif self.yolov5seg_thread.isRunning():
-                self.yolov5seg_thread.quit()
-            elif self.yolov8seg_thread.isRunning():
-                self.yolov8seg_thread.quit()
-            elif self.rtdetr_thread.isRunning():
-                self.rtdetr_thread.quit()
+            self.quitRunningModel()
             self.save_status_button.setEnabled(True)
         elif msg == 'Stop Detection':
-            if self.yolov5_thread.isRunning():
-                self.yolov5_thread.quit()  # end process
-            elif self.yolov7_thread.isRunning():
-                self.yolov7_thread.quit()
-            elif self.yolov8_thread.isRunning():
-                self.yolov8_thread.quit()
-            elif self.yolov9_thread.isRunning():
-                self.yolov9_thread.quit()
-            elif self.yolov5seg_thread.isRunning():
-                self.yolov5seg_thread.quit()
-            elif self.yolov8seg_thread.isRunning():
-                self.yolov8seg_thread.quit()
-            elif self.rtdetr_thread.isRunning():
-                self.rtdetr_thread.quit()
+            self.quitRunningModel()
             self.run_button.setChecked(False)
             self.save_status_button.setEnabled(True)
             self.progress_bar.setValue(0)
@@ -1054,6 +1041,10 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
         elif "yolov9" in modelname:
                 return bool(re.match(r'yolov9.-seg.*\.pt$', modelname))
 
+    def reloadModel(self):
+        importlib.reload(common)
+        importlib.reload(yolo)
+        importlib.reload(experimental)
 
     # Model 变化
     def changeModel(self):
@@ -1063,74 +1054,54 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             self.yolov5_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov5")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov5")
         elif "yolov7" in self.model_name:
             self.yolov7_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov7")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov7")
         elif "yolov8" in self.model_name and not self.checkSegName(self.model_name):
             self.yolov8_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov8")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov8")
         elif "yolov9" in self.model_name:
             self.yolov9_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov9")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov9")
         elif "yolov5" in self.model_name and self.checkSegName(self.model_name):
             self.yolov5seg_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov5-seg")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov5-seg")
         elif "yolov8" in self.model_name and self.checkSegName(self.model_name):
             self.yolov8seg_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "yolov8-seg")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("yolov8-seg")
         elif "rtdetr" in self.model_name:
             self.rtdetr_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname', "rtdetr")
-            import importlib
-            importlib.reload(common)
-            importlib.reload(yolo)
-            importlib.reload(experimental)
+            self.reloadModel()
             # 停止其他模型
             self.stopOtherModel("rtdetr")
         else:
             self.stopOtherModel()
+
     def runModel(self,runbuttonStatus=None):
         self.save_status_button.setEnabled(False)
         if runbuttonStatus:
@@ -1259,6 +1230,8 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
 
 # 多套一个类 为了实现MouseLabel方法
 class MyWindow(YOLOSHOW):
+    # 定义关闭信号
+    closed = Signal()
     def __init__(self):
         super(MyWindow, self).__init__()
         self.center()
@@ -1268,6 +1241,8 @@ class MyWindow(YOLOSHOW):
         self.top_grip = CustomGrip(self, Qt.TopEdge, True)
         self.bottom_grip = CustomGrip(self, Qt.BottomEdge, True)
         # --- 拖动窗口 改变窗口大小 --- #
+        self.animation_window = None
+
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.LeftButton:
@@ -1295,13 +1270,35 @@ class MyWindow(YOLOSHOW):
     def resizeEvent(self, event):
         # Update Size Grips
         self.resizeGrip()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if not event.spontaneous():
+            # 这里定义显示动画
+            self.animation = QPropertyAnimation(self, b"windowOpacity")
+            self.animation.setDuration(500)  # 动画时间500毫秒
+            self.animation.setStartValue(0)  # 从完全透明开始
+            self.animation.setEndValue(1)  # 到完全不透明结束
+            self.animation.start()
+
     def closeEvent(self, event):
-        config_file = 'config/setting.json'
-        config = dict()
-        config['iou'] = self.iou_spinbox.value()
-        config['conf'] = self.conf_spinbox.value()
-        config['delay'] = self.speed_spinbox.value()
-        config['line_thickness'] = self.line_spinbox.value()
-        config_json = json.dumps(config, ensure_ascii=False, indent=2)
-        with open(config_file, 'w', encoding='utf-8') as f:
-            f.write(config_json)
+        if not self.animation_window:
+            config_file = 'config/setting.json'
+            config = dict()
+            config['iou'] = self.iou_spinbox.value()
+            config['conf'] = self.conf_spinbox.value()
+            config['delay'] = self.speed_spinbox.value()
+            config['line_thickness'] = self.line_spinbox.value()
+            config_json = json.dumps(config, ensure_ascii=False, indent=2)
+            with open(config_file, 'w', encoding='utf-8') as f:
+                f.write(config_json)
+            self.animation_window = QPropertyAnimation(self, b"windowOpacity")
+            self.animation_window.setStartValue(1)
+            self.animation_window.setEndValue(0)
+            self.animation_window.setDuration(500)
+            self.animation_window.start()
+            self.animation_window.finished.connect(self.close)
+            event.ignore()
+        else:
+            self.setWindowOpacity(1.0)
+            self.closed.emit()

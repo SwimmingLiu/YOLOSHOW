@@ -1,16 +1,18 @@
-# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 GUI based on Pyside6
+# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 / RTDETR GUI based on Pyside6
 
 ## Introduction
 
-***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` algorithm. 
+***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` `RT-DETR` algorithm. 
 
-English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md) 
+ <center>English | [简体中文](https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md) </center>
 
 ![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
 
 ## Demo Video
 
-Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bilibili.com/video/BV1BC411x7fW)
+`YOLOSHOW v1.x` : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5/RTDETR GUI](https://www.bilibili.com/video/BV1BC411x7fW)
+
+`YOLOSHOW v2.x` : [YOLOSHOWv2.0-YOLOv9/YOLOv8/YOLOv7/YOLOv5/RTDETR GUI](https://www.bilibili.com/video/BV1ZD421E7m3)
 
 ## Todo List
 
@@ -24,6 +26,10 @@ Bilibili Demo Video : [YOLOSHOW-YOLOv9/YOLOv8/YOLOv7/YOLOv5 GUI](https://www.bil
 
 - [x] Add `RT-DETR` Algorithm ( `Ultralytics` repo)
 
+- [x] Add Model Comparison Mode（VS Mode）
+
+- [ ] Support Pose Estimation （ `YOLOv5` & `YOLOv8` ）
+
 ## Functions
 
 ### 1. Support Image / Video / Webcam / Folder (Batch ) Object Detection
@@ -34,7 +40,7 @@ Choose Image / Video / Webcam / Folder (Batch ) in the menu bar on the left to d
 
 When the program is running to detect targets, you can change models / hyper Parameters
 
-1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` dynamically
+1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` / `RTDETR` / `YOLOv5-seg` / `YOLOv8-seg` dynamically
 2. Support changing `IOU` / `Confidence` / `Delay time ` / `line thickness` dynamically
 
 ### 3. Loading Model Automatically
@@ -45,7 +51,7 @@ If you need add the new `pt` file, please click `Import Model` button in `Settin
 
 **Notice :** 
 
-1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` .  (e.g. `yolov8-test.pt`)
+1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` / `rtdetr` .  (e.g. `yolov8-test.pt`)
 2. If it is a `pt` file of  segmentation mode, please name it including `yolov5n-seg` / `yolov8s-seg` .  (e.g. `yolov8n-seg-test.pt`)
 
 ### 4. Loading Configures
@@ -59,7 +65,11 @@ If you need Save results, please click `Save MP4/JPG` before detection. Then you
 
 ### 6. Support Object Detection and Instance Segmentation
 
-From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation。Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
+From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation. Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
+
+### 7. Support Model Comparison in Both Object Detection and Instance Segmentation
+
+From ***YOLOSHOW v2.0*** ，our work supports compare model performance both Object Detection and Instance Segmentation.
 
 ## Preparation
 
@@ -121,4 +131,5 @@ Copy all font files `*.ttf` in `fonts` folder into `C:\Windows\Fonts`
 
 ### YOLO Graphical User Interface
 
-[YOLOSIDE](https://github.com/Jai-wei/YOLOv8-PySide6-GUI)
+[YOLOSIDE](https://github.com/Jai-wei/YOLOv8-PySide6-GUI)	[PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+

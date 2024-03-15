@@ -1,8 +1,8 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
-from ultralytics.engine.predictor import BasePredictor
-from ultralytics.engine.results import Results
-from ultralytics.utils import ops
+from yolocode.yolov8.engine.predictor import BasePredictor
+from yolocode.yolov8.engine.results import Results
+from yolocode.yolov8.utils import ops
 
 
 class DetectionPredictor(BasePredictor):
@@ -47,4 +47,4 @@ if __name__ == "__main__":
     predictor.args.imgsz = 640
     predictor.setup_model(model=r"E:\YOLO\YOLOSHOW\ptfiles\yolov8n.pt")
     predictor.args.data = 'E:\YOLO\YOLOGUI\yolocode\yolov8\cfg\datasets\coco.yaml'
-    predictor.predict_cli(source=r"https://www.bilibili.com/video/BV1BC411x7fW")
+    predictor.predict_cli(source=r"D:\ChromeDownload\VideoTest\shortcut for 20s.mp4")

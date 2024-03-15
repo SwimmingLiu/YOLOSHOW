@@ -144,7 +144,7 @@ class RobustConv2(nn.Module):
         return x
     
 
-def DWConv(c1, c2, k=1, s=1, act=True):
+def DWConv_YOLOV7(c1, c2, k=1, s=1, act=True):
     # Depthwise convolution
     return Conv(c1, c2, k, s, g=math.gcd(c1, c2), act=act)
 
