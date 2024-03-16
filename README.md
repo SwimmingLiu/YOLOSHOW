@@ -121,6 +121,12 @@ pip install -U Pyside6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 Copy all font files `*.ttf` in `fonts` folder into `C:\Windows\Fonts`
 
+### 5. Run Program
+
+```shell
+python main.py
+```
+
 ## Frames
 
 [![Python](https://img.shields.io/badge/python-3776ab?style=for-the-badge&logo=python&logoColor=ffd343)](https://www.python.org/)[![Pytorch](https://img.shields.io/badge/PYtorch-test?style=for-the-badge&logo=pytorch&logoColor=white&color=orange)](https://pytorch.org/)[![Static Badge](https://img.shields.io/badge/Pyside6-test?style=for-the-badge&logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/index.html)
