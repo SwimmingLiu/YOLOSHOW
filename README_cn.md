@@ -24,7 +24,8 @@
 - [x] 支持实例分割 （ `YOLOv5` & `YOLOv8` ）
 - [x] 加入 `RT-DETR` 算法 ( `Ultralytics` 仓库)
 - [x] 加入模型对比模式（VS Mode）
-- [ ] 支持姿态估计 （ `YOLOv5` & `YOLOv8` ）
+- [x] 支持姿态估计 （ `YOLOv8` ）
+- [ ] 追踪和计数模型 ( `工业化` )
 
 ## 功能
 
@@ -49,6 +50,7 @@
 
 1. 所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` / `rtdetr` 中的任意一个版本.  (如 `yolov8-test.pt`)
 2. 如果是分割类型的 `pt` 文件, 命名中应包含 `yolov5n-seg` / `yolov8s-seg` 中的任意一个版本.  (如 `yolov8n-seg-test.pt`)
+3. 如果是姿态检测类型的 `pt` 文件, 命名中应包含`yolov8n-pose` 中的任意一个版本.  (如 `yolov8n-pose-test.pt`)
 
 ### 4. 加载超参数配置
 
@@ -59,13 +61,13 @@
 
 如果需要保存检测结果，请在检测前点击 `Save MP4/JPG` . 然后等待检测完毕，选择需要保存的路径进行结果保存.
 
-### 6. 同时支持目标检测和实例分割
+### 6. 同时支持目标检测、实例分割和姿态估计
 
-从 ***YOLOSHOW v1.2*** 起 ，支持目标检测和实例分割多任务。同时支持不同版本的任务切换，如从`YOLOv5` 目标检测任务 切换到 `YOLOv8` 实例分割任务。
+从 ***YOLOSHOW v2.2*** 起 ，支持目标检测、实例分割和姿态估计多任务。同时支持不同版本的任务切换，如从`YOLOv5` 目标检测任务 切换到 `YOLOv8` 实例分割任务。
 
-### 7. 支持目标检测和实例分割模型对比模式
+### 7. 支持目标检测、实例分割和姿态估计模型对比模式
 
-从 ***YOLOSHOW v2.0*** 起，支持目标检测和实例分割模型对比模式。
+从 ***YOLOSHOW v2.0*** 起，支持目标检测、实例分割和姿态估计模型对比模式。
 
 ## 运行准备工作
 
@@ -113,7 +115,21 @@ pip install -U Pyside6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ### 4. 添加字体
 
+#### Windows 用户
+
 把所有的`fonts` 文件夹中的字体文件 `*.ttf` 复制到 `C:\Windows\Fonts`
+
+#### Linux 用户
+
+```shell
+mkdir -p ~/.local/share/fonts
+sudo cp fonts/Shojumaru-Regular.ttf ~/.local/share/fonts/
+sudo fc-cache -fv
+```
+
+#### MacOS 用户
+
+MacBook实在太贵了，我买不起。你们自己想办法安装吧~😂
 
 ### 5. 运行程序
 

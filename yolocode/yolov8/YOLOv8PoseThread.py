@@ -21,7 +21,7 @@ from yolocode.yolov8.utils.checks import check_imgsz
 from yolocode.yolov8.utils.torch_utils import select_device
 
 
-class YOLOv8Thread(QThread):
+class YOLOv8PoseThread(QThread):
     # 输入 输出 消息
     send_input = Signal(np.ndarray)
     send_output = Signal(np.ndarray)
@@ -34,7 +34,7 @@ class YOLOv8Thread(QThread):
     send_target_num = Signal(int)  # Targets detected
 
     def __init__(self):
-        super(YOLOv8Thread, self).__init__()
+        super(YOLOv8PoseThread, self).__init__()
         # YOLOSHOW 界面参数设置
         self.current_model_name = None  # The detection model name to use
         self.new_model_name = None  # Models that change in real time
@@ -275,8 +275,9 @@ class YOLOv8Thread(QThread):
         self.vid_path = [None] * self.dataset.bs
         self.vid_writer = [None] * self.dataset.bs
         self.vid_frame = [None] * self.dataset.bs
+
     def postprocess(self, preds, img, orig_imgs):
-        """Post-processes predictions and returns a list of Results objects."""
+        """Return detection results for a given input image or list of images."""
         preds = ops.non_max_suppression(
             preds,
             self.conf_thres,
@@ -284,6 +285,7 @@ class YOLOv8Thread(QThread):
             agnostic=self.agnostic_nms,
             max_det=self.max_det,
             classes=self.classes,
+            nc=len(self.model.names),
         )
 
         if not isinstance(orig_imgs, list):  # input images are a torch.Tensor, not a list
@@ -292,9 +294,13 @@ class YOLOv8Thread(QThread):
         results = []
         for i, pred in enumerate(preds):
             orig_img = orig_imgs[i]
-            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape).round()
+            pred_kpts = pred[:, 6:].view(len(pred), *self.model.kpt_shape) if len(pred) else pred[:, 6:]
+            pred_kpts = ops.scale_coords(img.shape[2:], pred_kpts, orig_img.shape)
             img_path = self.batch[0][i]
-            results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
+            results.append(
+                Results(orig_img, path=img_path, names=self.model.names, boxes=pred[:, :6], keypoints=pred_kpts)
+            )
         return results
 
     def preprocess(self, im):

@@ -13,8 +13,8 @@ from YOLOSHOWVS import MyWindow as yoloshowVSWindow
 def yoloshowvsSHOW():
     yoloshow_glo = glo.get_value('yoloshow')
     yoloshowvs_glo = glo.get_value('yoloshowvs')
-    glo.set_value('yoloname1', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
-    glo.set_value('yoloname2', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
+    glo.set_value('yoloname1', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
+    glo.set_value('yoloname2', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
     yoloshowvs_glo.reloadModel()
     yoloshowvs_glo.show()
     yoloshow_glo.animation_window = None
@@ -23,7 +23,7 @@ def yoloshowvsSHOW():
 def yoloshowSHOW():
     yoloshow_glo = glo.get_value('yoloshow')
     yoloshowvs_glo = glo.get_value('yoloshowvs')
-    glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
+    glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
     yoloshow_glo.reloadModel()
     yoloshow_glo.show()
     yoloshowvs_glo.animation_window = None

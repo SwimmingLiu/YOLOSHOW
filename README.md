@@ -19,18 +19,13 @@
 ## Todo List
 
 - [x] Add `YOLOv9` Algorithm
-
 - [x] Adjust User Interface (Menu Bar)
-
 - [x] Complete Rtsp Function
-
 - [x] Support Instance Segmentation （ `YOLOv5` & `YOLOv8` ）
-
 - [x] Add `RT-DETR` Algorithm ( `Ultralytics` repo)
-
 - [x] Add Model Comparison Mode（VS Mode）
-
-- [ ] Support Pose Estimation （ `YOLOv5` & `YOLOv8` ）
+- [x] Support Pose Estimation （`YOLOv8` ）
+- [ ] Tracking & Counting ( `Industrialization` )
 
 ## Functions
 
@@ -55,6 +50,7 @@ If you need add the new `pt` file, please click `Import Model` button in `Settin
 
 1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` / `rtdetr` .  (e.g. `yolov8-test.pt`)
 2. If it is a `pt` file of  segmentation mode, please name it including `yolov5n-seg` / `yolov8s-seg` .  (e.g. `yolov8n-seg-test.pt`)
+3. If it is a `pt` file of  pose estimation mode, please name it including `yolov8n-pose` .  (e.g. `yolov8n-pose-test.pt`)
 
 ### 4. Loading Configures
 
@@ -65,13 +61,13 @@ If you need add the new `pt` file, please click `Import Model` button in `Settin
 
 If you need Save results, please click `Save MP4/JPG` before detection. Then you can save your detection results in selected path.
 
-### 6. Support Object Detection and Instance Segmentation
+### 6. Support Object Detection, Instance Segmentation and Pose Estimation 
 
-From ***YOLOSHOW v1.2*** ，our work supports both Object Detection and Instance Segmentation. Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
+From ***YOLOSHOW v2.2***，our work supports both Object Detection , Instance Segmentation and Pose Estimation. Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
 
-### 7. Support Model Comparison in Both Object Detection and Instance Segmentation
+### 7. Support Model Comparison among Object Detection,  Instance Segmentation and Pose Estimation
 
-From ***YOLOSHOW v2.0*** ，our work supports compare model performance both Object Detection and Instance Segmentation.
+From ***YOLOSHOW v2.0***，our work supports compare model performance among Object Detection, Instance Segmentation and Pose Estimation.
 
 ## Preparation
 
@@ -119,7 +115,21 @@ pip install -U Pyside6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ### 4. Add Font
 
+#### Windows User
+
 Copy all font files `*.ttf` in `fonts` folder into `C:\Windows\Fonts`
+
+#### Linux User
+
+```shell
+mkdir -p ~/.local/share/fonts
+sudo cp fonts/Shojumaru-Regular.ttf ~/.local/share/fonts/
+sudo fc-cache -fv
+```
+
+#### MacOS User
+
+The MacBook is so expensive that I cannot afford it, please install `.ttf` by yourself. 😂
 
 ### 5. Run Program
 

@@ -9,7 +9,7 @@ from ui.rtspDialog import CustomMessageBox
 from utils import glo
 
 glo._init()
-glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
+glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
 import json
 import os
 import shutil
@@ -38,6 +38,7 @@ from yolocode.yolov9.YOLOv9Thread import YOLOv9Thread
 from yolocode.yolov5.YOLOv5SegThread import YOLOv5SegThread
 from yolocode.yolov8.YOLOv8SegThread import YOLOv8SegThread
 from yolocode.yolov8.RTDETRThread import RTDETRThread
+from yolocode.yolov8.YOLOv8PoseThread import YOLOv8PoseThread
 
 GLOBAL_WINDOW_STATE = True
 
@@ -57,7 +58,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         super().__init__()
         self.current_workpath = os.getcwd()
         self.inputPath = None
-        self.allModelNames = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov5-seg", "yolov8-seg", "rtdetr"]
+        self.allModelNames = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov5-seg", "yolov8-seg", "rtdetr",
+                              "yolov8-pose"]
         # --- 加载UI --- #
         self.setupUi(self)
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景
@@ -207,6 +209,13 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         # --- RT-DETR QThread --- #
 
         # --- 开始 / 停止 --- #
+
+        # --- YOLOv8-Pose QThread --- #
+        self.yolov8pose_thread1 = YOLOv8PoseThread()
+        self.yolov8pose_thread2 = YOLOv8PoseThread()
+        self.initModel("yolov8-pose")
+        # --- YOLOv8-Pose QThread --- #
+
         self.run_button.clicked.connect(self.runorContinue)
         self.stop_button.clicked.connect(self.stopDetect)
         # --- 开始 / 停止 --- #
@@ -220,7 +229,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         # --- MessageBar Init --- #
 
     # 初始化模型
-    def initModel(self, yoloname=None,mode="all"):
+    def initModel(self, yoloname=None, mode="all"):
         # --- YOLOv5 QThread --- #
         if yoloname == "yolov5":
             if mode == "all" or mode == "left":
@@ -391,7 +400,31 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.rtdetr_thread2.send_fps.connect(lambda x: self.fps_label2.setText(str(x)))
                 self.rtdetr_thread2.send_class_num.connect(lambda x: self.Class_num2.setText(str(x)))
                 self.rtdetr_thread2.send_target_num.connect(lambda x: self.Target_num2.setText(str(x)))
-        # --- rtdetr QThread --- #
+        # --- RT-DETR QThread --- #
+
+        # --- YOLOv8-Pose QThread --- #
+        elif yoloname == "yolov8-pose":
+            if mode == "all" or mode == "left":
+                # 左侧模型加载
+                self.yolov8pose_thread1.parent_workpath = self.current_workpath + '\yolocode\yolov8'
+                self.yolov8pose_thread1.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box1.currentText()
+                self.yolov8pose_thread1.progress_value = self.progress_bar.maximum()
+                self.yolov8pose_thread1.send_output.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+                self.yolov8pose_thread1.send_msg.connect(lambda x: self.showStatus(x))
+                self.yolov8pose_thread1.send_fps.connect(lambda x: self.fps_label1.setText(str(x)))
+                self.yolov8pose_thread1.send_class_num.connect(lambda x: self.Class_num1.setText(str(x)))
+                self.yolov8pose_thread1.send_target_num.connect(lambda x: self.Target_num1.setText(str(x)))
+            if mode == "all" or mode == "right":
+                # 右侧模型加载
+                self.yolov8pose_thread2.parent_workpath = self.current_workpath + '\yolocode\yolov8'
+                self.yolov8pose_thread2.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box2.currentText()
+                self.yolov8pose_thread2.progress_value = self.progress_bar.maximum()
+                self.yolov8pose_thread2.send_output.connect(lambda x: self.showImg(x, self.main_rightbox, 'img'))
+                self.yolov8pose_thread2.send_progress.connect(lambda x: self.progress_bar.setValue(x))
+                self.yolov8pose_thread2.send_fps.connect(lambda x: self.fps_label2.setText(str(x)))
+                self.yolov8pose_thread2.send_class_num.connect(lambda x: self.Class_num2.setText(str(x)))
+                self.yolov8pose_thread2.send_target_num.connect(lambda x: self.Target_num2.setText(str(x)))
+        # --- YOLOv8-Pose QThread --- #
 
     def initSiderWidget(self):
         # --- 侧边栏 --- #
@@ -421,6 +454,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         shadow.setBlurRadius(10)  # 阴影半径
         shadow.setColor(Color)  # 阴影颜色
         widget.setGraphicsEffect(shadow)
+
     # 侧边栏缩放
     def scaleMenu(self):
         standard = 80
@@ -512,6 +546,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         self.group.addAnimation(self.left_box)
         self.group.addAnimation(self.setting_box)
         self.group.start()
+
     # 最大化最小化窗口
     def maxorRestore(self):
         global GLOBAL_WINDOW_STATE
@@ -534,6 +569,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                                        }
                                   """)
             GLOBAL_WINDOW_STATE = True
+
     # 选择照片/视频 并展示
     def selectFile(self):
         # 获取上次选择文件的路径
@@ -567,6 +603,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)
+
     # 选择摄像头
     def selectWebcam(self):
         try:
@@ -592,6 +629,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.showStatus('No camera found !!!')
         except Exception as e:
             self.showStatus('%s' % e)
+
     # 调用网络摄像头
     def actionWebcam(self, cam):
         self.showStatus(f'Loading camera：Camera_{cam}')
@@ -599,6 +637,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         self.thread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
         self.thread.start()
         self.inputPath = int(cam)
+
     # 选择文件夹
     def selectFolder(self):
         config_file = f'{self.current_workpath}/config/folder.json'
@@ -622,6 +661,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)
+
     # 选择网络摄像头 Rtsp
     def selectRtsp(self):
         # rtsp://rtsp-test-server.viomic.com:554/stream
@@ -642,6 +682,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
             self.rtspThread.start()
             self.inputPath = self.rtspUrl
+
     # 检测网络摄像头 Rtsp 是否连通
     def checkRtspUrl(self, url, timeout=5):
         try:
@@ -661,6 +702,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             return True
         except Exception as e:
             return False
+
     # 显示Label图片
     @staticmethod
     def showImg(img, label, flag):
@@ -690,12 +732,14 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             label.setPixmap(QPixmap.fromImage(img))
         except Exception as e:
             print(repr(e))
+
     # resize 窗口大小
     def resizeGrip(self):
         self.left_grip.setGeometry(0, 10, 10, self.height())
         self.right_grip.setGeometry(self.width() - 10, 10, 10, self.height())
         self.top_grip.setGeometry(0, 0, self.width(), 10)
         self.bottom_grip.setGeometry(0, self.height() - 10, self.width(), 10)
+
     # 停止所有运行中的模型
     def quitRuniningModel(self):
         try:
@@ -714,6 +758,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.yolov8seg_thread1.quit()
             elif self.rtdetr_thread1.isRunning():
                 self.rtdetr_thread1.quit()
+            elif self.yolov8pose_thread1.isRunning():
+                self.yolov8pose_thread1.quit()
             # 右侧模型
             if self.yolov5_thread2.isRunning():
                 self.yolov5_thread2.quit()
@@ -729,8 +775,11 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.yolov8seg_thread2.quit()
             elif self.rtdetr_thread2.isRunning():
                 self.rtdetr_thread2.quit()
+            elif self.yolov8pose_thread2.isRunning():
+                self.yolov8pose_thread2.quit()
         except Exception:
             pass
+
     # 在MessageBar显示消息
     def showStatus(self, msg):
         self.message_bar.setText(msg)
@@ -752,8 +801,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.Class_num2.setText('--')
             self.Target_num2.setText('--')
             self.fps_label2.setText('--')
+
     # 修改YOLOv5、YOLOv7、YOLOv9 解决 yolo.py冲突
-    def solveYoloConflict(self,ptnamelst):
+    def solveYoloConflict(self, ptnamelst):
         for ptname in ptnamelst:
             ptbaseName = os.path.basename(ptname)
             if "yolov5" in ptbaseName and not self.checkSegName(ptbaseName):
@@ -772,7 +822,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                             _ch.append(_yaml_lst[layer][-1][0])
                         _anchors = _module.anchors
                         _nc = _module.nc
-                        yolov5_detect = Detect_YOLOV5(anchors=_anchors, nc=_nc,ch=_ch)
+                        yolov5_detect = Detect_YOLOV5(anchors=_anchors, nc=_nc, ch=_ch)
                         yolov5_detect.__dict__.update(_module.__dict__)
                         for _new_param, _old_param in zip(yolov5_detect.parameters(), _module.parameters()):
                             _new_param.data = _old_param.data.clone()
@@ -843,8 +893,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                             _new_param.data = _old_param.data.clone()
                         net['model'].model[_module_index] = yolov9_detect
                 torch.save(net, ptname)
-        glo.set_value("yoloname", "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr")
+        glo.set_value("yoloname", "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
         self.reloadModel()
+
     def importModel(self):
         # 获取上次选择文件的路径
         config_file = f'{self.current_workpath}/config/model.json'
@@ -870,6 +921,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                     f.write(config_json)
             else:
                 self.showStatus('Model already exists')
+
     # 导出结果状态判断
     def saveStatus(self):
         if self.save_status_button.checkState() == Qt.CheckState.Unchecked:
@@ -882,6 +934,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.save_res = False
             self.yolov8seg_thread1.save_res = False
             self.rtdetr_thread1.save_res = False
+            self.yolov8pose_thread1.save_res = False
+
             # 右侧模型
             self.yolov5_thread2.save_res = False
             self.yolov7_thread2.save_res = False
@@ -890,6 +944,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.save_res = False
             self.yolov8seg_thread2.save_res = False
             self.rtdetr_thread2.save_res = False
+            self.yolov8pose_thread2.save_res = False
 
             self.save_button.setEnabled(False)
         elif self.save_status_button.checkState() == Qt.CheckState.Checked:
@@ -902,6 +957,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.save_res = True
             self.yolov8seg_thread1.save_res = True
             self.rtdetr_thread1.save_res = True
+            self.yolov8pose_thread1.save_res = True
+
             # 右侧模型 
             self.yolov5_thread2.save_res = True
             self.yolov7_thread2.save_res = True
@@ -910,15 +967,19 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.save_res = True
             self.yolov8seg_thread2.save_res = True
             self.rtdetr_thread2.save_res = True
+            self.yolov8pose_thread2.save_res = True
             self.save_button.setEnabled(True)
+
     # 导出结果
     def saveResult(self):
         thread1_status = (not self.yolov5_thread1.res_status and not self.yolov7_thread1.res_status
                           and not self.yolov8_thread1.res_status and not self.yolov9_thread1.res_status
-                          and not self.yolov5seg_thread1.res_status and not self.yolov8seg_thread1.res_status and not self.rtdetr_thread1.res_status)
+                          and not self.yolov5seg_thread1.res_status and not self.yolov8seg_thread1.res_status
+                          and not self.rtdetr_thread1.res_status and not self.yolov8pose_thread1.res_status)
         thread2_status = (not self.yolov5_thread2.res_status and not self.yolov7_thread2.res_status
                           and not self.yolov8_thread2.res_status and not self.yolov9_thread2.res_status
-                          and not self.yolov5seg_thread2.res_status and not self.yolov8seg_thread2.res_status and not self.rtdetr_thread2.res_status)
+                          and not self.yolov5seg_thread2.res_status and not self.yolov8seg_thread2.res_status
+                          and not self.rtdetr_thread2.res_status and not self.yolov8pose_thread2.res_status)
         # 默认保存左侧模型的检测结果
         if thread1_status:
             self.showStatus("Please select the Image/Video before starting detection...")
@@ -963,7 +1024,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
-            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name):
+            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(self.model_name):
                 try:
                     output_dir = os.path.dirname(self.yolov8_thread1.res_path)
                     if os.path.exists(output_dir):
@@ -1033,6 +1094,20 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
+            elif "yolov8" in self.model_name and self.checkPoseName(self.model_name):
+                try:
+                    output_dir = os.path.dirname(self.yolov8pose_thread1.res_path)
+                    if os.path.exists(output_dir):
+                        for filename in os.listdir(output_dir):
+                            source_path = os.path.join(output_dir, filename)
+                            destination_path = os.path.join(self.OutputDir, filename)
+                            if os.path.isfile(source_path):
+                                shutil.copy(source_path, destination_path)
+                        self.showStatus('Saved Successfully in {}'.format(self.OutputDir))
+                    else:
+                        self.showStatus('Please wait for the result to be generated')
+                except Exception as err:
+                    self.showStatus(f"Error occurred while saving the result: {err}")
         else:
             self.OutputDir, _ = QFileDialog.getSaveFileName(
                 self,  # 父窗口对象
@@ -1058,7 +1133,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
-            elif "yolov8" in self.model_name:
+            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(self.model_name):
                 try:
                     if os.path.exists(self.yolov8_thread1.res_path):
                         shutil.copy(self.yolov8_thread1.res_path, self.OutputDir)
@@ -1076,7 +1151,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
-            elif "yolov5" in self.model_name and self.checkSegName(self.model_name):
+            elif "yolov5" in self.model_name and self.checkSegName(self.model_name) :
                 try:
                     if os.path.exists(self.yolov5seg_thread1.res_path):
                         shutil.copy(self.yolov5seg_thread1.res_path, self.OutputDir)
@@ -1103,10 +1178,20 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.showStatus('Please wait for the result to be generated')
                 except Exception as err:
                     self.showStatus(f"Error occurred while saving the result: {err}")
+            elif "yolov8" in self.model_name and self.checkPoseName(self.model_name):
+                try:
+                    if os.path.exists(self.yolov8pose_thread1.res_path):
+                        shutil.copy(self.yolov8pose_thread1.res_path, self.OutputDir)
+                        self.showStatus('Saved Successfully in {}'.format(self.OutputDir))
+                    else:
+                        self.showStatus('Please wait for the result to be generated')
+                except Exception as err:
+                    self.showStatus(f"Error occurred while saving the result: {err}")
         config['save_path'] = self.OutputDir
         config_json = json.dumps(config, ensure_ascii=False, indent=2)
         with open(config_file, 'w', encoding='utf-8') as f:
             f.write(config_json)
+
     # 调整超参数
     def changeValue(self, x, flag):
         if flag == 'iou_spinbox':
@@ -1122,6 +1207,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.iou_thres = x / 100
             self.yolov8seg_thread1.iou_thres = x / 100
             self.rtdetr_thread1.iou_thres = x / 100
+            self.yolov8pose_thread1.iou_thres = x / 100
             # 右侧模型
             self.yolov5_thread2.iou_thres = x / 100
             self.yolov7_thread2.iou_thres = x / 100
@@ -1130,6 +1216,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.iou_thres = x / 100
             self.yolov8seg_thread2.iou_thres = x / 100
             self.rtdetr_thread2.iou_thres = x / 100
+            self.yolov8pose_thread2.iou_thres = x / 100
         elif flag == 'conf_spinbox':
             self.conf_slider.setValue(int(x * 100))
         elif flag == 'conf_slider':
@@ -1143,6 +1230,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.conf_thres = x / 100
             self.yolov8seg_thread1.conf_thres = x / 100
             self.rtdetr_thread1.conf_thres = x / 100
+            self.yolov8pose_thread1.conf_thres = x / 100
             # 右侧模型
             self.yolov5_thread2.conf_thres = x / 100
             self.yolov7_thread2.conf_thres = x / 100
@@ -1151,6 +1239,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.conf_thres = x / 100
             self.yolov8seg_thread2.conf_thres = x / 100
             self.rtdetr_thread2.conf_thres = x / 100
+            self.yolov8pose_thread2.conf_thres = x / 100
         elif flag == 'speed_spinbox':
             self.speed_slider.setValue(x)
         elif flag == 'speed_slider':
@@ -1164,6 +1253,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.speed_thres = x  # ms
             self.yolov8seg_thread1.speed_thres = x  # ms
             self.rtdetr_thread1.speed_thres = x  # ms
+            self.yolov8pose_thread1.speed_thres = x
             # 右侧模型
             self.yolov5_thread2.speed_thres = x
             self.yolov7_thread2.speed_thres = x
@@ -1172,6 +1262,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.speed_thres = x
             self.yolov8seg_thread2.speed_thres = x
             self.rtdetr_thread2.speed_thres = x
+            self.yolov8pose_thread2.speed_thres = x
         elif flag == 'line_spinbox':
             self.line_slider.setValue(x)
         elif flag == 'line_slider':
@@ -1185,6 +1276,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread1.line_thickness = x
             self.yolov8seg_thread1.line_thickness = x
             self.rtdetr_thread1.line_thickness = x
+            self.yolov8pose_thread1.line_thickness = x
             # 右侧模型
             self.yolov5_thread2.line_thickness = x
             self.yolov7_thread2.line_thickness = x
@@ -1193,6 +1285,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.yolov5seg_thread2.line_thickness = x
             self.yolov8seg_thread2.line_thickness = x
             self.rtdetr_thread2.line_thickness = x
+            self.yolov8pose_thread2.line_thickness = x
+
     # 加载 Setting 栏
     def loadConfig(self):
         config_file = 'config/setting.json'
@@ -1233,6 +1327,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
         self.speed_slider.setValue(delay)
         self.line_spinbox.setValue(line_thickness)
         self.line_slider.setValue(line_thickness)
+
     # 加载 pt 模型到 model_box
     def loadModels(self):
         pt_list = os.listdir(f'{self.current_workpath}/ptfiles/')
@@ -1245,43 +1340,64 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             self.model_box1.addItems(self.pt_list)
             self.model_box2.clear()
             self.model_box2.addItems(self.pt_list)
-    # 解决 Modelname当中的 seg命名 问题
+
+    # 解决 Modelname 当中的 seg命名问题
     def checkSegName(self, modelname):
         if "yolov5" in modelname:
-            return bool(re.match(r'yolov5.-seg.*\.pt$', modelname))
+            return bool(re.match(r'yolov5.?-seg.*\.pt$', modelname))
         elif "yolov7" in modelname:
-            return bool(re.match(r'yolov7.-seg.*\.pt$', modelname))
+            return bool(re.match(r'yolov7.?-seg.*\.pt$', modelname))
         elif "yolov8" in modelname:
-            return bool(re.match(r'yolov8.-seg.*\.pt$', modelname))
+            return bool(re.match(r'yolov8.?-seg.*\.pt$', modelname))
         elif "yolov9" in modelname:
-            return bool(re.match(r'yolov9.-seg.*\.pt$', modelname))
+            return bool(re.match(r'yolov9.?-seg.*\.pt$', modelname))
+
+    # 解决  Modelname 当中的 pose命名问题
+    def checkPoseName(self, modelname):
+        if "yolov5" in modelname:
+            return bool(re.match(r'yolov5.?-pose.*\.pt$', modelname))
+        elif "yolov7" in modelname:
+            return bool(re.match(r'yolov7.?-pose.*\.pt$', modelname))
+        elif "yolov8" in modelname:
+            return bool(re.match(r'yolov8.?-pose.*\.pt$', modelname))
+        elif "yolov9" in modelname:
+            return bool(re.match(r'yolov9.?-pose.*\.pt$', modelname))
+
     # 检查模型是否符合命名要求
     def checkModelName(self, modelname):
         for name in self.allModelNames:
             if modelname in name:
                 return True
         return False
+
     # 重新加载模型
     def reloadModel(self):
         importlib.reload(common)
         importlib.reload(yolo)
         importlib.reload(experimental)
-    def statusThread(self,stage=None):
+
+    # 模型运行状态
+    def statusThread(self, stage=None):
         print(f"Stage: {stage}")
         print(f"yolov5 thread1: {self.yolov5_thread1.isRunning() if hasattr(self, 'yolov5_thread1') else 'None'}")
         print(f"yolov7 thread1: {self.yolov7_thread1.isRunning() if hasattr(self, 'yolov7_thread1') else 'None'}")
         print(f"yolov8 thread1: {self.yolov8_thread1.isRunning() if hasattr(self, 'yolov8_thread1') else 'None'}")
         print(f"yolov9 thread1: {self.yolov9_thread1.isRunning() if hasattr(self, 'yolov9_thread1') else 'None'}")
-        print(f"yolov5seg thread1: {self.yolov5seg_thread1.isRunning() if hasattr(self, 'yolov5seg_thread1') else 'None'}")
-        print(f"yolov8seg thread1: {self.yolov8seg_thread1.isRunning() if hasattr(self, 'yolov8seg_thread1') else 'None'}")
+        print(
+            f"yolov5seg thread1: {self.yolov5seg_thread1.isRunning() if hasattr(self, 'yolov5seg_thread1') else 'None'}")
+        print(
+            f"yolov8seg thread1: {self.yolov8seg_thread1.isRunning() if hasattr(self, 'yolov8seg_thread1') else 'None'}")
         print(f"rtdetr thread1: {self.rtdetr_thread1.isRunning() if hasattr(self, 'rtdetr_thread1') else 'None'}")
         print(f"yolov5 thread2: {self.yolov5_thread2.isRunning() if hasattr(self, 'yolov5_thread2') else 'None'}")
         print(f"yolov7 thread2: {self.yolov7_thread2.isRunning() if hasattr(self, 'yolov7_thread2') else 'None'}")
         print(f"yolov8 thread2: {self.yolov8_thread2.isRunning() if hasattr(self, 'yolov8_thread2') else 'None'}")
         print(f"yolov9 thread2: {self.yolov9_thread2.isRunning() if hasattr(self, 'yolov9_thread2') else 'None'}")
-        print(f"yolov5seg thread2: {self.yolov5seg_thread2.isRunning() if hasattr(self, 'yolov5seg_thread2') else 'None'}")
-        print(f"yolov8seg thread2: {self.yolov8seg_thread2.isRunning() if hasattr(self, 'yolov8seg_thread2') else 'None'}")
+        print(
+            f"yolov5seg thread2: {self.yolov5seg_thread2.isRunning() if hasattr(self, 'yolov5seg_thread2') else 'None'}")
+        print(
+            f"yolov8seg thread2: {self.yolov8seg_thread2.isRunning() if hasattr(self, 'yolov8seg_thread2') else 'None'}")
         print(f"rtdetr thread2: {self.rtdetr_thread2.isRunning() if hasattr(self, 'rtdetr_thread2') else 'None'}")
+
     # 重新加载模型
     def resignModel(self, yoloname, mode=None):
         if mode == "left":
@@ -1289,31 +1405,35 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             if yoloname == "yolov5":
                 del self.yolov5_thread1
                 self.yolov5_thread1 = YOLOv5Thread()
-                self.initModel("yolov5","left")
+                self.initModel("yolov5", "left")
             elif yoloname == "yolov7":
                 del self.yolov7_thread1
                 self.yolov7_thread1 = YOLOv7Thread()
-                self.initModel("yolov7","left")
+                self.initModel("yolov7", "left")
             elif yoloname == "yolov8":
                 del self.yolov8_thread1
                 self.yolov8_thread1 = YOLOv8Thread()
-                self.initModel("yolov8","left")
+                self.initModel("yolov8", "left")
             elif yoloname == "yolov9":
                 del self.yolov9_thread1
                 self.yolov9_thread1 = YOLOv9Thread()
-                self.initModel("yolov9","left")
+                self.initModel("yolov9", "left")
             elif yoloname == "yolov5-seg":
                 del self.yolov5seg_thread1
                 self.yolov5seg_thread1 = YOLOv5SegThread()
-                self.initModel("yolov5-seg","left")
+                self.initModel("yolov5-seg", "left")
             elif yoloname == "yolov8-seg":
                 del self.yolov8seg_thread1
                 self.yolov8seg_thread1 = YOLOv8SegThread()
-                self.initModel("yolov8-seg","left")
+                self.initModel("yolov8-seg", "left")
             elif yoloname == "rtdetr":
                 del self.rtdetr_thread1
                 self.rtdetr_thread1 = RTDETRThread()
-                self.initModel("rtdetr","left")
+                self.initModel("rtdetr", "left")
+            elif yoloname == "yolov8-pose":
+                del self.yolov8pose_thread1
+                self.yolov8pose_thread1 = YOLOv8PoseThread()
+                self.initModel("yolov8-pose", "left")
             self.run_button.setChecked(True)
             self.ContinueAnotherModel(mode="right")
             self.runModel(True)
@@ -1322,38 +1442,43 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             if yoloname == "yolov5":
                 del self.yolov5_thread2
                 self.yolov5_thread2 = YOLOv5Thread()
-                self.initModel("yolov5","right")
+                self.initModel("yolov5", "right")
             elif yoloname == "yolov7":
                 del self.yolov7_thread2
                 self.yolov7_thread2 = YOLOv7Thread()
-                self.initModel("yolov7","right")
+                self.initModel("yolov7", "right")
             elif yoloname == "yolov8":
                 del self.yolov8_thread2
                 self.yolov8_thread2 = YOLOv8Thread()
-                self.initModel("yolov8","right")
+                self.initModel("yolov8", "right")
             elif yoloname == "yolov9":
                 del self.yolov9_thread2
                 self.yolov9_thread2 = YOLOv9Thread()
-                self.initModel("yolov9","right")
+                self.initModel("yolov9", "right")
             elif yoloname == "yolov5-seg":
                 del self.yolov5seg_thread2
                 self.yolov5seg_thread2 = YOLOv5SegThread()
-                self.initModel("yolov5-seg","right")
+                self.initModel("yolov5-seg", "right")
             elif yoloname == "yolov8-seg":
                 del self.yolov8seg_thread2
                 self.yolov8seg_thread2 = YOLOv8SegThread()
-                self.initModel("yolov8-seg","right")
+                self.initModel("yolov8-seg", "right")
             elif yoloname == "rtdetr":
                 del self.rtdetr_thread2
                 self.rtdetr_thread2 = RTDETRThread()
-                self.initModel("rtdetr","right")
+                self.initModel("rtdetr", "right")
+            elif yoloname == "yolov8-pose":
+                del self.yolov8pose_thread2
+                self.yolov8pose_thread2 = YOLOv8PoseThread()
+                self.initModel("yolov8-pose", "right")
             self.run_button.setChecked(True)
             self.ContinueAnotherModel(mode="left")
             self.runModel(True)
+
     # 停止其他模型
     def stopOtherModel(self, current_yoloname=None, mode=None):
         if mode == "left":
-            modelname = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov5-seg", "yolov8-seg", "rtdetr"]
+            modelname = self.allModelNames
             for yoloname in modelname:
                 if yoloname != current_yoloname:
                     if yoloname == "yolov5" and self.yolov5_thread1.isRunning():
@@ -1391,8 +1516,14 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.rtdetr_thread1.quit()
                         self.rtdetr_thread1.stop_dtc = True
                         self.rtdetr_thread1.finished.connect(lambda: self.resignModel(current_yoloname, mode="left"))
+                    elif yoloname == "yolov8-pose" and self.yolov8pose_thread1.isRunning():
+                        self.PauseAnotherModel(mode="right")
+                        self.yolov8pose_thread1.quit()
+                        self.yolov8pose_thread1.stop_dtc = True
+                        self.yolov8pose_thread1.finished.connect(
+                            lambda: self.resignModel(current_yoloname, mode="left"))
         else:
-            modelname = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov5-seg", "yolov8-seg", "rtdetr"]
+            modelname = self.allModelNames
             for yoloname in modelname:
                 if yoloname != current_yoloname:
                     if yoloname == "yolov5" and self.yolov5_thread2.isRunning():
@@ -1432,6 +1563,13 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.rtdetr_thread2.quit()
                         self.rtdetr_thread2.stop_dtc = True
                         self.rtdetr_thread2.finished.connect(lambda: self.resignModel(current_yoloname, mode="right"))
+                    elif yoloname == "yolov8-pose" and self.yolov8pose_thread2.isRunning():
+                        self.PauseAnotherModel(mode="left")
+                        self.yolov8pose_thread2.quit()
+                        self.yolov8pose_thread2.stop_dtc = True
+                        self.yolov8pose_thread2.finished.connect(
+                            lambda: self.resignModel(current_yoloname, mode="right"))
+
     # 暂停另外一侧模型
     def PauseAnotherModel(self, mode=None):
         buttonStatus = self.run_button.isChecked()
@@ -1446,8 +1584,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                     self.yolov7_thread1.quit()
                     self.yolov7_thread1.stop_dtc = True
                     self.yolov7_thread1.wait()
-                elif "yolov8" in self.model_name1 and not self.checkSegName(
-                        self.model_name1) and self.yolov8_thread1.isRunning():
+                elif ("yolov8" in self.model_name1 and not self.checkSegName(
+                        self.model_name1) and not self.checkPoseName(self.model_name1)
+                      and self.yolov8_thread1.isRunning()):
                     self.yolov8_thread1.quit()
                     self.yolov8_thread1.stop_dtc = True
                     self.yolov8_thread1.wait()
@@ -1469,6 +1608,12 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                     self.rtdetr_thread1.quit()
                     self.rtdetr_thread1.stop_dtc = True
                     self.rtdetr_thread1.wait()
+                elif "yolov8" in self.model_name1 and self.checkPoseName(
+                        self.model_name1) and self.yolov8pose_thread1.isRunning():
+                    self.yolov8pose_thread1.quit()
+                    self.yolov8pose_thread1.stop_dtc = True
+                    self.yolov8pose_thread1.wait()
+
             else:
                 if "yolov5" in self.model_name2 and not self.checkSegName(
                         self.model_name2) and self.yolov5_thread2.isRunning():
@@ -1480,7 +1625,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                     self.yolov7_thread2.stop_dtc = True
                     self.yolov7_thread2.wait()
                 elif "yolov8" in self.model_name2 and not self.checkSegName(
-                        self.model_name2) and self.yolov8_thread2.isRunning():
+                        self.model_name2) and self.checkPoseName(self.model_name2) and self.yolov8_thread2.isRunning():
                     self.yolov8_thread2.quit()
                     self.yolov8_thread2.stop_dtc = True
                     self.yolov8_thread2.wait()
@@ -1502,6 +1647,12 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                     self.rtdetr_thread2.quit()
                     self.rtdetr_thread2.stop_dtc = True
                     self.rtdetr_thread2.wait()
+                elif "yolov8" in self.model_name2 and self.checkPoseName(
+                        self.model_name2) and self.yolov8pose_thread2.isRunning():
+                    self.yolov8pose_thread2.quit()
+                    self.yolov8pose_thread2.stop_dtc = True
+                    self.yolov8pose_thread2.wait()
+
     # 继续另外一侧模型
     def ContinueAnotherModel(self, mode=None):
         buttonStatus = self.run_button.isChecked()
@@ -1511,67 +1662,78 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                         self.model_name1) and buttonStatus:
                     del self.yolov5_thread1
                     self.yolov5_thread1 = YOLOv5Thread()
-                    self.initModel("yolov5","left")
+                    self.initModel("yolov5", "left")
                 elif "yolov7" in self.model_name1 and buttonStatus:
                     del self.yolov7_thread1
                     self.yolov7_thread1 = YOLOv7Thread()
-                    self.initModel("yolov7","left")
+                    self.initModel("yolov7", "left")
                 elif "yolov8" in self.model_name1 and not self.checkSegName(
-                        self.model_name1) and buttonStatus:
+                        self.model_name1) and self.checkPoseName(self.model_name1) and buttonStatus:
                     del self.yolov8_thread1
                     self.yolov8_thread1 = YOLOv8Thread()
-                    self.initModel("yolov8","left")
+                    self.initModel("yolov8", "left")
                 elif "yolov9" in self.model_name1 and buttonStatus:
                     del self.yolov9_thread1
                     self.yolov9_thread1 = YOLOv9Thread()
-                    self.initModel("yolov9","left")
+                    self.initModel("yolov9", "left")
                 elif "yolov5" in self.model_name1 and self.checkSegName(
-                        self.model_name1) and   buttonStatus:
+                        self.model_name1) and buttonStatus:
                     del self.yolov5seg_thread1
                     self.yolov5seg_thread1 = YOLOv5SegThread()
-                    self.initModel("yolov5-seg","left")
+                    self.initModel("yolov5-seg", "left")
                 elif "yolov8" in self.model_name1 and self.checkSegName(
-                        self.model_name1):
+                        self.model_name1) and buttonStatus:
                     del self.yolov8seg_thread1
                     self.yolov8seg_thread1 = YOLOv8SegThread()
-                    self.initModel("yolov8-seg","left")
-                elif "rtdetr" in self.model_name1:
+                    self.initModel("yolov8-seg", "left")
+                elif "rtdetr" in self.model_name1 and buttonStatus:
                     del self.rtdetr_thread1
                     self.rtdetr_thread1 = RTDETRThread()
-                    self.initModel("rtdetr","left")
+                    self.initModel("rtdetr", "left")
+                elif "yolov8" in self.model_name1 and self.checkPoseName(self.model_name1) and buttonStatus:
+                    del self.yolov8pose_thread1
+                    self.yolov8pose_thread1 = YOLOv8PoseThread()
+                    self.initModel("yolov8-pose", "left")
+
+
             else:
                 if "yolov5" in self.model_name2 and not self.checkSegName(
                         self.model_name2) and buttonStatus:
                     del self.yolov5_thread2
                     self.yolov5_thread2 = YOLOv5Thread()
-                    self.initModel("yolov5","right")
+                    self.initModel("yolov5", "right")
                 elif "yolov7" in self.model_name2 and buttonStatus:
                     del self.yolov7_thread2
                     self.yolov7_thread2 = YOLOv7Thread()
-                    self.initModel("yolov7","right")
+                    self.initModel("yolov7", "right")
                 elif "yolov8" in self.model_name2 and not self.checkSegName(
-                        self.model_name2) and buttonStatus:
+                        self.model_name2) and self.checkPoseName(self.model_name2) and buttonStatus:
                     del self.yolov8_thread2
                     self.yolov8_thread2 = YOLOv8Thread()
-                    self.initModel("yolov8","right")
+                    self.initModel("yolov8", "right")
                 elif "yolov9" in self.model_name2 and buttonStatus:
                     del self.yolov9_thread2
                     self.yolov9_thread2 = YOLOv9Thread()
-                    self.initModel("yolov9","right")
+                    self.initModel("yolov9", "right")
                 elif "yolov5" in self.model_name2 and self.checkSegName(
                         self.model_name2) and buttonStatus:
                     del self.yolov5seg_thread2
                     self.yolov5seg_thread2 = YOLOv5SegThread()
-                    self.initModel("yolov5-seg","right")
+                    self.initModel("yolov5-seg", "right")
                 elif "yolov8" in self.model_name2 and self.checkSegName(
                         self.model_name2) and buttonStatus:
                     del self.yolov8seg_thread2
                     self.yolov8seg_thread2 = YOLOv8SegThread()
-                    self.initModel("yolov8-seg","right")
+                    self.initModel("yolov8-seg", "right")
                 elif "rtdetr" in self.model_name2 and buttonStatus:
                     del self.rtdetr_thread2
                     self.rtdetr_thread2 = RTDETRThread()
-                    self.initModel("rtdetr","right")
+                    self.initModel("rtdetr", "right")
+                elif "yolov8" in self.model_name2 and self.checkPoseName(self.model_name2) and buttonStatus:
+                    del self.yolov8pose_thread2
+                    self.yolov8pose_thread2 = YOLOv8PoseThread()
+                    self.initModel("yolov8-pose", "right")
+
     # Model 变化
     def changeModel(self, mode=None):
         if mode == "left":
@@ -1590,7 +1752,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 glo.set_value('yoloname1', "yolov7")
                 # 停止其他模型
                 self.stopOtherModel("yolov7", mode="left")
-            elif "yolov8" in self.model_name1 and not self.checkSegName(self.model_name1):
+            elif "yolov8" in self.model_name1 and not self.checkSegName(self.model_name1) \
+                    and not self.checkPoseName(self.model_name1):
                 self.yolov8_thread1.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box1.currentText()
                 # 重载 common 和 yolo 模块
                 glo.set_value('yoloname1', "yolov8")
@@ -1620,6 +1783,12 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 glo.set_value('yoloname1', "rtdetr")
                 # 停止其他模型
                 self.stopOtherModel("rtdetr", mode="left")
+            elif "yolov8" in self.model_name1 and self.checkPoseName(self.model_name1):
+                self.yolov8pose_thread1.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box1.currentText()
+                # 重载 common 和 yolo 模块
+                glo.set_value('yoloname1', "yolov8-pose")
+                # 停止其他模型
+                self.stopOtherModel("yolov8-pose", mode="left")
             else:
                 self.stopOtherModel(mode="left")
         else:
@@ -1638,7 +1807,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 glo.set_value('yoloname2', "yolov7")
                 # 停止其他模型
                 self.stopOtherModel("yolov7", mode="right")
-            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2):
+            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2) \
+                        and not self.checkPoseName(self.model_name2):
                 self.yolov8_thread2.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box2.currentText()
                 # 重载 common 和 yolo 模块
                 glo.set_value('yoloname2', "yolov8")
@@ -1668,8 +1838,15 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 glo.set_value('yoloname2', "rtdetr")
                 # 停止其他模型
                 self.stopOtherModel("rtdetr", mode="right")
+            elif "yolov8" in self.model_name2 and self.checkPoseName(self.model_name2):
+                self.yolov8pose_thread2.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box2.currentText()
+                # 重载 common 和 yolo 模块
+                glo.set_value('yoloname2', "yolov8-pose")
+                # 停止其他模型
+                self.stopOtherModel("yolov8-pose", mode="right")
             else:
                 self.stopOtherModel(mode="right")
+
     # 运行右侧模型
     def runRightModel(self, mode=None):
         if mode == "start":
@@ -1685,7 +1862,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.yolov7_thread2.is_continue = True
                 if not self.yolov7_thread2.isRunning():
                     self.yolov7_thread2.start()
-            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2):
+            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2)\
+                        and not self.checkPoseName(self.model_name2):
                 self.yolov8_thread2.source = self.inputPath
                 self.yolov8_thread2.stop_dtc = False
                 self.yolov8_thread2.is_continue = True
@@ -1715,12 +1893,19 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.rtdetr_thread2.is_continue = True
                 if not self.rtdetr_thread2.isRunning():
                     self.rtdetr_thread2.start()
+            elif "yolov8" in self.model_name2 and self.checkPoseName(self.model_name2):
+                self.yolov8pose_thread2.source = self.inputPath
+                self.yolov8pose_thread2.stop_dtc = False
+                self.yolov8pose_thread2.is_continue = True
+                if not self.yolov8pose_thread2.isRunning():
+                    self.yolov8pose_thread2.start()
         elif mode == "pause":
             if "yolov5" in self.model_name2 and not self.checkSegName(self.model_name2):
                 self.yolov5_thread2.is_continue = False
             elif "yolov7" in self.model_name2:
                 self.yolov7_thread2.is_continue = False
-            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2):
+            elif "yolov8" in self.model_name2 and not self.checkSegName(self.model_name2)\
+                    and not self.checkPoseName(self.model_name2):
                 self.yolov8_thread2.is_continue = False
             elif "yolov9" in self.model_name2:
                 self.yolov9_thread2.is_continue = False
@@ -1730,6 +1915,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.yolov8seg_thread2.is_continue = False
             elif "rtdetr" in self.model_name2:
                 self.rtdetr_thread2.is_continue = False
+            elif "yolov8" in self.model_name2 and self.checkPoseName(self.model_name2):
+                self.yolov8pose_thread2.is_continue = False
+
     # 运行模型
     def runModel(self, runbuttonStatus=None):
         self.save_status_button.setEnabled(False)
@@ -1766,7 +1954,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.yolov7_thread1.is_continue = False
                 self.runRightModel(mode="pause")
                 self.showStatus('Pause Detection')
-        elif "yolov8" in self.model_name1 and not self.checkSegName(self.model_name1):
+        elif "yolov8" in self.model_name1 and not self.checkSegName(self.model_name1)\
+                and not self.checkPoseName(self.model_name1):
             self.yolov8_thread1.source = self.inputPath
             self.yolov8_thread1.stop_dtc = False
             if self.run_button.isChecked():
@@ -1826,16 +2015,30 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                 self.rtdetr_thread1.is_continue = False
                 self.runRightModel(mode="pause")
                 self.showStatus('Pause Detection')
+        elif "yolov8" in self.model_name1 and self.checkPoseName(self.model_name1):
+            self.yolov8pose_thread1.source = self.inputPath
+            self.yolov8pose_thread1.stop_dtc = False
+            if self.run_button.isChecked():
+                self.yolov8pose_thread1.is_continue = True
+                if not self.yolov8pose_thread1.isRunning():
+                    self.yolov8pose_thread1.start()
+                self.runRightModel(mode="start")
+            else:
+                self.yolov8pose_thread1.is_continue = False
+                self.runRightModel(mode="pause")
+                self.showStatus('Pause Detection')
+
     # 开始/暂停 预测
     def runorContinue(self):
         if self.inputPath is not None:
-            glo.set_value('yoloname1',self.model_name1)
-            glo.set_value('yoloname2',self.model_name2)
+            glo.set_value('yoloname1', self.model_name1)
+            glo.set_value('yoloname2', self.model_name2)
             self.reloadModel()
             self.runModel()
         else:
             self.showStatus("Please select the Image/Video before starting detection...")
             self.run_button.setChecked(False)
+
     # 停止识别
     def stopDetect(self):
         # 左侧模型
@@ -1857,6 +2060,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             if self.yolov8seg_thread1.isRunning():
                 self.yolov8seg_thread1.quit()
             self.yolov8seg_thread1.stop_dtc = True
+            if self.yolov8pose_thread1.isRunning():
+                self.yolov8pose_thread1.quit()
+            self.yolov8pose_thread1.stop_dtc = True
         elif "yolov9" in self.model_name1:
             if self.yolov9_thread1.isRunning():
                 self.yolov9_thread1.quit()
@@ -1865,6 +2071,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             if self.rtdetr_thread1.isRunning():
                 self.rtdetr_thread1.quit()
             self.rtdetr_thread1.stop_dtc = True
+
         # 右侧模型
         if "yolov5" in self.model_name2:
             if self.yolov5_thread2.isRunning():
@@ -1884,6 +2091,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
             if self.yolov8seg_thread2.isRunning():
                 self.yolov8seg_thread2.quit()
             self.yolov8seg_thread2.stop_dtc = True
+            if self.yolov8pose_thread2.isRunning():
+                self.yolov8pose_thread2.quit()
+            self.yolov8pose_thread2.stop_dtc = True
         elif "yolov9" in self.model_name2:
             if self.yolov9_thread2.isRunning():
                 self.yolov9_thread2.quit()
@@ -1908,6 +2118,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
 # 多套一个类 为了实现MouseLabel方法
 class MyWindow(YOLOSHOWVS):
     closed = Signal()
+
     def __init__(self):
         super(MyWindow, self).__init__()
         self.center()

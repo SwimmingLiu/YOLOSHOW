@@ -58,7 +58,7 @@ class YOLOv5SegThread(QThread):
 
         # YOLOv5 参数设置
         self.model = None
-        self.data = 'yolocode/yolov5/data/coco128-seg.yaml'  # data_dict
+        self.data = 'yolocode/yolov5/data/coco128.yaml'  # data_dict
         self.imgsz = (640, 640)
         self.device = ''
         self.dataset = None
@@ -246,7 +246,7 @@ class YOLOv5SegThread(QThread):
                                    255 if self.retina_masks else im[i])
 
                         # Write results
-                        for *xyxy, conf, cls in reversed(det):
+                        for j, (*xyxy, conf, cls) in enumerate(reversed(det[:, :6])):
                             c = int(cls)  # integer class
                             label = self.names[c]
                             confidence = float(conf)

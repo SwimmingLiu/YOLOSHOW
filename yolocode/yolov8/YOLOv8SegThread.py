@@ -65,7 +65,7 @@ class YOLOv8SegThread(QThread):
         self.done_warmup = False
         self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
         self.batch = None
-        self.batchsize = 16
+        self.batchsize = 1
         self.project = 'runs/segment'
         self.name = 'exp'
         self.exist_ok = False
@@ -111,6 +111,7 @@ class YOLOv8SegThread(QThread):
             self.done_warmup = True
         self.seen, self.windows,self.dt, self.batch = 0, [],(ops.Profile(),ops.Profile(),ops.Profile()), None
         datasets = iter(self.dataset)
+        self.vid_cap = self.dataset.cap if self.dataset.mode == "video" else None
         count = 0
         start_time = time.time()  # used to calculate the frame rate
         while True:
@@ -152,8 +153,12 @@ class YOLOv8SegThread(QThread):
                 percent = 0  # 进度条
                 # 处理processBar
                 if self.vid_cap:
-                    percent = int(count / self.vid_cap.get(cv2.CAP_PROP_FRAME_COUNT) * self.progress_value)
-                    self.send_progress.emit(percent)
+                    if self.vid_cap.get(cv2.CAP_PROP_FRAME_COUNT) > 0:
+                        percent = int(count / self.vid_cap.get(cv2.CAP_PROP_FRAME_COUNT) * self.progress_value)
+                        self.send_progress.emit(percent)
+                    else:
+                        percent = 100
+                        self.send_progress.emit(percent)
                 else:
                     percent = self.progress_value
                 if count % 5 == 0 and count >= 5:  # Calculate the frame rate every 5 frames
@@ -194,7 +199,7 @@ class YOLOv8SegThread(QThread):
                             nums = 0
                             label_name = ""
                             for each in range(len(num_labelname)):
-                                if num_labelname[each].isdigit():
+                                if num_labelname[each].isdigit() and each != len(num_labelname) - 1:
                                     nums = num_labelname[each]
                                 elif len(num_labelname[each]):
                                     label_name += num_labelname[each] + " "
