@@ -5,8 +5,9 @@
 ***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9`  `RT-DETR` 
 
 <p align="center"> 
-  <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md"> English</a> &nbsp; | &nbsp; 简体中文</a>
+  <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README.md"> English</a> &nbsp; | &nbsp; 简体中文</a>
  </p>
+
 
 ![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
 
