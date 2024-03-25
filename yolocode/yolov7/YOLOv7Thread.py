@@ -131,15 +131,13 @@ class YOLOv7Thread(QThread):
             if self.stop_dtc:
                 self.send_msg.emit('Stop Detection')
                 # 释放资源
-                if self.vid_cap is not None:
-                    self.vid_cap.release()
+                if hasattr(dataset, 'cap'):
+                    if dataset.threads.is_alive():
+                        dataset.threads.join(timeout=5)  # Add timeout
+                    dataset.cap.release()
+                    cv2.destroyAllWindows()
                 if isinstance(self.vid_writer, cv2.VideoWriter):
                     self.vid_writer.release()
-                # 关闭摄像头
-                if self.webcam:
-                    cap = cv2.VideoCapture(self.source)
-                    cap.release()
-                    cv2.destroyAllWindows()
                 break
             #  判断是否更换模型
             if self.current_model_name != self.new_model_name:

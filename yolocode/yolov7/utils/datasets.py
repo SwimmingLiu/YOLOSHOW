@@ -286,16 +286,16 @@ class LoadStreams:  # multiple IP or RTSP cameras
                 check_requirements(('pafy', 'youtube_dl'))
                 import pafy
                 url = pafy.new(url).getbest(preftype="mp4").url
-            cap = cv2.VideoCapture(url)
-            assert cap.isOpened(), f'Failed to open {s}'
-            w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            self.fps = cap.get(cv2.CAP_PROP_FPS) % 100
+            self.cap = cv2.VideoCapture(url)
+            assert self.cap.isOpened(), f'Failed to open {s}'
+            w = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            h = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.fps = self.cap.get(cv2.CAP_PROP_FPS) % 100
 
-            _, self.imgs[i] = cap.read()  # guarantee first frame
-            thread = Thread(target=self.update, args=([i, cap]), daemon=True)
+            _, self.imgs[i] = self.cap.read()  # guarantee first frame
+            self.threads = Thread(target=self.update, args=([i, self.cap]), daemon=True)
             print(f' success ({w}x{h} at {self.fps:.2f} FPS).')
-            thread.start()
+            self.threads.start()
         print('')  # newline
 
         # check for common shapes

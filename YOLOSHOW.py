@@ -560,23 +560,34 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
     # 选择网络摄像头 Rtsp
     def selectRtsp(self):
         # rtsp://rtsp-test-server.viomic.com:554/stream
-        rtspDialog = CustomMessageBox(self)
+        rtspDialog = CustomMessageBox(self,mode="single")
         self.rtspUrl = None
         if rtspDialog.exec():
             self.rtspUrl = rtspDialog.urlLineEdit.text()
         if self.rtspUrl:
             parsed_url = urlparse(self.rtspUrl)
-            if parsed_url.scheme != 'rtsp':
+            if parsed_url.scheme == 'rtsp':
+                if not self.checkRtspUrl(self.rtspUrl):
+                    self.showStatus('Rtsp stream is not available')
+                    return False
+                self.showStatus(f'Loading Rtsp：{self.rtspUrl}')
+                self.rtspThread = WebcamThread(self.rtspUrl)
+                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+                self.rtspThread.start()
+                self.inputPath = self.rtspUrl
+            elif parsed_url.scheme in ['http','https']:
+                if not self.checkHttpUrl(self.rtspUrl):
+                    self.showStatus('Http stream is not available')
+                    return False
+                self.showStatus(f'Loading Http：{self.rtspUrl}')
+                self.rtspThread = WebcamThread(self.rtspUrl)
+                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+                self.rtspThread.start()
+                self.inputPath = self.rtspUrl
+            else:
                 self.showStatus('URL is not an rtsp stream')
                 return False
-            if not self.checkRtspUrl(self.rtspUrl):
-                self.showStatus('Rtsp stream is not available')
-                return False
-            self.showStatus(f'Loading Rtsp：{self.rtspUrl}')
-            self.rtspThread = WebcamThread(self.rtspUrl)
-            self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
-            self.rtspThread.start()
-            self.inputPath = self.rtspUrl
+
 
     # 检测网络摄像头 Rtsp 是否连通
     def checkRtspUrl(self, url, timeout=5):
@@ -586,6 +597,26 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow):
             parsed_url = urlparse(url)
             hostname = parsed_url.hostname
             port = parsed_url.port or 554  # RTSP默认端口是554
+
+            # 创建socket对象
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            # 尝试连接
+            sock.connect((hostname, port))
+            # 关闭socket
+            sock.close()
+            return True
+        except Exception as e:
+            return False
+
+    # 检测Http网络摄像头 是否连通
+    def checkHttpUrl(self, url, timeout=5):
+        try:
+            # 解析URL获取主机名和端口
+            from urllib.parse import urlparse
+            parsed_url = urlparse(url)
+            hostname = parsed_url.hostname
+            port = parsed_url.port or 80  # HTTP默认端口是80
 
             # 创建socket对象
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

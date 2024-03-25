@@ -26,6 +26,7 @@
 - [x] 加入 `RT-DETR` 算法 ( `Ultralytics` 仓库)
 - [x] 加入模型对比模式（VS Mode）
 - [x] 支持姿态估计 （ `YOLOv8` ）
+- [x] 支持 Http 协议 ( Single Mode )
 - [ ] 追踪和计数模型 ( `工业化` )
 
 ## 功能

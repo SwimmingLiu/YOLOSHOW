@@ -28,7 +28,7 @@ class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         if not mainWindow.objectName():
             mainWindow.setObjectName(u"mainWindow")
-        mainWindow.resize(1433, 827)
+        mainWindow.resize(1433, 830)
         mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
 "	border: 1px solid rgba(0, 0, 0, 40%);\n"
 "	border-top:none;\n"
@@ -46,10 +46,10 @@ class Ui_mainWindow(object):
 "	border-bottom-left-radius: 0;\n"
 "	border-bottom-right-radius: 0;\n"
 "	border-radius:30%;\n"
-"/*	\n"
+"	background-color: white;\n"
+"	/*	\n"
 "	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B5FFFC, stop:0.2 #e0c3fc, stop:1 #FFDEE9);\n"
-"*/\n"
-"	background-color:white;\n"
+"	*/\n"
 "}")
         self.mainBody.setFrameShape(QFrame.StyledPanel)
         self.mainBody.setFrameShadow(QFrame.Raised)
@@ -153,6 +153,7 @@ class Ui_mainWindow(object):
 "    background-color: none;\n"
 "	font-size: 22px;\n"
 "	font-family: \"Shojumaru\";\n"
+"	color: black;\n"
 "}\n"
 "Spacer{\n"
 "	border:none;\n"
@@ -166,6 +167,7 @@ class Ui_mainWindow(object):
         self.title = QLabel(self.right_top)
         self.title.setObjectName(u"title")
         self.title.setStyleSheet(u"")
+        self.title.setIndent(-1)
 
         self.horizontalLayout.addWidget(self.title, 0, Qt.AlignHCenter)
 
@@ -206,8 +208,8 @@ class Ui_mainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.leftBox.sizePolicy().hasHeightForWidth())
         self.leftBox.setSizePolicy(sizePolicy1)
-        self.leftBox.setMinimumSize(QSize(80, 0))
-        self.leftBox.setMaximumSize(QSize(80, 16777215))
+        self.leftBox.setMinimumSize(QSize(200, 0))
+        self.leftBox.setMaximumSize(QSize(180, 16777215))
         self.leftBox.setStyleSheet(u"QFrame#leftBox  {\n"
 "    /*background-color: rgba(255, 255, 255, 80%);*/\n"
 "    border: 0px solid rgba(0, 0, 0, 40%);\n"
@@ -240,6 +242,8 @@ class Ui_mainWindow(object):
         self.logo.setObjectName(u"logo")
         sizePolicy.setHeightForWidth(self.logo.sizePolicy().hasHeightForWidth())
         self.logo.setSizePolicy(sizePolicy)
+        self.logo.setMinimumSize(QSize(60, 60))
+        self.logo.setMaximumSize(QSize(60, 60))
         self.logo.setStyleSheet(u"image: url(:/leftbox/images/swimmingliu_icon.png);\n"
 "border:2px solid rgba(0,0,0,5%);\n"
 "border-radius: 10%;\n"
@@ -500,6 +504,8 @@ class Ui_mainWindow(object):
 
         self.vsBox = QFrame(self.leftbox_bottom)
         self.vsBox.setObjectName(u"vsBox")
+        self.vsBox.setMinimumSize(QSize(180, 0))
+        self.vsBox.setMaximumSize(QSize(180, 16777215))
         self.vsBox.setFrameShape(QFrame.StyledPanel)
         self.vsBox.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_26 = QHBoxLayout(self.vsBox)
@@ -526,7 +532,7 @@ class Ui_mainWindow(object):
 
         self.manageBox = QFrame(self.leftbox_bottom)
         self.manageBox.setObjectName(u"manageBox")
-        self.manageBox.setMinimumSize(QSize(180, 0))
+        self.manageBox.setMinimumSize(QSize(200, 0))
         self.manageBox.setMaximumSize(QSize(180, 16777215))
         self.manageBox.setFrameShape(QFrame.StyledPanel)
         self.manageBox.setFrameShadow(QFrame.Raised)
@@ -538,8 +544,8 @@ class Ui_mainWindow(object):
         self.src_setting.setObjectName(u"src_setting")
         sizePolicy2.setHeightForWidth(self.src_setting.sizePolicy().hasHeightForWidth())
         self.src_setting.setSizePolicy(sizePolicy2)
-        self.src_setting.setMinimumSize(QSize(180, 0))
-        self.src_setting.setMaximumSize(QSize(180, 16777215))
+        self.src_setting.setMinimumSize(QSize(200, 0))
+        self.src_setting.setMaximumSize(QSize(200, 16777215))
 
         self.horizontalLayout_19.addWidget(self.src_setting)
 
@@ -625,6 +631,7 @@ class Ui_mainWindow(object):
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setFrameShape(QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setLineWidth(1)
         self.horizontalLayout_22 = QHBoxLayout(self.frame_6)
         self.horizontalLayout_22.setSpacing(6)
         self.horizontalLayout_22.setObjectName(u"horizontalLayout_22")
@@ -1910,7 +1917,6 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_4.addWidget(self.mainbox)
 
-        self.verticalLayout_4.setStretch(0, 5)
         self.verticalLayout_4.setStretch(1, 95)
 
         self.verticalLayout.addWidget(self.mainBody)
@@ -1966,7 +1972,7 @@ class Ui_mainWindow(object):
 #if QT_CONFIG(shortcut)
         self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("mainWindow", u"Rtsp   ", None))
+        self.src_camera.setText(QCoreApplication.translate("mainWindow", u"IPcam  ", None))
         self.src_vsmode.setText(QCoreApplication.translate("mainWindow", u"VS Mode", None))
 #if QT_CONFIG(shortcut)
         self.src_vsmode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))

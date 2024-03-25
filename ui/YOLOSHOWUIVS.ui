@@ -918,7 +918,7 @@ QFrame#singleBox:hover{
                      </size>
                     </property>
                     <property name="text">
-                     <string>Rtsp       </string>
+                     <string>IPcam  </string>
                     </property>
                     <property name="iconSize">
                      <size>

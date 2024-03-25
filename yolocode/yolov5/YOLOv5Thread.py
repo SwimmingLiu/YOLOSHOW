@@ -1,4 +1,3 @@
-
 import os.path
 import time
 import numpy as np
@@ -26,6 +25,7 @@ from yolocode.yolov5.utils.general import (
 )
 from yolocode.yolov5.utils.torch_utils import select_device, smart_inference_mode
 
+
 class YOLOv5Thread(QThread):
     # 输入 输出 消息
     send_input = Signal(np.ndarray)
@@ -52,7 +52,7 @@ class YOLOv5Thread(QThread):
         self.speed_thres = 10  # delay, ms
         self.labels_dict = {}  # return a dictionary of results
         self.progress_value = 0  # progress bar
-        self.res_status = False # result status
+        self.res_status = False  # result status
         self.parent_workpath = None  # parent work path
 
         # YOLOv5 参数设置
@@ -61,7 +61,7 @@ class YOLOv5Thread(QThread):
         self.imgsz = (640, 640)
         self.device = ''
         self.dataset = None
-        self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
+        self.vid_path, self.vid_writerm, self.vid_cap = None, None, None
         self.annotator = None
         self.data_path = None
         self.source_type = None
@@ -69,11 +69,10 @@ class YOLOv5Thread(QThread):
         self.project = 'runs/detect'
         self.name = 'exp'
         self.exist_ok = False
-        self.vid_stride = 1     # 视频帧率
-        self.max_det = 1000     # 最大检测数
-        self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
+        self.vid_stride = 1  # 视频帧率
+        self.max_det = 1000  # 最大检测数
+        self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-
 
     def run(self):
         source = str(self.source)
@@ -92,7 +91,6 @@ class YOLOv5Thread(QThread):
             # 保存文件的路径
             self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
-
 
         # 加载模型
         device = select_device(self.device)
@@ -115,10 +113,11 @@ class YOLOv5Thread(QThread):
             dataset = LoadScreenshots(source, img_size=self.imgsz, stride=self.stride, auto=self.pt)
         elif self.is_folder:
             for source_i in self.source:
-                dataset_list.append(LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                dataset_list.append(
+                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
         else:
             dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
-        self.vid_path, self.vid_writer = [None] * bs, [None] * bs     # 视频路径 视频写入器
+        self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
         model.warmup(imgsz=(1 if self.pt or model.triton else bs, 3, *self.imgsz))  # warmup
         self.model = model
         if self.is_folder:
@@ -127,7 +126,7 @@ class YOLOv5Thread(QThread):
         else:
             self.detect(dataset, device, bs)
 
-    def detect(self,dataset,device,bs):
+    def detect(self, dataset, device, bs):
         seen, windows, dt = 0, [], (Profile(device=device), Profile(device=device), Profile(device=device))
         # seen 表示图片计数
         datasets = iter(dataset)
@@ -137,15 +136,14 @@ class YOLOv5Thread(QThread):
             if self.stop_dtc:
                 self.send_msg.emit('Stop Detection')
                 # 释放资源
-                if self.vid_cap is not None:
-                    self.vid_cap.release()
+                if hasattr(dataset, 'cap'):
+                    for thread in dataset.threads:
+                        if thread.is_alive():
+                            thread.join(timeout=5)  # Add timeout
+                    dataset.cap.release()
+                    cv2.destroyAllWindows()
                 if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                     self.vid_writer[-1].release()
-                # 关闭摄像头
-                if self.webcam:
-                    cap = cv2.VideoCapture(self.source)
-                    cap.release()
-                    cv2.destroyAllWindows()
                 break
             #  判断是否更换模型
             if self.current_model_name != self.new_model_name:
@@ -153,9 +151,9 @@ class YOLOv5Thread(QThread):
                 data = self.data
                 self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
                 self.model = DetectMultiBackend_YOLOv5(weights, device=device, dnn=False, data=data, fp16=False)
-                stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
+                stride, names, pt = self.model.stride, self.model.names, self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
-                self.model.warmup(imgsz=(1 if pt or  self.model.triton else bs, 3, *imgsz))  # warmup
+                self.model.warmup(imgsz=(1 if pt or self.model.triton else bs, 3, *imgsz))  # warmup
                 seen, windows, dt = 0, [], (Profile(device=device), Profile(device=device), Profile(device=device))
                 self.current_model_name = self.new_model_name
             # 开始推理
@@ -185,13 +183,13 @@ class YOLOv5Thread(QThread):
                     self.send_fps.emit(str(int(5 / (time.time() - start_time))))
                     start_time = time.time()
 
-                with dt[0]: # pre-process 预处理
-                    im = torch.from_numpy(im).to( self.model.device)
-                    im = im.half() if  self.model.fp16 else im.float()  # uint8 to fp16/32
+                with dt[0]:  # pre-process 预处理
+                    im = torch.from_numpy(im).to(self.model.device)
+                    im = im.half() if self.model.fp16 else im.float()  # uint8 to fp16/32
                     im /= 255  # 0 - 255 to 0.0 - 1.0
                     if len(im.shape) == 3:
                         im = im[None]  # expand for batch dim
-                    if  self.model.xml and im.shape[0] > 1:
+                    if self.model.xml and im.shape[0] > 1:
                         ims = torch.chunk(im, im.shape[0], 0)
                 # Inference
                 with dt[1]:
@@ -203,15 +201,16 @@ class YOLOv5Thread(QThread):
                             if pred is None:
                                 pred = self.model(image, augment=False, visualize=visualize).unsqueeze(0)
                             else:
-                                pred = torch.cat((pred, self.model(image, augment=False, visualize=visualize).unsqueeze(0)),
-                                                 dim=0)
+                                pred = torch.cat(
+                                    (pred, self.model(image, augment=False, visualize=visualize).unsqueeze(0)),
+                                    dim=0)
                         pred = [pred, None]
                     else:
                         pred = self.model(im, augment=False, visualize=visualize)
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False, max_det=self.max_det)
-
+                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False,
+                                               max_det=self.max_det)
 
                 # Process predictions
                 for i, det in enumerate(pred):
@@ -272,8 +271,10 @@ class YOLOv5Thread(QThread):
                                     h = int(self.vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                                 else:  # stream
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
-                                save_path = str(Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
+                                save_path = str(
+                                    Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
+                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps,
+                                                                     (w, h))
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:
@@ -288,4 +289,3 @@ class YOLOv5Thread(QThread):
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
                     break
-

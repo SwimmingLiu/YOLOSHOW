@@ -25,6 +25,7 @@
 - [x] Add `RT-DETR` Algorithm ( `Ultralytics` repo)
 - [x] Add Model Comparison Mode（VS Mode）
 - [x] Support Pose Estimation （`YOLOv8` ）
+- [x] Support Http Protocol in Rtsp Function ( Single Mode )
 - [ ] Tracking & Counting ( `Industrialization` )
 
 ## Functions

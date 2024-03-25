@@ -2395,7 +2395,7 @@ class Ui_mainWindow(object):
 #if QT_CONFIG(shortcut)
         self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("mainWindow", u"Rtsp       ", None))
+        self.src_camera.setText(QCoreApplication.translate("mainWindow", u"IPcam  ", None))
         self.src_singlemode.setText(QCoreApplication.translate("mainWindow", u"SG Mode", None))
 #if QT_CONFIG(shortcut)
         self.src_singlemode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
