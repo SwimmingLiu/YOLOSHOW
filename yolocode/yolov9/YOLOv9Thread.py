@@ -1,4 +1,3 @@
-
 import os.path
 import time
 
@@ -10,8 +9,10 @@ from pathlib import Path
 
 from models.common import DetectMultiBackend_YOLOv9
 from yolocode.yolov9.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, strip_optimizer, xyxy2xywh)
+from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow,
+                                           check_requirements, colorstr, cv2,
+                                           increment_path, non_max_suppression, print_args, scale_boxes,
+                                           strip_optimizer, xyxy2xywh)
 from yolocode.yolov9.utils.plots import Annotator, colors, save_one_box
 from yolocode.yolov9.utils.torch_utils import select_device, smart_inference_mode
 
@@ -42,13 +43,13 @@ class YOLOv9Thread(QThread):
         self.speed_thres = 10  # delay, ms
         self.labels_dict = {}  # return a dictionary of results
         self.progress_value = 0  # progress bar
-        self.res_status = False # result status
+        self.res_status = False  # result status
         self.parent_workpath = None  # parent work path
 
         # YOLOv9 参数设置
         self.model = None
         self.data = 'yolocode/yolov9/data/coco.yaml'  # data_dict
-        self.imgsz = (640,640)
+        self.imgsz = (640, 640)
         self.device = ''
         self.dataset = None
         self.task = 'detect'
@@ -58,16 +59,15 @@ class YOLOv9Thread(QThread):
         self.stream_buffer = False
         self.crop_fraction = 1.0
         self.done_warmup = False
-        self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
+        self.vid_path, self.vid_writerm, self.vid_cap = None, None, None
         self.batch = None
         self.project = 'runs/detect'
         self.name = 'exp'
         self.exist_ok = False
-        self.vid_stride = 1     # 视频帧率
-        self.max_det = 1000     # 最大检测数
-        self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
+        self.vid_stride = 1  # 视频帧率
+        self.max_det = 1000  # 最大检测数
+        self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-
 
     def run(self):
 
@@ -116,8 +116,7 @@ class YOLOv9Thread(QThread):
         else:
             self.detect(dataset, device, bs)
 
-
-    def detect(self,dataset,device,bs):
+    def detect(self, dataset, device, bs):
         seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
         # seen 表示图片计数
         datasets = iter(dataset)
@@ -142,9 +141,9 @@ class YOLOv9Thread(QThread):
                 data = self.data
                 self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
                 self.model = DetectMultiBackend_YOLOv9(weights, device=device, dnn=False, data=data, fp16=False)
-                stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
+                stride, names, pt = self.model.stride, self.model.names, self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
-                self.model.warmup(imgsz=(1 if pt or  self.model.triton else bs, 3, *imgsz))  # warmup
+                self.model.warmup(imgsz=(1 if pt or self.model.triton else bs, 3, *imgsz))  # warmup
                 seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
                 self.current_model_name = self.new_model_name
             # 开始推理
@@ -188,7 +187,8 @@ class YOLOv9Thread(QThread):
 
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms, max_det=self.max_det)
+                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms,
+                                               max_det=self.max_det)
 
                 # Second-stage classifier (optional)
                 # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
@@ -235,7 +235,6 @@ class YOLOv9Thread(QThread):
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
 
-
                     # Save results (image with detections)
                     if self.save_res:
                         if dataset.mode == 'image':
@@ -253,7 +252,8 @@ class YOLOv9Thread(QThread):
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
                                 save_path = str(
                                     Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps,
+                                                                     (w, h))
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:
@@ -268,5 +268,3 @@ class YOLOv9Thread(QThread):
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
                     break
-
-

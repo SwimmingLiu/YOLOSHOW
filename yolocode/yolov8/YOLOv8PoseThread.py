@@ -118,14 +118,17 @@ class YOLOv8PoseThread(QThread):
                 self.send_msg.emit('Stop Detection')
                 # 释放资源
                 self.dataset.running = False  # stop flag for Thread
-                for thread in  self.dataset.threads:
-                    if thread.is_alive():
-                        thread.join(timeout=5)  # Add timeout
-                for cap in  self.dataset.caps:  # Iterate through the stored VideoCapture objects
-                    try:
-                        cap.release()  # release video capture
-                    except Exception as e:
-                        LOGGER.warning(f"WARNING ⚠️ Could not release VideoCapture object: {e}")
+                # 判断self.dataset里面是否有threads
+                if hasattr(self.dataset, 'threads'):
+                    for thread in self.dataset.threads:
+                        if thread.is_alive():
+                            thread.join(timeout=5)  # Add timeout
+                if hasattr(self.dataset, 'caps'):
+                    for cap in self.dataset.caps:  # Iterate through the stored VideoCapture objects
+                        try:
+                            cap.release()  # release video capture
+                        except Exception as e:
+                            LOGGER.warning(f"WARNING ⚠️ Could not release VideoCapture object: {e}")
                 cv2.destroyAllWindows()
                 if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                     self.vid_writer[-1].release()
