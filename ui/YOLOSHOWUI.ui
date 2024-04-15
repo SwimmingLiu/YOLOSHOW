@@ -52,10 +52,10 @@
 }</string>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,95">
       <property name="spacing">
@@ -138,10 +138,10 @@ QPushButton#minimizeButton {
 </string>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <property name="spacing">
@@ -212,7 +212,7 @@ QPushButton:pressed {
            </layout>
           </widget>
          </item>
-         <item alignment="Qt::AlignHCenter">
+         <item alignment="Qt::AlignmentFlag::AlignHCenter">
           <widget class="QFrame" name="right_top">
            <property name="styleSheet">
             <string notr="true">QLabel#title{
@@ -226,10 +226,10 @@ Spacer{
 }</string>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <property name="spacing">
@@ -247,7 +247,7 @@ Spacer{
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item alignment="Qt::AlignHCenter">
+            <item alignment="Qt::AlignmentFlag::AlignHCenter">
              <widget class="QLabel" name="title">
               <property name="styleSheet">
                <string notr="true"/>
@@ -291,7 +291,7 @@ Spacer{
           <number>0</number>
          </property>
          <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -336,10 +336,10 @@ Spacer{
 </string>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,60,30">
             <property name="spacing">
@@ -372,10 +372,10 @@ Spacer{
                </size>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="4,6">
                <property name="spacing">
@@ -420,10 +420,10 @@ border-radius: 10%;
 </string>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                 </widget>
                </item>
@@ -440,10 +440,10 @@ QFrame{
 }</string>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_20">
                   <property name="spacing">
@@ -558,10 +558,10 @@ QFrame#vsBox:hover{
 }</string>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,1,4,1,4,1,4,1,4,1,4,1,4">
                <property name="spacing">
@@ -582,7 +582,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="zSpacer5">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -613,13 +613,13 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <property name="spacing">
@@ -677,7 +677,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="zSpacer1">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -702,13 +702,13 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
                   <property name="spacing">
@@ -726,7 +726,7 @@ QFrame#vsBox:hover{
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item alignment="Qt::AlignLeft">
+                  <item alignment="Qt::AlignmentFlag::AlignLeft">
                    <widget class="QPushButton" name="src_img">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -763,7 +763,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="zSpacer2">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -788,13 +788,13 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <property name="spacing">
@@ -812,7 +812,7 @@ QFrame#vsBox:hover{
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item alignment="Qt::AlignLeft">
+                  <item alignment="Qt::AlignmentFlag::AlignLeft">
                    <widget class="QPushButton" name="src_webcam">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -833,7 +833,7 @@ QFrame#vsBox:hover{
                      </size>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="text">
                      <string> Webcam</string>
@@ -852,7 +852,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="zSpacer4">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -877,13 +877,13 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_6">
                   <property name="spacing">
@@ -901,7 +901,7 @@ QFrame#vsBox:hover{
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item alignment="Qt::AlignLeft">
+                  <item alignment="Qt::AlignmentFlag::AlignLeft">
                    <widget class="QPushButton" name="src_folder">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -941,7 +941,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="verticalSpacer">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -966,13 +966,13 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="layoutDirection">
-                  <enum>Qt::LeftToRight</enum>
+                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <property name="spacing">
@@ -990,7 +990,7 @@ QFrame#vsBox:hover{
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item alignment="Qt::AlignLeft">
+                  <item alignment="Qt::AlignmentFlag::AlignLeft">
                    <widget class="QPushButton" name="src_camera">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1027,7 +1027,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="zSpacer3">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -1052,10 +1052,10 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_26">
                   <property name="spacing">
@@ -1116,7 +1116,7 @@ QFrame#vsBox:hover{
                <item>
                 <spacer name="verticalSpacer_4">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -1141,10 +1141,10 @@ QFrame#vsBox:hover{
                   </size>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_19">
                   <property name="spacing">
@@ -1196,7 +1196,7 @@ QFrame#vsBox:hover{
             <item>
              <spacer name="verticalSpacer_2">
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -1255,10 +1255,10 @@ QFrame#main_rightbox{
 }*/</string>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5" stretch="10,86,0,2">
             <property name="spacing">
@@ -1282,10 +1282,10 @@ QFrame#main_rightbox{
                <string notr="true"/>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_14">
                <property name="leftMargin">
@@ -1303,10 +1303,10 @@ QFrame#main_rightbox{
                <item>
                 <widget class="QFrame" name="frame_6">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <property name="lineWidth">
                   <number>1</number>
@@ -1342,7 +1342,7 @@ QFrame#main_rightbox{
                      <pixmap resource="YOLOSHOWUI.qrc">:/statusbar/images/newsize/classesBar.png</pixmap>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -1373,10 +1373,10 @@ border: 1px outset #97D9E1;
 </string>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
+                     <enum>QFrame::Shape::StyledPanel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
+                     <enum>QFrame::Shadow::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,2,1">
                      <property name="spacing">
@@ -1400,10 +1400,10 @@ border: 1px outset #97D9E1;
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QHBoxLayout" name="horizontalLayout_11">
                         <property name="spacing">
@@ -1446,7 +1446,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                            <string>Classes</string>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                           <property name="indent">
                            <number>0</number>
@@ -1468,7 +1468,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">background-color: rgba(255, 255, 255, 89);</string>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -1478,10 +1478,10 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_8">
                         <property name="spacing">
@@ -1499,7 +1499,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <property name="bottomMargin">
                          <number>6</number>
                         </property>
-                        <item alignment="Qt::AlignTop">
+                        <item alignment="Qt::AlignmentFlag::AlignTop">
                          <widget class="QLabel" name="Class_num">
                           <property name="minimumSize">
                            <size>
@@ -1530,7 +1530,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                            <string/>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                          </widget>
                         </item>
@@ -1546,10 +1546,10 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                <item>
                 <widget class="QFrame" name="frame_7">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_23">
                   <property name="spacing">
@@ -1582,7 +1582,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                      <pixmap resource="YOLOSHOWUI.qrc">:/statusbar/images/newsize/targetBar.png</pixmap>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -1613,10 +1613,10 @@ border: 1px outset #9599E2;
 </string>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
+                     <enum>QFrame::Shape::StyledPanel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
+                     <enum>QFrame::Shadow::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_9" stretch="0,2,1">
                      <property name="spacing">
@@ -1640,10 +1640,10 @@ border: 1px outset #9599E2;
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QHBoxLayout" name="horizontalLayout_12">
                         <property name="spacing">
@@ -1686,7 +1686,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                            <string>Targets</string>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                           <property name="indent">
                            <number>0</number>
@@ -1708,7 +1708,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">background-color: rgba(255, 255, 255, 89);</string>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -1718,10 +1718,10 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_10">
                         <property name="spacing">
@@ -1739,7 +1739,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <property name="bottomMargin">
                          <number>6</number>
                         </property>
-                        <item alignment="Qt::AlignTop">
+                        <item alignment="Qt::AlignmentFlag::AlignTop">
                          <widget class="QLabel" name="Target_num">
                           <property name="minimumSize">
                            <size>
@@ -1770,7 +1770,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                            <string/>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                          </widget>
                         </item>
@@ -1786,10 +1786,10 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                <item>
                 <widget class="QFrame" name="frame_8">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_24">
                   <property name="spacing">
@@ -1822,7 +1822,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                      <pixmap resource="YOLOSHOWUI.qrc">:/statusbar/images/newsize/fpsBar.png</pixmap>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -1853,10 +1853,10 @@ border: 1px outset rgb(153, 117, 219)
 </string>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
+                     <enum>QFrame::Shape::StyledPanel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
+                     <enum>QFrame::Shadow::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,2,1">
                      <property name="spacing">
@@ -1880,10 +1880,10 @@ border: 1px outset rgb(153, 117, 219)
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QHBoxLayout" name="horizontalLayout_10">
                         <property name="spacing">
@@ -1929,7 +1929,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                            <string>Fps</string>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                           <property name="wordWrap">
                            <bool>false</bool>
@@ -1954,7 +1954,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">background-color: rgba(255, 255, 255, 89);</string>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -1964,10 +1964,10 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_12">
                         <property name="spacing">
@@ -1985,7 +1985,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <property name="bottomMargin">
                          <number>6</number>
                         </property>
-                        <item alignment="Qt::AlignTop">
+                        <item alignment="Qt::AlignmentFlag::AlignTop">
                          <widget class="QLabel" name="fps_label">
                           <property name="minimumSize">
                            <size>
@@ -2016,7 +2016,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                            <string/>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                          </widget>
                         </item>
@@ -2032,10 +2032,10 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                <item>
                 <widget class="QFrame" name="frame_9">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_25">
                   <property name="spacing">
@@ -2068,7 +2068,7 @@ font: 17pt &quot;Microsoft YaHei UI&quot;;</string>
                      <pixmap resource="YOLOSHOWUI.qrc">:/statusbar/images/newsize/modelBar.png</pixmap>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -2099,10 +2099,10 @@ border: 1px outset rgb(98, 91, 213);
 </string>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
+                     <enum>QFrame::Shape::StyledPanel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
+                     <enum>QFrame::Shadow::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_13" stretch="0,2,1">
                      <property name="spacing">
@@ -2126,10 +2126,10 @@ border: 1px outset rgb(98, 91, 213);
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QHBoxLayout" name="horizontalLayout_13">
                         <property name="spacing">
@@ -2175,7 +2175,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                            <string>Model</string>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                           <property name="wordWrap">
                            <bool>false</bool>
@@ -2200,7 +2200,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">background-color: rgba(255, 255, 255, 89);</string>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -2210,10 +2210,10 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <string notr="true">border:none</string>
                        </property>
                        <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
+                        <enum>QFrame::Shape::StyledPanel</enum>
                        </property>
                        <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
+                        <enum>QFrame::Shadow::Raised</enum>
                        </property>
                        <layout class="QVBoxLayout" name="verticalLayout_14">
                         <property name="spacing">
@@ -2231,7 +2231,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                         <property name="bottomMargin">
                          <number>6</number>
                         </property>
-                        <item alignment="Qt::AlignTop">
+                        <item alignment="Qt::AlignmentFlag::AlignTop">
                          <widget class="QLabel" name="Model_label">
                           <property name="minimumSize">
                            <size>
@@ -2263,7 +2263,7 @@ font: 15pt &quot;Microsoft YaHei UI&quot;;
                            <string/>
                           </property>
                           <property name="alignment">
-                           <set>Qt::AlignCenter</set>
+                           <set>Qt::AlignmentFlag::AlignCenter</set>
                           </property>
                          </widget>
                         </item>
@@ -2285,10 +2285,10 @@ font: 15pt &quot;Microsoft YaHei UI&quot;;
                <string notr="true"/>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_9">
                <property name="spacing">
@@ -2309,7 +2309,7 @@ font: 15pt &quot;Microsoft YaHei UI&quot;;
                <item>
                 <widget class="QSplitter" name="splitter">
                  <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                  <enum>Qt::Orientation::Horizontal</enum>
                  </property>
                  <widget class="QLabel" name="main_leftbox">
                   <property name="minimumSize">
@@ -2341,10 +2341,10 @@ font: 15pt &quot;Microsoft YaHei UI&quot;;
             <item>
              <widget class="QFrame" name="rightbox_play">
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_20">
                <property name="leftMargin">
@@ -2491,10 +2491,10 @@ QPushButton:hover{
                <string notr="true"/>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_15">
                <property name="spacing">
@@ -2558,10 +2558,10 @@ color: rgba(0, 0, 0, 140);</string>
 }</string>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <property name="spacing">
@@ -2604,10 +2604,10 @@ color: rgba(0, 0, 0, 140);</string>
 }</string>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_22">
                <property name="spacing">
@@ -2637,7 +2637,7 @@ font: 700 italic 16pt &quot;Segoe UI&quot;;</string>
                   <string>Settings</string>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignCenter</set>
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -2709,13 +2709,13 @@ border-radius:15px;
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::DefaultContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
@@ -2870,13 +2870,13 @@ border-radius:15px;
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::DefaultContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
@@ -2934,7 +2934,7 @@ font: 700 13pt &quot;Nirmala UI&quot;;
                       <height>20</height>
                      </size>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                    <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="4,6">
                      <property name="spacing">
                       <number>10</number>
                      </property>
@@ -3032,7 +3032,7 @@ border-radius: 5px;
                         <number>45</number>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -3098,13 +3098,13 @@ border-radius:15px;
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::DefaultContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
@@ -3162,7 +3162,7 @@ font: 700 13pt &quot;Nirmala UI&quot;;
                       <height>20</height>
                      </size>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_17">
+                    <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="4,6">
                      <property name="spacing">
                       <number>10</number>
                      </property>
@@ -3260,7 +3260,7 @@ border-radius: 5px;
                         <number>25</number>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -3326,13 +3326,13 @@ border-radius:15px;
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::DefaultContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
@@ -3390,7 +3390,7 @@ font: 700 13pt &quot;Nirmala UI&quot;;
                       <height>20</height>
                      </size>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_18">
+                    <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="35,65">
                      <property name="spacing">
                       <number>10</number>
                      </property>
@@ -3476,7 +3476,7 @@ border-radius: 5px;
                         <number>10</number>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -3507,10 +3507,10 @@ border-radius:15px;
 }</string>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_23">
                   <item>
@@ -3548,13 +3548,13 @@ border-radius:15px;
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::DefaultContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <enum>Qt::LayoutDirection::LeftToRight</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>false</bool>
@@ -3611,7 +3611,7 @@ font: 700 13pt &quot;Nirmala UI&quot;;
                       <height>20</height>
                      </size>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_21">
+                    <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="35,65">
                      <property name="spacing">
                       <number>10</number>
                      </property>
@@ -3715,7 +3715,7 @@ border-radius: 5px;
                         <number>3</number>
                        </property>
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                       </widget>
                      </item>
@@ -3740,19 +3740,19 @@ border-radius:15px;
 }</string>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_16">
                   <item>
                    <widget class="QFrame" name="frame_4">
                     <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
+                     <enum>QFrame::Shape::StyledPanel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
+                     <enum>QFrame::Shadow::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_17">
                      <property name="spacing">
@@ -3872,7 +3872,7 @@ QPushButton:hover{
                <item>
                 <spacer name="verticalSpacer_3">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
