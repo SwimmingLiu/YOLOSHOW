@@ -131,9 +131,10 @@ class YOLOv7Thread(QThread):
             if self.stop_dtc:
                 self.send_msg.emit('Stop Detection')
                 # 释放资源
-                if hasattr(dataset, 'cap'):
+                if hasattr(dataset, 'threads'):
                     if dataset.threads.is_alive():
                         dataset.threads.join(timeout=5)  # Add timeout
+                if hasattr(dataset, 'cap'):
                     dataset.cap.release()
                     cv2.destroyAllWindows()
                 if isinstance(self.vid_writer, cv2.VideoWriter):

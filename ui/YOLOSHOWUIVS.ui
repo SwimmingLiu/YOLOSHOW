@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1426</width>
+    <width>1526</width>
     <height>832</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>1426</width>
+    <width>1526</width>
     <height>900</height>
    </size>
   </property>
@@ -323,7 +323,7 @@ Spacer{
            </property>
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>180</width>
              <height>0</height>
             </size>
            </property>
@@ -349,7 +349,7 @@ Spacer{
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,55,35">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,60,30">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -992,7 +992,7 @@ QFrame#singleBox:hover{
                      <string notr="true"/>
                     </property>
                     <property name="text">
-                     <string>SG Mode</string>
+                     <string>  SG Mode</string>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -3319,7 +3319,7 @@ QPushButton:hover{
                 <number>9</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>10</number>
                </property>
                <property name="rightMargin">
                 <number>0</number>

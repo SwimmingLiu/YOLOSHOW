@@ -140,6 +140,7 @@ class YOLOv5Thread(QThread):
                     for thread in dataset.threads:
                         if thread.is_alive():
                             thread.join(timeout=5)  # Add timeout
+                if hasattr(dataset, 'cap'):
                     dataset.cap.release()
                     cv2.destroyAllWindows()
                 if isinstance(self.vid_writer[-1], cv2.VideoWriter):

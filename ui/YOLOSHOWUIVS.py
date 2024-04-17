@@ -28,9 +28,9 @@ class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         if not mainWindow.objectName():
             mainWindow.setObjectName(u"mainWindow")
-        mainWindow.resize(1426, 832)
+        mainWindow.resize(1526, 832)
         mainWindow.setMinimumSize(QSize(0, 0))
-        mainWindow.setMaximumSize(QSize(1426, 900))
+        mainWindow.setMaximumSize(QSize(1526, 900))
         mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
 "	border: 1px solid rgba(0, 0, 0, 40%);\n"
 "	border-top:none;\n"
@@ -208,7 +208,7 @@ class Ui_mainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.leftBox.sizePolicy().hasHeightForWidth())
         self.leftBox.setSizePolicy(sizePolicy1)
-        self.leftBox.setMinimumSize(QSize(80, 0))
+        self.leftBox.setMinimumSize(QSize(180, 0))
         self.leftBox.setMaximumSize(QSize(80, 16777215))
         self.leftBox.setStyleSheet(u"QFrame#leftBox  {\n"
 "    /*background-color: rgba(255, 255, 255, 80%);*/\n"
@@ -539,8 +539,8 @@ class Ui_mainWindow(object):
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
         self.verticalLayout_2.setStretch(0, 10)
-        self.verticalLayout_2.setStretch(1, 55)
-        self.verticalLayout_2.setStretch(2, 35)
+        self.verticalLayout_2.setStretch(1, 60)
+        self.verticalLayout_2.setStretch(2, 30)
 
         self.mainBox.addWidget(self.leftBox)
 
@@ -1489,7 +1489,7 @@ class Ui_mainWindow(object):
         self.horizontalLayout_15 = QHBoxLayout(self.rightbox_bottom)
         self.horizontalLayout_15.setSpacing(0)
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
-        self.horizontalLayout_15.setContentsMargins(9, 0, 0, 0)
+        self.horizontalLayout_15.setContentsMargins(9, 10, 0, 0)
         self.message_bar = QLabel(self.rightbox_bottom)
         self.message_bar.setObjectName(u"message_bar")
         self.message_bar.setStyleSheet(u"font: 700 11pt \"Segoe UI\";\n"
@@ -2396,7 +2396,7 @@ class Ui_mainWindow(object):
         self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
         self.src_camera.setText(QCoreApplication.translate("mainWindow", u"IPcam  ", None))
-        self.src_singlemode.setText(QCoreApplication.translate("mainWindow", u"SG Mode", None))
+        self.src_singlemode.setText(QCoreApplication.translate("mainWindow", u"  SG Mode", None))
 #if QT_CONFIG(shortcut)
         self.src_singlemode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
