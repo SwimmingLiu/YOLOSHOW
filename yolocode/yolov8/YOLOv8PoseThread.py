@@ -218,8 +218,7 @@ class YOLOv8PoseThread(QThread):
                     self.send_target_num.emit(target_nums)
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
-                        self.save_preds(self.vid_cap, i ,save_path)
-                        self.res_path = save_path
+                        self.res_path = self.save_preds(self.vid_cap, i ,save_path)
 
 
                     if self.speed_thres != 0:
@@ -350,9 +349,12 @@ class YOLOv8PoseThread(QThread):
     def save_preds(self, vid_cap, idx, save_path):
         """Save video predictions as mp4 at specified path."""
         im0 = self.plotted_img
+        suffix, fourcc = (".mp4", "avc1") if MACOS else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
         # Save imgs
         if self.dataset.mode == "image":
             cv2.imwrite(save_path, im0)
+            return save_path
+
         else:  # 'video' or 'stream'
             if self.vid_path[idx] != save_path:  # new video
                 self.vid_path[idx] = save_path
@@ -364,12 +366,13 @@ class YOLOv8PoseThread(QThread):
                     h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                 else:  # stream
                     fps, w, h = 30, im0.shape[1], im0.shape[0]
-                suffix, fourcc = (".mp4", "avc1") if MACOS else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
+                # suffix, fourcc = (".mp4", "avc1") if MACOS else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
                 self.vid_writer[idx] = cv2.VideoWriter(
                     str(Path(save_path).with_suffix(suffix)), cv2.VideoWriter_fourcc(*fourcc), fps, (w, h)
                 )
             # Write video
             self.vid_writer[idx].write(im0)
+            return str(Path(save_path).with_suffix(suffix))
 
 
     def write_results(self, idx, results, batch):

@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 import requests
 
-from ui.YOLOSHOWUI import Ui_mainWindow
+from ui.YOLOSHOWUIVS import Ui_mainWindow
 from ui.rtspDialog import CustomMessageBox
 from utils import glo
 
@@ -46,7 +46,7 @@ PATH_YOLO_SHOW = os.path.join("ui/YOLOSHOWUIVS.ui")
 formType, baseType = loadUiType(PATH_YOLO_SHOW)
 
 WIDTH_LEFT_BOX_STANDARD = 80
-WIDTH_LEFT_BOX_EXTENDED = 200
+WIDTH_LEFT_BOX_EXTENDED = 180
 WIDTH_LOGO = 60
 
 KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
@@ -982,6 +982,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow):
                           and not self.yolov8_thread2.res_status and not self.yolov9_thread2.res_status
                           and not self.yolov5seg_thread2.res_status and not self.yolov8seg_thread2.res_status
                           and not self.rtdetr_thread2.res_status and not self.yolov8pose_thread2.res_status)
+        self.model_name = self.model_name1
+
         # 默认保存左侧模型的检测结果
         if thread1_status:
             self.showStatus("Please select the Image/Video before starting detection...")
