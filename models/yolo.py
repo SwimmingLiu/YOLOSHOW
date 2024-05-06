@@ -29,6 +29,7 @@ yoloname2 = glo.get_value('yoloname2')
 yolo_name = ((str(yoloname1) if yoloname1 else '') + (str(yoloname2) if str(
     yoloname2) else '')) if yoloname1 or yoloname2 else yoloname
 
+#可更换添加改进部分代码
 if "yolov5" in yolo_name:
     # YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
     FILE = Path(__file__).resolve()
