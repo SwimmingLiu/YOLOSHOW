@@ -267,7 +267,7 @@ class YOLOv7Thread(QThread):
                                                                   cv2.VideoWriter_fourcc(*'mp4v'),
                                                                   fps,
                                                                   (w, h))
-                                self.vid_writer.write(im0)
+                            self.vid_writer.write(im0)
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
