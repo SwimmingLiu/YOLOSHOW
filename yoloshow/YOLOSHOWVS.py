@@ -42,6 +42,9 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.current_workpath = os.getcwd()
         self.inputPath = None
         self.allModelNames = ALL_MODEL_NAMES
+        self.result_statistic = None
+        self.detect_result = None
+
         # --- 加载UI --- #
         self.setupUi(self)
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景

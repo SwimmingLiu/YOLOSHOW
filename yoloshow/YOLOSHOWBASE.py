@@ -43,7 +43,8 @@ class YOLOSHOWBASE:
         super().__init__()
         self.inputPath = None
         self.yolo_threads = None
-
+        self.result_statistic = None
+        self.detect_result = None
 
     # 初始化左侧菜单栏
     def initSiderWidget(self):
@@ -847,7 +848,7 @@ class YOLOSHOWBASE:
         if self.result_statistic:
             # 创建新字典，使用中文键
             result_str = ""
-            for index, key, value in enumerate(self.result_statistic.items()):
+            for index, (key, value) in enumerate(self.result_statistic.items()):
                 result_str += f"{key}: {value} x"
                 if (index + 1) % 4 == 0:
                     result_str += "\n"
