@@ -38,6 +38,8 @@ class YOLOv5SegThread(QThread):
     send_progress = Signal(int)  # Completeness
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
+    send_result_picture = Signal(dict)  # Send the result picture
+    send_result_table = Signal(list)    # Send the result table
 
     def __init__(self):
         super(YOLOv5SegThread, self).__init__()
@@ -75,7 +77,8 @@ class YOLOv5SegThread(QThread):
         self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
         self.retina_masks = False
-
+        self.results_picture = dict()     # 结果图片
+        self.results_table = list()         # 结果表格
 
     def run(self):
         source = str(self.source)
@@ -137,14 +140,22 @@ class YOLOv5SegThread(QThread):
         while True:
             if self.stop_dtc:
                 self.send_msg.emit('Stop Detection')
+                # --- 发送图片和表格结果 --- #
+                self.send_result_picture.emit(self.results_picture)  # 发送图片结果
+                for key, value in self.results_picture.items():
+                    self.results_table.append([key, str(value)])
+                self.results_picture = dict()
+                self.send_result_table.emit(self.results_table)  # 发送表格结果
+                self.results_table = list()
+                # --- 发送图片和表格结果 --- #
                 # 释放资源
                 if hasattr(dataset, 'threads'):
                     for thread in dataset.threads:
                         if thread.is_alive():
-                            thread.join(timeout=5)  # Add timeout
-                if hasattr(dataset, 'cap'):
+                            thread.join(timeout=1)  # Add timeout
+                if hasattr(dataset, 'cap') and dataset.cap is not None:
                     dataset.cap.release()
-                    cv2.destroyAllWindows()
+                cv2.destroyAllWindows()
                 if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                     self.vid_writer[-1].release()
                 break
@@ -236,7 +247,10 @@ class YOLOv5SegThread(QThread):
                             s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, "  # add to string
                             class_nums += 1
                             target_nums += int(n)
-
+                            if self.names[int(c)] in self.labels_dict:
+                                self.labels_dict[self.names[int(c)]] += int(n)
+                            else:  # 第一次出现的类别
+                                self.labels_dict[self.names[int(c)]] = int(n)
                         # Mask plotting
                         annotator.masks(
                             masks,
@@ -261,6 +275,7 @@ class YOLOv5SegThread(QThread):
                     self.send_output.emit(im0)  # 输出图片
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
+                    self.results_picture = self.labels_dict
 
                     if self.save_res:
                         if dataset.mode == "image":
@@ -286,6 +301,14 @@ class YOLOv5SegThread(QThread):
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)
                     self.send_msg.emit('Finish Detection')
+                    # --- 发送图片和表格结果 --- #
+                    self.send_result_picture.emit(self.results_picture)  # 发送图片结果
+                    for key, value in self.results_picture.items():
+                        self.results_table.append([key, str(value)])
+                    self.results_picture = dict()
+                    self.send_result_table.emit(self.results_table)  # 发送表格结果
+                    self.results_table = list()
+                    # --- 发送图片和表格结果 --- #
                     self.res_status = True
                     if self.vid_cap is not None:
                         self.vid_cap.release()

@@ -1,14 +1,14 @@
-# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 / RTDETR GUI based on Pyside6
+# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 / YOLOv10 / RTDETR GUI based on Pyside6
 
 ## Introduction
 
-***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` `RT-DETR` algorithm. 
+***YOLOSHOW*** is a graphical user interface (GUI) application embed with`YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9` `YOLOv10` `RT-DETR` algorithm. 
 
  <p align="center"> 
   English &nbsp; | &nbsp; <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md">简体中文</a>
  </p>
 
-![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
+![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREENSHOT.png)
 
 ## Demo Video
 
@@ -24,34 +24,38 @@
 - [x] Support Instance Segmentation （ `YOLOv5` & `YOLOv8` ）
 - [x] Add `RT-DETR` Algorithm ( `Ultralytics` repo)
 - [x] Add Model Comparison Mode（VS Mode）
-- [x] Support Pose Estimation （`YOLOv8` ）
+- [x] Support Pose Estimation （ `YOLOv8` ）
 - [x] Support Http Protocol in Rtsp Function ( Single Mode )
+- [x] Support Oriented Bounding Boxes ( `YOLOv8` )
+- [x] Add `YOLOv10` Algorithm
+- [x] Support Dragging File Input
 - [ ] Tracking & Counting ( `Industrialization` )
 
 ## Functions
 
-### 1. Support Image / Video / Webcam / Folder (Batch ) Object Detection
+### 1. Support Image / Video / Webcam / Folder (Batch) / IPCam Object Detection
 
-Choose Image / Video / Webcam / Folder (Batch ) in the menu bar on the left to detect objects.
+Choose Image / Video / Webcam / Folder (Batch) / IPCam in the menu bar on the left to detect objects.
 
 ### 2. Change Models / Hyper Parameters dynamically
 
 When the program is running to detect targets, you can change models / hyper Parameters
 
-1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` / `RTDETR` / `YOLOv5-seg` / `YOLOv8-seg` dynamically
+1. Support changing model in `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` / `RTDETR` / `YOLOv5-seg` / `YOLOv8-seg` / `YOLOv10` dynamically
 2. Support changing `IOU` / `Confidence` / `Delay time ` / `line thickness` dynamically
 
 ### 3. Loading Model Automatically
 
-Our program will automatically detect  `pt` files including [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/)  that were previously added to the `ptfiles` folder.
+Our program will automatically detect  `pt` files including [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/)  / [YOLOv10 Models](https://github.com/THU-MIG/yolov10/releases/)  that were previously added to the `ptfiles` folder.
 
 If you need add the new `pt` file, please click `Import Model` button in `Settings` box to select your `pt` file. Then our program will put it into  `ptfiles` folder.
 
 **Notice :** 
 
-1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` / `rtdetr` .  (e.g. `yolov8-test.pt`)
+1. All `pt` files are named including `yolov5` / `yolov7` / `yolov8` / `yolov9` / `yolov10` / `rtdetr` .  (e.g. `yolov8-test.pt`)
 2. If it is a `pt` file of  segmentation mode, please name it including `yolov5n-seg` / `yolov8s-seg` .  (e.g. `yolov8n-seg-test.pt`)
 3. If it is a `pt` file of  pose estimation mode, please name it including `yolov8n-pose` .  (e.g. `yolov8n-pose-test.pt`)
+4. If it is a `pt` file of  oriented bounding box mode, please name it including `yolov8n-obb` .  (e.g. `yolov8n-obb-test.pt`)
 
 ### 4. Loading Configures
 
@@ -60,15 +64,15 @@ If you need add the new `pt` file, please click `Import Model` button in `Settin
 
 ### 5. Save Results
 
-If you need Save results, please click `Save MP4/JPG` before detection. Then you can save your detection results in selected path.
+If you need Save results, please click `Save Mode` before detection. Then you can save your detection results in selected path.
 
 ### 6. Support Object Detection, Instance Segmentation and Pose Estimation 
 
-From ***YOLOSHOW v2.2***，our work supports both Object Detection , Instance Segmentation and Pose Estimation. Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` instance task.
+From ***YOLOSHOW v3.0***，our work supports both Object Detection , Instance Segmentation, Pose Estimation and Oriented Bounding Box. Meanwhile, it also supports task switching between different versions，such as switching from `YOLOv5` Object Detection task to `YOLOv8` Instance Segmentation task.
 
-### 7. Support Model Comparison among Object Detection,  Instance Segmentation and Pose Estimation
+### 7. Support Model Comparison among Object Detection,  Instance Segmentation, Pose Estimation and Oriented Bounding Box
 
-From ***YOLOSHOW v2.0***，our work supports compare model performance among Object Detection, Instance Segmentation and Pose Estimation.
+From ***YOLOSHOW v3.0***，our work supports compare model performance among Object Detection, Instance Segmentation, Pose Estimation and Oriented Bounding Box.
 
 ## Preparation
 
@@ -146,7 +150,7 @@ python main.py
 
 ### YOLO Algorithm
 
-[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics)  [YOLOv9](https://github.com/WongKinYiu/yolov9) 
+[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7)  [YOLOv8](https://github.com/ultralytics/ultralytics)  [YOLOv9](https://github.com/WongKinYiu/yolov9)  [YOLOv10](https://github.com/THU-MIG/yolov10)
 
 ### YOLO Graphical User Interface
 

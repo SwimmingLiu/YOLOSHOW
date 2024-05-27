@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="leftbox">
+    <file>../images/newsize/statistics.png</file>
+    <file>../images/newsize/table.png</file>
     <file>../images/newsize/single.png</file>
     <file>../images/newsize/vs.png</file>
     <file>../images/newsize/scalling.png</file>

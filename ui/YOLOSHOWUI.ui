@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1538</width>
-    <height>830</height>
+    <height>827</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -341,7 +341,7 @@ Spacer{
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,60,30">
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,80,10">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -524,6 +524,12 @@ QPushButton#src_setting{
 QPushButton#src_vsmode{
 	background-image:url(:/leftbox/images/newsize/vs.png);
 }
+QPushButton#src_result{
+	background-image:url(:/leftbox/images/newsize/statistics.png);
+}
+QPushButton#src_table{
+	background-image:url(:/leftbox/images/newsize/table.png);
+}
 QPushButton{
 	border:none;
 	text-align: center;
@@ -555,6 +561,12 @@ QFrame#manageBox:hover{
 }
 QFrame#vsBox:hover{
 	background-color: rgba(114, 129, 214, 59);
+}
+QFrame#resultBox:hover{
+	background-color: rgba(114, 129, 214, 59);
+}
+QFrame#tableBox:hover{
+	background-color: rgba(114, 129, 214, 59);
 }</string>
               </property>
               <property name="frameShape">
@@ -563,7 +575,7 @@ QFrame#vsBox:hover{
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,1,4,1,4,1,4,1,4,1,4,1,4">
+              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -1026,6 +1038,148 @@ QFrame#vsBox:hover{
                </item>
                <item>
                 <spacer name="zSpacer3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QFrame" name="resultBox">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_27">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="src_result">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>180</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>180</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>    Result Pic  </string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QFrame" name="tableBox">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_28">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="src_table">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>180</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>180</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>    Result Tab  </string>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_6">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -3826,7 +3980,7 @@ QCheckBox::indicator:checked {
         }</string>
                        </property>
                        <property name="text">
-                        <string>Save MP4/JPG</string>
+                        <string>Save Mode</string>
                        </property>
                       </widget>
                      </item>
@@ -3905,7 +4059,7 @@ QPushButton:hover{
   <customwidget>
    <class>DoubleClickQFrame</class>
    <extends>QFrame</extends>
-   <header>ui.UpdateFrame</header>
+   <header>ui.utils.UpdateFrame</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

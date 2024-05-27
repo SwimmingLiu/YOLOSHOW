@@ -1,15 +1,13 @@
-# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 / RTDETR  基于 Pyside6 的图形化界面
+# YOLOSHOW -  YOLOv5 / YOLOv7 / YOLOv8 / YOLOv9 / YOLOv10 / RTDETR  基于 Pyside6 的图形化界面
 
 ## 介绍
 
-***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9`  `RT-DETR` 
+***YOLOSHOW*** 是一款集合了 `YOLOv5` `YOLOv7` `YOLOv8` `YOLOv9`  `YOLOv10` `RT-DETR` 的图形化界面程序
 
 <p align="center"> 
   <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README.md"> English</a> &nbsp; | &nbsp; 简体中文</a>
  </p>
-
-
-![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREEN.png)
+![YOLOSHOW-Screen](https://oss.swimmingliu.cn/YOLOSHOW-SCREENSHOT.png)
 
 ## 演示视频
 
@@ -27,32 +25,36 @@
 - [x] 加入模型对比模式（VS Mode）
 - [x] 支持姿态估计 （ `YOLOv8` ）
 - [x] 支持 Http 协议 ( Single Mode )
+- [x] 支持旋转框 ( `YOLOv8` )
+- [x] 加入 `YOLOv10` 算法
+- [x] 支持拖拽文件输入
 - [ ] 追踪和计数模型 ( `工业化` )
 
 ## 功能
 
-### 1. 支持 图片 / 视频 / 摄像头 / 文件夹（批量） 目标检测
+### 1. 支持 图片 / 视频 / 摄像头 / 文件夹（批量）/ 网络摄像头 目标检测
 
-选择左侧菜单栏的图片 / 视频 / 摄像头 / 文件夹（批量）进行目标检测
+选择左侧菜单栏的图片 / 视频 / 摄像头 / 文件夹（批量）/ 网络摄像头 进行目标检测
 
 ### 2. 动态切换模型 / 调整超参数
 
 程序开始检测时，支持动态切换模型 / 调整超参数
 
-1. 支持动态切换  `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` / `RTDETR` / `YOLOv5-seg` / `YOLOv8-seg` 模型
+1. 支持动态切换  `YOLOv5` / ` YOLOv7` / `YOLOv8` / `YOLOv9` / `RTDETR` / `YOLOv5-seg` / `YOLOv8-seg`  / `YOLOv10` 模型
 2. 支持动态修改 `IOU` / `Confidence` / `Delay time ` / `line thickness` 超参数
 
 ### 3. 动态加载模型
 
-程序可以自动检测`ptfiles` 文件夹中包含 [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/)  `pt`  模型.
+程序可以自动检测`ptfiles` 文件夹中包含 [YOLOv5 Models](https://github.com/ultralytics/yolov5/releases) /  [YOLOv7 Models](https://github.com/WongKinYiu/yolov7/releases/)  /  [YOLOv8 Models](https://github.com/ultralytics/assets/releases/)  / [YOLOv9 Models](https://github.com/WongKinYiu/yolov9/releases/) / [YOLOv10 Models](https://github.com/THU-MIG/yolov10/releases/)  `pt`  模型.
 
 如果你需要导入新的 `pt` 文件, 请点击 `Settings` 框中的 `Import Model` 按钮 来选择需要导入的 `pt` 文件. 然后程序会把该文件复制到  `ptfiles` 文件夹下.
 
 **Notice :**  
 
-1. 所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` / `rtdetr` 中的任意一个版本.  (如 `yolov8-test.pt`)
+1. 所有的 `pt` 模型文件命名必须包含 `yolov5` / `yolov7` / `yolov8` / `yolov9` / `yolov10 `/ `rtdetr` 中的任意一个版本.  (如 `yolov8-test.pt`)
 2. 如果是分割类型的 `pt` 文件, 命名中应包含 `yolov5n-seg` / `yolov8s-seg` 中的任意一个版本.  (如 `yolov8n-seg-test.pt`)
 3. 如果是姿态检测类型的 `pt` 文件, 命名中应包含`yolov8n-pose` 中的任意一个版本.  (如 `yolov8n-pose-test.pt`)
+4. 如果是旋转框类型的 `pt` 文件, 命名中应包含`yolov8n-obb` 中的任意一个版本.    (e.g. `yolov8n-obb-test.pt`)
 
 ### 4. 加载超参数配置
 
@@ -61,15 +63,15 @@
 
 ### 5. 保存检测结果
 
-如果需要保存检测结果，请在检测前点击 `Save MP4/JPG` . 然后等待检测完毕，选择需要保存的路径进行结果保存.
+如果需要保存检测结果，请在检测前点击 `Save Mode` . 然后等待检测完毕，选择需要保存的路径进行结果保存.
 
 ### 6. 同时支持目标检测、实例分割和姿态估计
 
-从 ***YOLOSHOW v2.2*** 起 ，支持目标检测、实例分割和姿态估计多任务。同时支持不同版本的任务切换，如从`YOLOv5` 目标检测任务 切换到 `YOLOv8` 实例分割任务。
+从 ***YOLOSHOW v3.0*** 起 ，支持目标检测、实例分割、姿态估计和旋转框多种任务。同时支持不同版本的任务切换，如从`YOLOv5` 目标检测任务 切换到 `YOLOv8` 实例分割任务。
 
-### 7. 支持目标检测、实例分割和姿态估计模型对比模式
+### 7. 支持目标检测、实例分割、姿态估计和旋转框模型对比模式
 
-从 ***YOLOSHOW v2.0*** 起，支持目标检测、实例分割和姿态估计模型对比模式。
+从 ***YOLOSHOW v3.0*** 起，支持目标检测、实例分割、姿态估计和旋转框模型对比模式。
 
 ## 运行准备工作
 
@@ -147,7 +149,7 @@ python main.py
 
 ### YOLO 算法
 
-[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7) 	[YOLOv8](https://github.com/ultralytics/ultralytics)	[YOLOv9](https://github.com/WongKinYiu/yolov9) 
+[YOLOv5](https://github.com/ultralytics/yolov5)   [YOLOv7](https://github.com/WongKinYiu/yolov7) 	[YOLOv8](https://github.com/ultralytics/ultralytics)	[YOLOv9](https://github.com/WongKinYiu/yolov9)   [YOLOv10](https://github.com/THU-MIG/yolov10)
 
 ### YOLO 图形化界面
 

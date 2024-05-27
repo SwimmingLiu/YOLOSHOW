@@ -8,27 +8,24 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFrame,
-    QHBoxLayout, QLabel, QLayout, QProgressBar,
-    QPushButton, QSizePolicy, QSlider, QSpacerItem,
-    QSpinBox, QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
+from PySide6.QtGui import (QCursor,
+                           QFont, QIcon,
+                           QPixmap)
+from PySide6.QtWidgets import (QCheckBox, QDoubleSpinBox, QFrame,
+                               QHBoxLayout, QLabel, QLayout, QProgressBar,
+                               QPushButton, QSizePolicy, QSlider, QSpacerItem,
+                               QSpinBox, QSplitter, QVBoxLayout, QWidget)
 
 from qfluentwidgets import ComboBox
-from ui.UpdateFrame import DoubleClickQFrame
-import YOLOSHOWUI_rc
+from ui.utils.UpdateFrame import DoubleClickQFrame
+
 
 class Ui_mainWindow(object):
     def setupUi(self, mainWindow):
         if not mainWindow.objectName():
             mainWindow.setObjectName(u"mainWindow")
-        mainWindow.resize(1538, 830)
+        mainWindow.resize(1538, 827)
         mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
 "	border: 1px solid rgba(0, 0, 0, 40%);\n"
 "	border-top:none;\n"
@@ -315,19 +312,25 @@ class Ui_mainWindow(object):
 "QPushButton#src_vsmode{\n"
 "	background-image:url(:/leftbox/images/newsize/vs.png);\n"
 "}\n"
+"QPushButton#src_result{\n"
+"	background-image:url(:/leftbox/images/newsize/statistics.png);\n"
+"}\n"
+"QPushButton#src_table{\n"
+"	background-image:url(:/leftbox/images/newsize/table.png);\n"
+"}\n"
 "QPushButton{\n"
 "	border:none;\n"
 "	text-align: center;\n"
 "	background-repeat: no-repeat;\n"
-"	background-position: left center;\n"
+"	background-position: left ce"
+                        "nter;\n"
 "	border-left: 23px solid transparent;\n"
 "	color: rgba(0, 0, 0, 199);\n"
 "	font: 12pt \"Times New Roman\";\n"
 "	font-weight: bold;\n"
 "	padding-left: 15px;\n"
 "}\n"
-"QFrame#cameraBox:hover"
-                        "{\n"
+"QFrame#cameraBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#folderBox:hover{\n"
@@ -346,6 +349,12 @@ class Ui_mainWindow(object):
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}\n"
 "QFrame#vsBox:hover{\n"
+"	background-color: rgba(114, 129, 214, 59);\n"
+"}\n"
+"QFrame#resultBox:hover{\n"
+"	background-color: rgba(114, 129, 214, 59);\n"
+"}\n"
+"QFrame#tableBox:hover{\n"
 "	background-color: rgba(114, 129, 214, 59);\n"
 "}")
         self.leftbox_bottom.setFrameShape(QFrame.StyledPanel)
@@ -502,6 +511,56 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addItem(self.zSpacer3)
 
+        self.resultBox = QFrame(self.leftbox_bottom)
+        self.resultBox.setObjectName(u"resultBox")
+        self.resultBox.setFrameShape(QFrame.StyledPanel)
+        self.resultBox.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_27 = QHBoxLayout(self.resultBox)
+        self.horizontalLayout_27.setSpacing(0)
+        self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
+        self.horizontalLayout_27.setContentsMargins(0, 0, 0, 0)
+        self.src_result = QPushButton(self.resultBox)
+        self.src_result.setObjectName(u"src_result")
+        sizePolicy2.setHeightForWidth(self.src_result.sizePolicy().hasHeightForWidth())
+        self.src_result.setSizePolicy(sizePolicy2)
+        self.src_result.setMinimumSize(QSize(180, 0))
+        self.src_result.setMaximumSize(QSize(180, 16777215))
+        self.src_result.setIconSize(QSize(30, 30))
+
+        self.horizontalLayout_27.addWidget(self.src_result)
+
+
+        self.verticalLayout_3.addWidget(self.resultBox)
+
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_5)
+
+        self.tableBox = QFrame(self.leftbox_bottom)
+        self.tableBox.setObjectName(u"tableBox")
+        self.tableBox.setFrameShape(QFrame.StyledPanel)
+        self.tableBox.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_28 = QHBoxLayout(self.tableBox)
+        self.horizontalLayout_28.setSpacing(0)
+        self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
+        self.horizontalLayout_28.setContentsMargins(0, 0, 0, 0)
+        self.src_table = QPushButton(self.tableBox)
+        self.src_table.setObjectName(u"src_table")
+        sizePolicy2.setHeightForWidth(self.src_table.sizePolicy().hasHeightForWidth())
+        self.src_table.setSizePolicy(sizePolicy2)
+        self.src_table.setMinimumSize(QSize(180, 0))
+        self.src_table.setMaximumSize(QSize(180, 16777215))
+        self.src_table.setIconSize(QSize(30, 30))
+
+        self.horizontalLayout_28.addWidget(self.src_table)
+
+
+        self.verticalLayout_3.addWidget(self.tableBox)
+
+        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_3.addItem(self.verticalSpacer_6)
+
         self.vsBox = QFrame(self.leftbox_bottom)
         self.vsBox.setObjectName(u"vsBox")
         self.vsBox.setMinimumSize(QSize(180, 0))
@@ -566,6 +625,10 @@ class Ui_mainWindow(object):
         self.verticalLayout_3.setStretch(11, 4)
         self.verticalLayout_3.setStretch(12, 1)
         self.verticalLayout_3.setStretch(13, 4)
+        self.verticalLayout_3.setStretch(14, 1)
+        self.verticalLayout_3.setStretch(15, 4)
+        self.verticalLayout_3.setStretch(16, 1)
+        self.verticalLayout_3.setStretch(17, 4)
 
         self.verticalLayout_2.addWidget(self.leftbox_bottom)
 
@@ -574,8 +637,8 @@ class Ui_mainWindow(object):
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
         self.verticalLayout_2.setStretch(0, 10)
-        self.verticalLayout_2.setStretch(1, 60)
-        self.verticalLayout_2.setStretch(2, 30)
+        self.verticalLayout_2.setStretch(1, 80)
+        self.verticalLayout_2.setStretch(2, 10)
 
         self.mainBox.addWidget(self.leftBox)
 
@@ -1973,6 +2036,8 @@ class Ui_mainWindow(object):
         self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
         self.src_camera.setText(QCoreApplication.translate("mainWindow", u"IPcam  ", None))
+        self.src_result.setText(QCoreApplication.translate("mainWindow", u"    Result Pic  ", None))
+        self.src_table.setText(QCoreApplication.translate("mainWindow", u"    Result Tab  ", None))
         self.src_vsmode.setText(QCoreApplication.translate("mainWindow", u"VS Mode", None))
 #if QT_CONFIG(shortcut)
         self.src_vsmode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
@@ -2003,7 +2068,7 @@ class Ui_mainWindow(object):
         self.ToggleBotton_4.setText(QCoreApplication.translate("mainWindow", u"Delay(ms)", None))
         self.ToggleBotton_5.setText(QCoreApplication.translate("mainWindow", u"Line Width", None))
         self.import_button.setText(QCoreApplication.translate("mainWindow", u"Import Model", None))
-        self.save_status_button.setText(QCoreApplication.translate("mainWindow", u"Save MP4/JPG", None))
+        self.save_status_button.setText(QCoreApplication.translate("mainWindow", u"Save Mode", None))
         self.save_button.setText(QCoreApplication.translate("mainWindow", u"Save Result", None))
     # retranslateUi
 

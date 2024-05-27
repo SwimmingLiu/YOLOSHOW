@@ -2614,7 +2614,7 @@ if "yolov7" in yolo_name:
 ### --- YOLOv7 Code --- ###
 
 ### --- YOLOv8 Code --- ###
-if "yolov8" in yolo_name or "rtdetr" in yolo_name:
+if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
     from yolocode.yolov8.utils import ARM64, LINUX, LOGGER, ROOT, yaml_load
     from yolocode.yolov8.utils.checks import check_requirements, check_suffix, check_version, check_yaml
     from yolocode.yolov8.utils.downloads import attempt_download_asset, is_url
@@ -2742,7 +2742,7 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name:
                 self.model = model  # explicitly assign for to(), cpu(), cuda(), half()
                 pt = True
             elif pt:  # PyTorch
-                from ultralytics.nn.tasks import attempt_load_weights
+                from models.tasks import attempt_load_weights
 
                 model = attempt_load_weights(
                     weights if isinstance(weights, list) else w, device=device, inplace=True, fuse=fuse

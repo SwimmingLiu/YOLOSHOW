@@ -31,6 +31,8 @@ class RTDETRThread(QThread):
     send_progress = Signal(int)  # Completeness
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
+    send_result_picture = Signal(dict)  # Send the result picture
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(RTDETRThread, self).__init__()
@@ -72,6 +74,90 @@ class RTDETRThread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
+        self.names_map = {
+            0: "person",
+            1: "bicycle",
+            2: "car",
+            3: "motorcycle",
+            4: "airplane",
+            5: "bus",
+            6: "train",
+            7: "truck",
+            8: "boat",
+            9: "traffic light",
+            10: "fire hydrant",
+            11: "stop sign",
+            12: "parking meter",
+            13: "bench",
+            14: "bird",
+            15: "cat",
+            16: "dog",
+            17: "horse",
+            18: "sheep",
+            19: "cow",
+            20: "elephant",
+            21: "bear",
+            22: "zebra",
+            23: "giraffe",
+            24: "backpack",
+            25: "umbrella",
+            26: "handbag",
+            27: "tie",
+            28: "suitcase",
+            29: "frisbee",
+            30: "skis",
+            31: "snowboard",
+            32: "sports ball",
+            33: "kite",
+            34: "baseball bat",
+            35: "baseball glove",
+            36: "skateboard",
+            37: "surfboard",
+            38: "tennis racket",
+            39: "bottle",
+            40: "wine glass",
+            41: "cup",
+            42: "fork",
+            43: "knife",
+            44: "spoon",
+            45: "bowl",
+            46: "banana",
+            47: "apple",
+            48: "sandwich",
+            49: "orange",
+            50: "broccoli",
+            51: "carrot",
+            52: "hot dog",
+            53: "pizza",
+            54: "donut",
+            55: "cake",
+            56: "chair",
+            57: "couch",
+            58: "potted plant",
+            59: "bed",
+            60: "dining table",
+            61: "toilet",
+            62: "tv",
+            63: "laptop",
+            64: "mouse",
+            65: "remote",
+            66: "keyboard",
+            67: "cell phone",
+            68: "microwave",
+            69: "oven",
+            70: "toaster",
+            71: "sink",
+            72: "refrigerator",
+            73: "book",
+            74: "clock",
+            75: "vase",
+            76: "scissors",
+            77: "teddy bear",
+            78: "hair drier",
+            79: "toothbrush"
+        }  # coco.names 配对
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
 
@@ -81,6 +167,7 @@ class RTDETRThread(QThread):
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
             self.used_model_name = self.new_model_name
+            self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
 
         source = str(self.source)
         # 判断输入源类型
@@ -114,13 +201,21 @@ class RTDETRThread(QThread):
         while True:
             if self.stop_dtc:
                 self.send_msg.emit('Stop Detection')
+                # --- 发送图片和表格结果 --- #
+                self.send_result_picture.emit(self.results_picture)  # 发送图片结果
+                for key, value in self.results_picture.items():
+                    self.results_table.append([key, str(value)])
+                self.results_picture = dict()
+                self.send_result_table.emit(self.results_table)  # 发送表格结果
+                self.results_table = list()
+                # --- 发送图片和表格结果 --- #
                 # 释放资源
                 self.dataset.running = False  # stop flag for Thread
                 # 判断self.dataset里面是否有threads
                 if hasattr(self.dataset, 'threads'):
                     for thread in self.dataset.threads:
                         if thread.is_alive():
-                            thread.join(timeout=5)  # Add timeout
+                            thread.join(timeout=1)  # Add timeout
                 if hasattr(self.dataset, 'caps'):
                     for cap in self.dataset.caps:  # Iterate through the stored VideoCapture objects
                         try:
@@ -136,6 +231,7 @@ class RTDETRThread(QThread):
                 self.send_msg.emit('Loading Model: {}'.format(os.path.basename(self.new_model_name)))
                 self.setup_model(self.new_model_name)
                 self.current_model_name = self.new_model_name
+                self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
             if self.is_continue:
                 if self.is_file:
                     self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
@@ -206,14 +302,19 @@ class RTDETRThread(QThread):
                                     nums = num_labelname[each]
                                 elif len(num_labelname[each]):
                                     label_name += num_labelname[each] + " "
-                            self.labels_dict[label_name] = int(nums)
                             target_nums += int(nums)
                             class_nums += 1
+                            if label_name in self.labels_dict:
+                                self.labels_dict[label_name] += int(nums)
+                            else:  # 第一次出现的类别
+                                self.labels_dict[label_name] = int(nums)
 
                     # Send test results
                     self.send_output.emit(self.plotted_img)  # after detection
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
+                    self.results_picture = self.labels_dict
+
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
                         self.save_preds(self.vid_cap, i, save_path)
@@ -225,6 +326,14 @@ class RTDETRThread(QThread):
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)
                     self.send_msg.emit('Finish Detection')
+                    # --- 发送图片和表格结果 --- #
+                    self.send_result_picture.emit(self.results_picture)  # 发送图片结果
+                    for key, value in self.results_picture.items():
+                        self.results_table.append([key, str(value)])
+                    self.results_picture = dict()
+                    self.send_result_table.emit(self.results_table)  # 发送表格结果
+                    self.results_table = list()
+                    # --- 发送图片和表格结果 --- #
                     self.res_status = True
                     if self.vid_cap is not None:
                         self.vid_cap.release()

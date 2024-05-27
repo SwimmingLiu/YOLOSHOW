@@ -1,6 +1,7 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
 import contextlib
+import sys
 from copy import deepcopy
 from pathlib import Path
 
@@ -58,6 +59,9 @@ from ultralytics.utils.torch_utils import (
     scale_img,
     time_sync,
 )
+
+from yolocode.yolov10.nn.modules import v10Detect
+from yolocode.yolov10.utils.loss import v10DetectLoss
 
 try:
     import thop
@@ -288,6 +292,8 @@ class DetectionModel(BaseModel):
             s = 256  # 2x min stride
             m.inplace = self.inplace
             forward = lambda x: self.forward(x)[0] if isinstance(m, (Segment, Pose, OBB)) else self.forward(x)
+            if isinstance(m, v10Detect):
+                forward = lambda x: self.forward(x)["one2many"]
             m.stride = torch.tensor([s / x.shape[-2] for x in forward(torch.zeros(1, ch, s, s))])  # forward
             self.stride = m.stride
             m.bias_init()  # only run once
@@ -619,6 +625,9 @@ class WorldModel(DetectionModel):
                     return torch.unbind(torch.cat(embeddings, 1), dim=0)
         return x
 
+class YOLOv10DetectionModel(DetectionModel):
+    def init_criterion(self):
+        return v10DetectLoss(self)
 
 class Ensemble(nn.ModuleList):
     """Ensemble of models."""
@@ -705,6 +714,14 @@ def torch_safe_load(weight):
                 "ultralytics.yolo.data": "ultralytics.data",
             }
         ):  # for legacy 8.0 Classify and Pose models
+            if "yolov10" in file:
+                # 确保正确导入模块
+                from yolocode.yolov10.nn.modules import block
+                from yolocode.yolov10.nn.modules import head
+                # 在加载模型前映射旧模块到新位置
+                sys.modules['ultralytics.nn.tasks'] = sys.modules[__name__]
+                sys.modules['ultralytics.nn.modules.block'] = block
+                sys.modules['ultralytics.nn.modules.head'] = head
             ckpt = torch.load(file, map_location="cpu")
 
     except ModuleNotFoundError as e:  # e.name is missing module name
