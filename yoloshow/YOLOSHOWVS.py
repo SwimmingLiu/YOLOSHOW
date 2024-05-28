@@ -226,12 +226,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.initModel(self.yolov8obb_thread2, "yolov8-obb", "right")
         # --- YOLOv8-Obb QThread --- #
 
-        self.yolo_threads = [self.yolov5_thread1, self.yolov5_thread2, self.yolov7_thread1, self.yolov7_thread2,
-                             self.yolov8_thread1, self.yolov8_thread2, self.yolov9_thread1, self.yolov9_thread2,
-                             self.yolov10_thread1, self.yolov10_thread2, self.yolov5seg_thread1, self.yolov5seg_thread2,
-                             self.yolov8seg_thread1, self.yolov8seg_thread2, self.rtdetr_thread1, self.rtdetr_thread2,
-                             self.yolov8pose_thread1, self.yolov8pose_thread2, self.yolov8obb_thread1,
-                             self.yolov8obb_thread2]
+        self.initThreads()
 
         self.run_button.clicked.connect(self.runorContinue)
         self.stop_button.clicked.connect(self.stopDetect)
@@ -244,6 +239,15 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         # --- MessageBar Init --- #
         self.showStatus("Welcome to YOLOSHOW")
         # --- MessageBar Init --- #
+
+
+    def initThreads(self):
+        self.yolo_threads = [self.yolov5_thread1, self.yolov5_thread2, self.yolov7_thread1, self.yolov7_thread2,
+                             self.yolov8_thread1, self.yolov8_thread2, self.yolov9_thread1, self.yolov9_thread2,
+                             self.yolov10_thread1, self.yolov10_thread2, self.yolov5seg_thread1, self.yolov5seg_thread2,
+                             self.yolov8seg_thread1, self.yolov8seg_thread2, self.rtdetr_thread1, self.rtdetr_thread2,
+                             self.yolov8pose_thread1, self.yolov8pose_thread2, self.yolov8obb_thread1,
+                             self.yolov8obb_thread2]
 
     # 初始化模型
     def initModel(self, yolo_thread, yoloname=None, mode="all"):

@@ -477,6 +477,7 @@ class YOLOSHOWBASE:
 
     # 停止运行中的模型
     def quitRunningModel(self, stop_status=False):
+        self.initThreads()
         for yolo_thread in self.yolo_threads:
             try:
                 if yolo_thread.isRunning():
@@ -849,7 +850,7 @@ class YOLOSHOWBASE:
             # 创建新字典，使用中文键
             result_str = ""
             for index, (key, value) in enumerate(self.result_statistic.items()):
-                result_str += f"{key}: {value} x"
+                result_str += f"{key}:{value}x \t"
                 if (index + 1) % 4 == 0:
                     result_str += "\n"
 

@@ -184,10 +184,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.initModel(self.yolov8obb_thread, "yolov8-pose")
         # --- YOLOv8-Obb QThread --- #
 
-        self.yolo_threads = [self.yolov5_thread, self.yolov7_thread, self.yolov8_thread, self.yolov9_thread,
-                             self.yolov10_thread,
-                             self.yolov5seg_thread, self.yolov8seg_thread, self.yolov8pose_thread,
-                             self.yolov8obb_thread]
+        self.initThreads()
 
         # --- 超参数调整 --- #
         self.iou_spinbox.valueChanged.connect(
@@ -213,6 +210,12 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         # --- MessageBar Init --- #
         self.showStatus("Welcome to YOLOSHOW")
         # --- MessageBar Init --- #
+
+    def initThreads(self):
+        self.yolo_threads = [self.yolov5_thread, self.yolov7_thread, self.yolov8_thread, self.yolov9_thread,
+                             self.yolov10_thread,
+                             self.yolov5seg_thread, self.yolov8seg_thread, self.yolov8pose_thread,
+                             self.yolov8obb_thread]
 
     # 导出结果
     def saveResult(self):
