@@ -102,10 +102,10 @@ class YOLOSHOWWindow(YOLOSHOW):
         if not self.animation_window:
             config_file = 'config/setting.json'
             config = dict()
-            config['iou'] = self.iou_spinbox.value()
-            config['conf'] = self.conf_spinbox.value()
-            config['delay'] = self.speed_spinbox.value()
-            config['line_thickness'] = self.line_spinbox.value()
+            config['iou'] = self.ui.iou_spinbox.value()
+            config['conf'] = self.ui.conf_spinbox.value()
+            config['delay'] = self.ui.speed_spinbox.value()
+            config['line_thickness'] = self.ui.line_spinbox.value()
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)
@@ -215,10 +215,10 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
         if not self.animation_window:
             config_file = 'config/setting.json'
             config = dict()
-            config['iou'] = self.iou_spinbox.value()
-            config['conf'] = self.conf_spinbox.value()
-            config['delay'] = self.speed_spinbox.value()
-            config['line_thickness'] = self.line_spinbox.value()
+            config['iou'] = self.ui.iou_spinbox.value()
+            config['conf'] = self.ui.conf_spinbox.value()
+            config['delay'] = self.ui.speed_spinbox.value()
+            config['line_thickness'] = self.ui.line_spinbox.value()
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)

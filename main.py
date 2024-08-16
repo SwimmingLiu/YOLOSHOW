@@ -1,7 +1,8 @@
 import sys
 import os
 import logging
-
+# 将ui目录添加到系统路径中
+sys.path.append(os.path.join(os.getcwd(), "ui"))
 # 禁止标准输出
 sys.stdout = open(os.devnull, 'w')
 logging.disable(logging.CRITICAL)  # 禁用所有级别的日志
@@ -11,8 +12,6 @@ from utils import glo
 from yoloshow.Window import YOLOSHOWWindow as yoloshowWindow
 from yoloshow.Window import YOLOSHOWVSWindow as yoloshowVSWindow
 from yoloshow.ChangeWindow import yoloshow2vs, vs2yoloshow
-
-
 
 if __name__ == '__main__':
     app = QApplication([])  # 创建应用程序实例
@@ -38,7 +37,7 @@ if __name__ == '__main__':
     yoloshow_glo.show()
 
     # 连接信号和槽，以实现界面之间的切换
-    yoloshow_glo.src_vsmode.clicked.connect(yoloshow2vs)  # 从单模式切换到对比模式
-    yoloshowvs_glo.src_singlemode.clicked.connect(vs2yoloshow)  # 从对比模式切换回单模式
+    yoloshow_glo.ui.src_vsmode.clicked.connect(yoloshow2vs)  # 从单模式切换到对比模式
+    yoloshowvs_glo.ui.src_singlemode.clicked.connect(vs2yoloshow)  # 从对比模式切换回单模式
 
     app.exec()  # 启动应用程序的事件循环

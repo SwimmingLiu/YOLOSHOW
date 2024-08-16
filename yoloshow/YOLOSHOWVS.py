@@ -1,15 +1,16 @@
 from utils import glo
+
 glo._init()
 glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov10 yolov5-seg yolov8-seg rtdetr yolov8-pose yolov8-obb")
 import json
 import os
 import shutil
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QMainWindow
 from PySide6.QtUiTools import loadUiType
 from PySide6.QtCore import QTimer, Qt
 from PySide6 import QtCore, QtGui
-from ui.YOLOSHOWUIVS import Ui_mainWindow
+from ui.YOLOSHOWUIVS import Ui_MainWindow
 from yoloshow.YOLOSHOWBASE import YOLOSHOWBASE
 from yolocode.yolov5.YOLOv5Thread import YOLOv5Thread
 from yolocode.yolov7.YOLOv7Thread import YOLOv7Thread
@@ -23,20 +24,16 @@ from yolocode.yolov8.YOLOv8ObbThread import YOLOv8ObbThread
 from yolocode.yolov10.YOLOv10Thread import YOLOv10Thread
 
 GLOBAL_WINDOW_STATE = True
-
-PATH_YOLO_SHOW = os.path.join("ui/YOLOSHOWUIVS.ui")
-formType, baseType = loadUiType(PATH_YOLO_SHOW)
-
 WIDTH_LEFT_BOX_STANDARD = 80
 WIDTH_LEFT_BOX_EXTENDED = 180
 WIDTH_LOGO = 60
-
+UI_FILE_PATH = "ui/YOLOSHOWUIVS.ui"
 ALL_MODEL_NAMES = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov10", "yolov5-seg", "yolov8-seg", "rtdetr",
                    "yolov8-pose", "yolov8-obb"]
 
 
 # YOLOSHOW窗口类 动态加载UI文件 和 Ui_mainWindow
-class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
+class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
     def __init__(self):
         super().__init__()
         self.current_workpath = os.getcwd()
@@ -46,7 +43,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.detect_result = None
 
         # --- 加载UI --- #
-        self.setupUi(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景
         self.setWindowFlags(Qt.FramelessWindowHint)  # 无头窗口
         # --- 加载UI --- #
@@ -55,10 +53,10 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.initSiderWidget()
 
         # --- 最大化 最小化 关闭 --- #
-        self.maximizeButton.clicked.connect(self.maxorRestore)
-        self.minimizeButton.clicked.connect(self.showMinimized)
-        self.closeButton.clicked.connect(self.close)
-        self.topbox.doubleClickFrame.connect(self.maxorRestore)
+        self.ui.maximizeButton.clicked.connect(self.maxorRestore)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.topbox.doubleClickFrame.connect(self.maxorRestore)
         # --- 最大化 最小化 关闭 --- #
 
         # --- 播放 暂停 停止 --- #
@@ -69,13 +67,13 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
                                 QtGui.QIcon.On)
         self.playIcon.addPixmap(QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"),
                                 QtGui.QIcon.Selected, QtGui.QIcon.On)
-        self.run_button.setCheckable(True)
-        self.run_button.setIcon(self.playIcon)
+        self.ui.run_button.setCheckable(True)
+        self.ui.run_button.setIcon(self.playIcon)
         # --- 播放 暂停 停止 --- #
 
         # --- 侧边栏缩放 --- #
-        self.src_menu.clicked.connect(self.scaleMenu)  # hide menu button
-        self.src_setting.clicked.connect(self.scalSetting)  # setting button
+        self.ui.src_menu.clicked.connect(self.scaleMenu)  # hide menu button
+        self.ui.src_setting.clicked.connect(self.scalSetting)  # setting button
         # --- 侧边栏缩放 --- #
 
         # --- 自动加载/动态改变 PT 模型 --- #
@@ -84,73 +82,73 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.pt_list = [file for file in self.pt_list if file.endswith('.pt')]
         self.pt_list.sort(key=lambda x: os.path.getsize(f'{self.current_workpath}/ptfiles/' + x))
         self.solveYoloConflict([f"{self.current_workpath}/ptfiles/" + pt_file for pt_file in self.pt_list])
-        self.model_box1.clear()
-        self.model_box1.addItems(self.pt_list)
-        self.model_box2.clear()
-        self.model_box2.addItems(self.pt_list)
+        self.ui.model_box1.clear()
+        self.ui.model_box1.addItems(self.pt_list)
+        self.ui.model_box2.clear()
+        self.ui.model_box2.addItems(self.pt_list)
         self.qtimer_search = QTimer(self)
         self.qtimer_search.timeout.connect(lambda: self.loadModels())
         self.qtimer_search.start(2000)
-        self.model_box1.currentTextChanged.connect(lambda: self.changeModel("left"))
-        self.model_box2.currentTextChanged.connect(lambda: self.changeModel("right"))
+        self.ui.model_box1.currentTextChanged.connect(lambda: self.changeModel("left"))
+        self.ui.model_box2.currentTextChanged.connect(lambda: self.changeModel("right"))
         # --- 自动加载/动态改变 PT 模型 --- #
 
         # --- 超参数调整 --- #
-        self.iou_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'iou_spinbox'))  # iou box
-        self.iou_slider.valueChanged.connect(lambda x: self.changeValue(x, 'iou_slider'))  # iou scroll bar
-        self.conf_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'conf_spinbox'))  # conf box
-        self.conf_slider.valueChanged.connect(lambda x: self.changeValue(x, 'conf_slider'))  # conf scroll bar
-        self.speed_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'speed_spinbox'))  # speed box
-        self.speed_slider.valueChanged.connect(lambda x: self.changeValue(x, 'speed_slider'))  # speed scroll bar
-        self.line_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'line_spinbox'))  # line box
-        self.line_slider.valueChanged.connect(lambda x: self.changeValue(x, 'line_slider'))  # line slider
+        self.ui.iou_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'iou_spinbox'))  # iou box
+        self.ui.iou_slider.valueChanged.connect(lambda x: self.changeValue(x, 'iou_slider'))  # iou scroll bar
+        self.ui.conf_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'conf_spinbox'))  # conf box
+        self.ui.conf_slider.valueChanged.connect(lambda x: self.changeValue(x, 'conf_slider'))  # conf scroll bar
+        self.ui.speed_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'speed_spinbox'))  # speed box
+        self.ui.speed_slider.valueChanged.connect(lambda x: self.changeValue(x, 'speed_slider'))  # speed scroll bar
+        self.ui.line_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'line_spinbox'))  # line box
+        self.ui.line_slider.valueChanged.connect(lambda x: self.changeValue(x, 'line_slider'))  # line slider
         # --- 超参数调整 --- #
 
         # --- 导入 图片/视频、调用摄像头、导入文件夹（批量处理）、调用网络摄像头、结果统计图片、结果统计表格 --- #
-        self.src_img.clicked.connect(self.selectFile)
+        self.ui.src_img.clicked.connect(self.selectFile)
         # 对比模型模式 不支持同时读取摄像头流
         # self.src_webcam.clicked.connect(self.selectWebcam)
-        self.src_folder.clicked.connect(self.selectFolder)
-        self.src_camera.clicked.connect(self.selectRtsp)
-        self.src_result.clicked.connect(self.showResultStatics)
-        self.src_table.clicked.connect(self.showTableResult)
+        self.ui.src_folder.clicked.connect(self.selectFolder)
+        self.ui.src_camera.clicked.connect(self.selectRtsp)
+        # self.ui.src_result.clicked.connect(self.showResultStatics)
+        # self.ui.src_table.clicked.connect(self.showTableResult)
         # --- 导入 图片/视频、调用摄像头、导入文件夹（批量处理）、调用网络摄像头、结果统计图片、结果统计表格 --- #
 
         # --- 导入模型、 导出结果 --- #
-        self.import_button.clicked.connect(self.importModel)
-        self.save_status_button.clicked.connect(self.saveStatus)
-        self.save_button.clicked.connect(self.saveResult)
-        self.save_button.setEnabled(False)
+        self.ui.import_button.clicked.connect(self.importModel)
+        self.ui.save_status_button.clicked.connect(self.saveStatus)
+        self.ui.save_button.clicked.connect(self.saveResult)
+        self.ui.save_button.setEnabled(False)
         # --- 导入模型、 导出结果 --- #
 
         # --- 视频、图片 预览 --- #
-        self.main_leftbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        self.main_rightbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+        self.ui.main_leftbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+        self.ui.main_rightbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         # --- 视频、图片 预览 --- #
 
         # --- 状态栏 初始化 --- #
         # 状态栏阴影效果
-        self.shadowStyle(self.mainBody, QColor(0, 0, 0, 38), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Class_QF1, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Target_QF1, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Fps_QF1, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Model_QF1, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Class_QF2, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Target_QF2, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Fps_QF2, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Model_QF2, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.mainBody, QColor(0, 0, 0, 38), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Class_QF1, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Target_QF1, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Fps_QF1, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Model_QF1, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Class_QF2, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Target_QF2, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Fps_QF2, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Model_QF2, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
 
         # 状态栏默认显示
-        self.model_name1 = self.model_box1.currentText()  # 获取默认 model
-        self.Class_num1.setText('--')
-        self.Target_num1.setText('--')
-        self.fps_label1.setText('--')
-        self.Model_label1.setText(str(self.model_name1).replace(".pt", ""))
-        self.model_name2 = self.model_box2.currentText()  # 获取默认 model
-        self.Class_num2.setText('--')
-        self.Target_num2.setText('--')
-        self.fps_label2.setText('--')
-        self.Model_label2.setText(str(self.model_name2).replace(".pt", ""))
+        self.model_name1 = self.ui.model_box1.currentText()  # 获取默认 model
+        self.ui.Class_num1.setText('--')
+        self.ui.Target_num1.setText('--')
+        self.ui.fps_label1.setText('--')
+        self.ui.Model_label1.setText(str(self.model_name1).replace(".pt", ""))
+        self.model_name2 = self.ui.model_box2.currentText()  # 获取默认 model
+        self.ui.Class_num2.setText('--')
+        self.ui.Target_num2.setText('--')
+        self.ui.fps_label2.setText('--')
+        self.ui.Model_label2.setText(str(self.model_name2).replace(".pt", ""))
         # --- 状态栏 初始化 --- #
 
         # --- YOLOv5 QThread --- #
@@ -228,8 +226,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
         self.initThreads()
 
-        self.run_button.clicked.connect(self.runorContinue)
-        self.stop_button.clicked.connect(self.stopDetect)
+        self.ui.run_button.clicked.connect(self.runorContinue)
+        self.ui.stop_button.clicked.connect(self.stopDetect)
         # --- 开始 / 停止 --- #
 
         # --- Setting栏 初始化 --- #
@@ -240,11 +238,11 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.showStatus("Welcome to YOLOSHOW")
         # --- MessageBar Init --- #
 
-
     def initThreads(self):
         self.yolo_threads = [self.yolov5_thread1, self.yolov5_thread2, self.yolov7_thread1, self.yolov7_thread2,
                              self.yolov8_thread1, self.yolov8_thread2, self.yolov9_thread1, self.yolov9_thread2,
-                             self.yolov10_thread1, self.yolov10_thread2, self.yolov5seg_thread1, self.yolov5seg_thread2,
+                             self.yolov10_thread1, self.yolov10_thread2, self.rtdetr_thread1, self.rtdetr_thread2,
+                             self.yolov5seg_thread1, self.yolov5seg_thread2,
                              self.yolov8seg_thread1, self.yolov8seg_thread2, self.rtdetr_thread1, self.rtdetr_thread2,
                              self.yolov8pose_thread1, self.yolov8pose_thread2, self.yolov8obb_thread1,
                              self.yolov8obb_thread2]
@@ -253,61 +251,60 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
     def initModel(self, yolo_thread, yoloname=None, mode="all"):
         if mode == "left":
             # 左侧模型加载
-            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box1.currentText()
-            yolo_thread.progress_value = self.progress_bar.maximum()
-            yolo_thread.send_output.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box1.currentText()
+            yolo_thread.progress_value = self.ui.progress_bar.maximum()
+            yolo_thread.send_output.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
             # 第一个模型来控制消息
             yolo_thread.send_msg.connect(lambda x: self.showStatus(x))
-            yolo_thread.send_fps.connect(lambda x: self.fps_label1.setText(str(x)))
-            yolo_thread.send_class_num.connect(lambda x: self.Class_num1.setText(str(x)))
-            yolo_thread.send_target_num.connect(lambda x: self.Target_num1.setText(str(x)))
+            yolo_thread.send_fps.connect(lambda x: self.ui.fps_label1.setText(str(x)))
+            yolo_thread.send_class_num.connect(lambda x: self.ui.Class_num1.setText(str(x)))
+            yolo_thread.send_target_num.connect(lambda x: self.ui.Target_num1.setText(str(x)))
         if mode == "right":
             # 右侧模型加载
-            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box2.currentText()
-            yolo_thread.progress_value = self.progress_bar.maximum()
-            yolo_thread.send_output.connect(lambda x: self.showImg(x, self.main_rightbox, 'img'))
+            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box2.currentText()
+            yolo_thread.progress_value = self.ui.progress_bar.maximum()
+            yolo_thread.send_output.connect(lambda x: self.showImg(x, self.ui.main_rightbox, 'img'))
             # 后一个模型来控制进度条
-            yolo_thread.send_progress.connect(lambda x: self.progress_bar.setValue(x))
-            yolo_thread.send_fps.connect(lambda x: self.fps_label2.setText(str(x)))
-            yolo_thread.send_class_num.connect(lambda x: self.Class_num2.setText(str(x)))
-            yolo_thread.send_target_num.connect(lambda x: self.Target_num2.setText(str(x)))
+            yolo_thread.send_progress.connect(lambda x: self.ui.progress_bar.setValue(x))
+            yolo_thread.send_fps.connect(lambda x: self.ui.fps_label2.setText(str(x)))
+            yolo_thread.send_class_num.connect(lambda x: self.ui.Class_num2.setText(str(x)))
+            yolo_thread.send_target_num.connect(lambda x: self.ui.Target_num2.setText(str(x)))
 
     # 在MessageBar显示消息
     def showStatus(self, msg):
-        self.message_bar.setText(msg)
+        self.ui.message_bar.setText(msg)
         if msg == 'Finish Detection':
             self.quitRunningModel()
-            self.run_button.setChecked(False)
-            self.progress_bar.setValue(0)
-            self.save_status_button.setEnabled(True)
+            self.ui.run_button.setChecked(False)
+            self.ui.progress_bar.setValue(0)
+            self.ui.save_status_button.setEnabled(True)
         elif msg == 'Stop Detection':
             self.quitRunningModel()
-            self.run_button.setChecked(False)
-            self.save_status_button.setEnabled(True)
-            self.progress_bar.setValue(0)
-            self.Class_num1.setText('--')
-            self.Target_num1.setText('--')
-            self.fps_label1.setText('--')
-            self.Class_num2.setText('--')
-            self.Target_num2.setText('--')
-            self.fps_label2.setText('--')
-            self.main_leftbox.clear()  # clear image display
-            self.main_rightbox.clear()
-
+            self.ui.run_button.setChecked(False)
+            self.ui.save_status_button.setEnabled(True)
+            self.ui.progress_bar.setValue(0)
+            self.ui.Class_num1.setText('--')
+            self.ui.Target_num1.setText('--')
+            self.ui.fps_label1.setText('--')
+            self.ui.Class_num2.setText('--')
+            self.ui.Target_num2.setText('--')
+            self.ui.fps_label2.setText('--')
+            self.ui.main_leftbox.clear()  # clear image display
+            self.ui.main_rightbox.clear()
 
     # 导出结果状态判断
     def saveStatus(self):
-        if self.save_status_button.checkState() == Qt.CheckState.Unchecked:
+        if self.ui.save_status_button.checkState() == Qt.CheckState.Unchecked:
             self.showStatus('NOTE: Run image results are not saved.')
             for yolo_thread in self.yolo_threads:
                 yolo_thread.save_res = False
 
-            self.save_button.setEnabled(False)
-        elif self.save_status_button.checkState() == Qt.CheckState.Checked:
+            self.ui.save_button.setEnabled(False)
+        elif self.ui.save_status_button.checkState() == Qt.CheckState.Checked:
             self.showStatus('NOTE: Run image results will be saved. Only save left model result in VS Mode !!!')
             for yolo_thread in self.yolo_threads:
                 yolo_thread.save_res = True
-            self.save_button.setEnabled(True)
+            self.ui.save_button.setEnabled(True)
 
     # 导出检测结果 --- 过程代码
     def saveResultProcess(self, outdir, yolo_thread, folder):
@@ -425,10 +422,10 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
         if pt_list != self.pt_list:
             self.pt_list = pt_list
-            self.model_box1.clear()
-            self.model_box1.addItems(self.pt_list)
-            self.model_box2.clear()
-            self.model_box2.addItems(self.pt_list)
+            self.ui.model_box1.clear()
+            self.ui.model_box1.addItems(self.pt_list)
+            self.ui.model_box2.clear()
+            self.ui.model_box2.addItems(self.pt_list)
 
     # 检查模型是否符合命名要求
     def checkModelName(self, modelname):
@@ -589,7 +586,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     # 暂停另外一侧模型
     def PauseAnotherModel(self, mode=None):
-        buttonStatus = self.run_button.isChecked()
+        buttonStatus = self.ui.run_button.isChecked()
         if buttonStatus:
             if mode == "left":
                 if "yolov5" in self.model_name1 and not self.checkSegName(
@@ -652,7 +649,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     # 继续另外一侧模型
     def ContinueAnotherModel(self, mode=None):
-        buttonStatus = self.run_button.isChecked()
+        buttonStatus = self.ui.run_button.isChecked()
         if buttonStatus:
             if mode == "left":
                 if "yolov5" in self.model_name1 and not self.checkSegName(
@@ -733,13 +730,13 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     def changeModelProcess(self, yolo_thread, yoloname, mode=None):
         if mode == "left":
-            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box1.currentText()
+            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box1.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname1', yoloname)
             # 停止其他模型
             self.stopOtherModel(yoloname, mode="left")
         else:
-            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box2.currentText()
+            yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box2.currentText()
             # 重载 common 和 yolo 模块
             glo.set_value('yoloname2', yoloname)
             # 停止其他模型
@@ -749,8 +746,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
     def changeModel(self, mode=None):
         if mode == "left":
             # 左侧模型
-            self.model_name1 = self.model_box1.currentText()
-            self.Model_label1.setText(str(self.model_name1).replace(".pt", ""))  # 修改状态栏显示
+            self.model_name1 = self.ui.model_box1.currentText()
+            self.ui.Model_label1.setText(str(self.model_name1).replace(".pt", ""))  # 修改状态栏显示
             if "yolov5" in self.model_name1 and not self.checkSegName(self.model_name1):
                 self.changeModelProcess(self.yolov5_thread1, "yolov5", "left")
             elif "yolov7" in self.model_name1:
@@ -776,8 +773,8 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
                 self.stopOtherModel(mode="left")
         else:
             # 右侧模型
-            self.model_name2 = self.model_box2.currentText()
-            self.Model_label2.setText(str(self.model_name2).replace(".pt", ""))
+            self.model_name2 = self.ui.model_box2.currentText()
+            self.ui.Model_label2.setText(str(self.model_name2).replace(".pt", ""))
             if "yolov5" in self.model_name2 and not self.checkSegName(self.model_name2):
                 self.changeModelProcess(self.yolov5_thread2, "yolov5", "right")
             elif "yolov7" in self.model_name2:
@@ -862,7 +859,7 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
     def runModelProcess(self, yolo_thread):
         yolo_thread.source = self.inputPath
         yolo_thread.stop_dtc = False
-        if self.run_button.isChecked():
+        if self.ui.run_button.isChecked():
             yolo_thread.is_continue = True
             if not yolo_thread.isRunning():
                 yolo_thread.start()
@@ -874,14 +871,14 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     # 运行模型
     def runModel(self, runbuttonStatus=None):
-        self.save_status_button.setEnabled(False)
+        self.ui.save_status_button.setEnabled(False)
         if runbuttonStatus:
-            self.run_button.setChecked(True)
+            self.ui.run_button.setChecked(True)
         # 首先判断是否两边的模型均为正确模型
         if self.checkModelName(self.model_name1) and self.checkModelName(self.model_name2):
             self.showStatus('The current model is not supported')
-            if self.run_button.isChecked():
-                self.run_button.setChecked(False)
+            if self.ui.run_button.isChecked():
+                self.ui.run_button.setChecked(False)
             return
         # 左侧模型
         if "yolov5" in self.model_name1 and not self.checkSegName(self.model_name1):
@@ -915,19 +912,19 @@ class YOLOSHOWVS(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
             self.runModel()
         else:
             self.showStatus("Please select the Image/Video before starting detection...")
-            self.run_button.setChecked(False)
+            self.ui.run_button.setChecked(False)
 
     # 停止识别
     def stopDetect(self):
         self.quitRunningModel(stop_status=True)
-        self.run_button.setChecked(False)
-        self.save_status_button.setEnabled(True)
-        self.progress_bar.setValue(0)
-        self.main_leftbox.clear()  # clear image display
-        self.main_rightbox.clear()
-        self.Class_num1.setText('--')
-        self.Target_num1.setText('--')
-        self.fps_label1.setText('--')
-        self.Class_num2.setText('--')
-        self.Target_num2.setText('--')
-        self.fps_label2.setText('--')
+        self.ui.run_button.setChecked(False)
+        self.ui.save_status_button.setEnabled(True)
+        self.ui.progress_bar.setValue(0)
+        self.ui.main_leftbox.clear()  # clear image display
+        self.ui.main_rightbox.clear()
+        self.ui.Class_num1.setText('--')
+        self.ui.Target_num1.setText('--')
+        self.ui.fps_label1.setText('--')
+        self.ui.Class_num2.setText('--')
+        self.ui.Target_num2.setText('--')
+        self.ui.fps_label2.setText('--')

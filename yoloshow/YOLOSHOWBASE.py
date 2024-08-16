@@ -2,6 +2,7 @@ from ui.utils.AcrylicFlyout import AcrylicFlyoutView, AcrylicFlyout
 from ui.utils.TableView import TableViewQWidget
 from ui.utils.drawFigure import PlottingThread
 from utils import glo
+
 glo._init()
 glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov10 yolov5-seg yolov8-seg rtdetr yolov8-pose yolov8-obb")
 
@@ -16,7 +17,7 @@ import shutil
 import cv2
 import numpy as np
 from PySide6.QtGui import QPixmap, QImage
-from PySide6.QtWidgets import QFileDialog, QGraphicsDropShadowEffect, QFrame, QPushButton
+from PySide6.QtWidgets import QFileDialog, QGraphicsDropShadowEffect, QFrame, QPushButton, QApplication
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, \
     QParallelAnimationGroup, QPoint
 from qfluentwidgets import RoundMenu, MenuAnimationType, Action
@@ -30,12 +31,14 @@ GLOBAL_WINDOW_STATE = True
 
 WIDTH_LEFT_BOX_STANDARD = 80
 WIDTH_LEFT_BOX_EXTENDED = 200
+WIDTH_SETTING_BAR = 300
 WIDTH_LOGO = 60
-
+WINDOW_SPLIT_BODY = 20
 KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
 ALL_MODEL_NAMES = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov5-seg", "yolov8-seg", "rtdetr", "yolov8-pose"]
 
 loggertool = LoggerUtils()
+
 
 # YOLOSHOW窗口类 动态加载UI文件 和 Ui_mainWindow
 class YOLOSHOWBASE:
@@ -49,12 +52,12 @@ class YOLOSHOWBASE:
     # 初始化左侧菜单栏
     def initSiderWidget(self):
         # --- 侧边栏 --- #
-        self.leftBox.setFixedWidth(WIDTH_LEFT_BOX_STANDARD)
+        self.ui.leftBox.setFixedWidth(WIDTH_LEFT_BOX_STANDARD)
         # logo
-        self.logo.setFixedSize(WIDTH_LOGO, WIDTH_LOGO)
+        self.ui.logo.setFixedSize(WIDTH_LOGO, WIDTH_LOGO)
 
         # 将左侧菜单栏的按钮固定宽度
-        for child_left_box_widget in self.leftbox_bottom.children():
+        for child_left_box_widget in self.ui.leftbox_bottom.children():
 
             if isinstance(child_left_box_widget, QFrame):
                 child_left_box_widget.setFixedWidth(WIDTH_LEFT_BOX_EXTENDED)
@@ -63,18 +66,17 @@ class YOLOSHOWBASE:
                     if isinstance(child_left_box_widget_btn, QPushButton):
                         child_left_box_widget_btn.setFixedWidth(WIDTH_LEFT_BOX_EXTENDED)
 
-
     # 加载模型
     def initModel(self, model_thread, yoloname=None):
-        model_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
-        model_thread.progress_value = self.progress_bar.maximum()
-        model_thread.send_input.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
-        model_thread.send_output.connect(lambda x: self.showImg(x, self.main_rightbox, 'img'))
+        model_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box.currentText()
+        model_thread.progress_value = self.ui.progress_bar.maximum()
+        model_thread.send_input.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
+        model_thread.send_output.connect(lambda x: self.showImg(x, self.ui.main_rightbox, 'img'))
         model_thread.send_msg.connect(lambda x: self.showStatus(x))
-        model_thread.send_progress.connect(lambda x: self.progress_bar.setValue(x))
-        model_thread.send_fps.connect(lambda x: self.fps_label.setText(str(x)))
-        model_thread.send_class_num.connect(lambda x: self.Class_num.setText(str(x)))
-        model_thread.send_target_num.connect(lambda x: self.Target_num.setText(str(x)))
+        model_thread.send_progress.connect(lambda x: self.ui.progress_bar.setValue(x))
+        model_thread.send_fps.connect(lambda x: self.ui.fps_label.setText(str(x)))
+        model_thread.send_class_num.connect(lambda x: self.ui.Class_num.setText(str(x)))
+        model_thread.send_target_num.connect(lambda x: self.ui.Target_num.setText(str(x)))
         model_thread.send_result_picture.connect(lambda x: self.setResultStatistic(x))
         model_thread.send_result_table.connect(lambda x: self.setTableResult(x))
 
@@ -98,7 +100,7 @@ class YOLOSHOWBASE:
         # standard = 80
         # maxExtend = 180
 
-        leftBoxStart = self.leftBox.width()
+        leftBoxStart = self.ui.leftBox.width()
         _IS_EXTENDED = leftBoxStart == WIDTH_LEFT_BOX_EXTENDED
 
         if _IS_EXTENDED:
@@ -107,7 +109,7 @@ class YOLOSHOWBASE:
             leftBoxEnd = WIDTH_LEFT_BOX_EXTENDED
 
         # animation
-        self.animation = QPropertyAnimation(self.leftBox, b"minimumWidth")
+        self.animation = QPropertyAnimation(self.ui.leftBox, b"minimumWidth")
         self.animation.setDuration(500)  # ms
         self.animation.setStartValue(leftBoxStart)
         self.animation.setEndValue(leftBoxEnd)
@@ -117,15 +119,15 @@ class YOLOSHOWBASE:
     # 设置栏缩放
     def scalSetting(self):
         # GET WIDTH
-        widthSettingBox = self.settingBox.width()  # right set column width
-        widthLeftBox = self.leftBox.width()  # left column length
-        maxExtend = 220
+        widthSettingBox = self.ui.settingBox.width()  # right set column width
+        widthLeftBox = self.ui.leftBox.width()  # left column length
+        maxExtend = WIDTH_SETTING_BAR
         standard = 0
 
         # SET MAX WIDTH
         if widthSettingBox == 0:
             widthExtended = maxExtend
-            self.mainbox.setStyleSheet("""
+            self.ui.mainbox.setStyleSheet("""
                                   QFrame#mainbox{
                                     border: 1px solid rgba(0, 0, 0, 15%);
                                     border-bottom-left-radius: 0;
@@ -136,7 +138,7 @@ class YOLOSHOWBASE:
                               """)
         else:
             widthExtended = standard
-            self.mainbox.setStyleSheet("""
+            self.ui.mainbox.setStyleSheet("""
                                   QFrame#mainbox{
                                     border: 1px solid rgba(0, 0, 0, 15%);
                                     border-bottom-left-radius: 0;
@@ -146,21 +148,21 @@ class YOLOSHOWBASE:
                               """)
 
         # ANIMATION LEFT BOX
-        self.left_box = QPropertyAnimation(self.leftBox, b"minimumWidth")
+        self.left_box = QPropertyAnimation(self.ui.leftBox, b"minimumWidth")
         self.left_box.setDuration(500)
         self.left_box.setStartValue(widthLeftBox)
         self.left_box.setEndValue(68)
         self.left_box.setEasingCurve(QEasingCurve.InOutQuart)
 
         # ANIMATION SETTING BOX
-        self.setting_box = QPropertyAnimation(self.settingBox, b"minimumWidth")
+        self.setting_box = QPropertyAnimation(self.ui.settingBox, b"minimumWidth")
         self.setting_box.setDuration(500)
         self.setting_box.setStartValue(widthSettingBox)
         self.setting_box.setEndValue(widthExtended)
         self.setting_box.setEasingCurve(QEasingCurve.InOutQuart)
 
         # SET QSS Change
-        self.qss_animation = QPropertyAnimation(self.mainbox, b"styleSheet")
+        self.qss_animation = QPropertyAnimation(self.ui.mainbox, b"styleSheet")
         self.qss_animation.setDuration(300)
         self.qss_animation.setStartValue("""
             QFrame#mainbox {
@@ -192,8 +194,9 @@ class YOLOSHOWBASE:
         global GLOBAL_WINDOW_STATE
         status = GLOBAL_WINDOW_STATE
         if status:
+            # 获取当前屏幕的宽度和高度
             self.showMaximized()
-            self.maximizeButton.setStyleSheet("""
+            self.ui.maximizeButton.setStyleSheet("""
                           QPushButton:hover{
                                background-color:rgb(139, 29, 31);
                                border-image: url(:/leftbox/images/newsize/scalling.png);
@@ -202,7 +205,7 @@ class YOLOSHOWBASE:
             GLOBAL_WINDOW_STATE = False
         else:
             self.showNormal()
-            self.maximizeButton.setStyleSheet("""
+            self.ui.maximizeButton.setStyleSheet("""
                                       QPushButton:hover{
                                            background-color:rgb(139, 29, 31);
                                            border-image: url(:/leftbox/images/newsize/max.png);
@@ -234,10 +237,10 @@ class YOLOSHOWBASE:
                 ret, frame = self.cap.read()
                 if ret:
                     # rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    self.showImg(frame, self.main_leftbox, 'img')
+                    self.showImg(frame, self.ui.main_leftbox, 'img')
             # 如果是图片 正常显示
             else:
-                self.showImg(self.inputPath, self.main_leftbox, 'path')
+                self.showImg(self.inputPath, self.ui.main_leftbox, 'path')
             self.showStatus('Loaded File：{}'.format(os.path.basename(self.inputPath)))
             config['file_path'] = os.path.dirname(self.inputPath)
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
@@ -251,7 +254,7 @@ class YOLOSHOWBASE:
             cam_num, cams = Camera().get_cam_num()
             if cam_num > 0:
                 popMenu = RoundMenu(parent=self)
-                popMenu.setFixedWidth(self.leftbox_bottom.width())
+                popMenu.setFixedWidth(self.ui.leftbox_bottom.width())
                 actions = []
 
                 for cam in cams:
@@ -260,9 +263,9 @@ class YOLOSHOWBASE:
                     popMenu.addAction(actions[-1])
                     actions[-1].triggered.connect(lambda: self.actionWebcam(cam))
 
-                x = self.webcamBox.mapToGlobal(self.webcamBox.pos()).x()
-                y = self.webcamBox.mapToGlobal(self.webcamBox.pos()).y()
-                y = y - self.webcamBox.frameGeometry().height() * 2
+                x = self.ui.webcamBox.mapToGlobal(self.ui.webcamBox.pos()).x()
+                y = self.ui.webcamBox.mapToGlobal(self.ui.webcamBox.pos()).y()
+                y = y - self.ui.webcamBox.frameGeometry().height() * 2
                 pos = QPoint(x, y)
                 popMenu.exec(pos, aniType=MenuAnimationType.DROP_DOWN)
             else:
@@ -274,7 +277,7 @@ class YOLOSHOWBASE:
     def actionWebcam(self, cam):
         self.showStatus(f'Loading camera：Camera_{cam}')
         self.thread = WebcamThread(cam)
-        self.thread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+        self.thread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
         self.thread.start()
         self.inputPath = int(cam)
 
@@ -317,7 +320,7 @@ class YOLOSHOWBASE:
                     return False
                 self.showStatus(f'Loading Rtsp：{self.rtspUrl}')
                 self.rtspThread = WebcamThread(self.rtspUrl)
-                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
                 self.rtspThread.start()
                 self.inputPath = self.rtspUrl
             elif parsed_url.scheme in ['http', 'https']:
@@ -326,7 +329,7 @@ class YOLOSHOWBASE:
                     return False
                 self.showStatus(f'Loading Http：{self.rtspUrl}')
                 self.rtspThread = WebcamThread(self.rtspUrl)
-                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.main_leftbox, 'img'))
+                self.rtspThread.changePixmap.connect(lambda x: self.showImg(x, self.ui.main_leftbox, 'img'))
                 self.rtspThread.start()
                 self.inputPath = self.rtspUrl
             else:
@@ -487,37 +490,38 @@ class YOLOSHOWBASE:
             except Exception as err:
                 loggertool.info(f"Error: {err}")
                 pass
+
     # 在MessageBar显示消息
     def showStatus(self, msg):
-        self.message_bar.setText(msg)
+        self.ui.message_bar.setText(msg)
         if msg == 'Finish Detection':
             self.quitRunningModel()
-            self.run_button.setChecked(False)
-            self.progress_bar.setValue(0)
-            self.save_status_button.setEnabled(True)
+            self.ui.run_button.setChecked(False)
+            self.ui.progress_bar.setValue(0)
+            self.ui.save_status_button.setEnabled(True)
         elif msg == 'Stop Detection':
             self.quitRunningModel()
-            self.run_button.setChecked(False)
-            self.save_status_button.setEnabled(True)
-            self.progress_bar.setValue(0)
-            self.main_leftbox.clear()  # clear image display
-            self.main_rightbox.clear()
-            self.Class_num.setText('--')
-            self.Target_num.setText('--')
-            self.fps_label.setText('--')
+            self.ui.run_button.setChecked(False)
+            self.ui.save_status_button.setEnabled(True)
+            self.ui.progress_bar.setValue(0)
+            self.ui.main_leftbox.clear()  # clear image display
+            self.ui.main_rightbox.clear()
+            self.ui.Class_num.setText('--')
+            self.ui.Target_num.setText('--')
+            self.ui.fps_label.setText('--')
 
     # 导出结果状态判断
     def saveStatus(self):
-        if self.save_status_button.checkState() == Qt.CheckState.Unchecked:
+        if self.ui.save_status_button.checkState() == Qt.CheckState.Unchecked:
             self.showStatus('NOTE: Run image results are not saved.')
             for yolo_thread in self.yolo_threads:
                 yolo_thread.save_res = False
-            self.save_button.setEnabled(False)
-        elif self.save_status_button.checkState() == Qt.CheckState.Checked:
+            self.ui.save_button.setEnabled(False)
+        elif self.ui.save_status_button.checkState() == Qt.CheckState.Checked:
             self.showStatus('NOTE: Run image results will be saved.')
             for yolo_thread in self.yolo_threads:
                 yolo_thread.save_res = True
-            self.save_button.setEnabled(True)
+            self.ui.save_button.setEnabled(True)
 
     # 导出结果
     def saveResult(self):
@@ -604,7 +608,7 @@ class YOLOSHOWBASE:
         else:
             try:
                 if os.path.exists(yolo_thread.res_path):
-                    shutil.copy(yolo_thread.res_path,outdir)
+                    shutil.copy(yolo_thread.res_path, outdir)
                     self.showStatus('Saved Successfully in {}'.format(outdir))
                 else:
                     self.showStatus('Please wait for the result to be generated')
@@ -643,14 +647,14 @@ class YOLOSHOWBASE:
                 conf = config['conf']
                 delay = config['delay']
                 line_thickness = config['line_thickness']
-        self.iou_spinbox.setValue(iou)
-        self.iou_slider.setValue(int(iou * 100))
-        self.conf_spinbox.setValue(conf)
-        self.conf_slider.setValue(int(conf * 100))
-        self.speed_spinbox.setValue(delay)
-        self.speed_slider.setValue(delay)
-        self.line_spinbox.setValue(line_thickness)
-        self.line_slider.setValue(line_thickness)
+        self.ui.iou_spinbox.setValue(iou)
+        self.ui.iou_slider.setValue(int(iou * 100))
+        self.ui.conf_spinbox.setValue(conf)
+        self.ui.conf_slider.setValue(int(conf * 100))
+        self.ui.speed_spinbox.setValue(delay)
+        self.ui.speed_slider.setValue(delay)
+        self.ui.line_spinbox.setValue(line_thickness)
+        self.ui.line_slider.setValue(line_thickness)
 
     # 加载 pt 模型到 model_box
     def loadModels(self):
@@ -660,8 +664,8 @@ class YOLOSHOWBASE:
 
         if pt_list != self.pt_list:
             self.pt_list = pt_list
-            self.model_box.clear()
-            self.model_box.addItems(self.pt_list)
+            self.ui.model_box.clear()
+            self.ui.model_box.addItems(self.pt_list)
 
     # 重载模型
     def reloadModel(self):
@@ -669,13 +673,12 @@ class YOLOSHOWBASE:
         importlib.reload(yolo)
         importlib.reload(experimental)
 
-
     # 调整超参数
     def changeValue(self, x, flag):
         if flag == 'iou_spinbox':
-            self.iou_slider.setValue(int(x * 100))  # The box value changes, changing the slider
+            self.ui.iou_slider.setValue(int(x * 100))  # The box value changes, changing the slider
         elif flag == 'iou_slider':
-            self.iou_spinbox.setValue(x / 100)  # The slider value changes, changing the box
+            self.ui.iou_spinbox.setValue(x / 100)  # The slider value changes, changing the box
             self.showStatus('IOU Threshold: %s' % str(x / 100))
             for yolo_thread in self.yolo_threads:
                 yolo_thread.iou_thres = x / 100
@@ -688,9 +691,9 @@ class YOLOSHOWBASE:
             # self.rtdetr_thread.iou_thres = x / 100
             # self.yolov8pose_thread.iou_thres = x / 100
         elif flag == 'conf_spinbox':
-            self.conf_slider.setValue(int(x * 100))
+            self.ui.conf_slider.setValue(int(x * 100))
         elif flag == 'conf_slider':
-            self.conf_spinbox.setValue(x / 100)
+            self.ui.conf_spinbox.setValue(x / 100)
             self.showStatus('Conf Threshold: %s' % str(x / 100))
             for yolo_thread in self.yolo_threads:
                 yolo_thread.conf_thres = x / 100
@@ -703,9 +706,9 @@ class YOLOSHOWBASE:
             # self.rtdetr_thread.conf_thres = x / 100
             # self.yolov8pose_thread.conf_thres = x / 100
         elif flag == 'speed_spinbox':
-            self.speed_slider.setValue(x)
+            self.ui.speed_slider.setValue(x)
         elif flag == 'speed_slider':
-            self.speed_spinbox.setValue(x)
+            self.ui.speed_spinbox.setValue(x)
             self.showStatus('Delay: %s ms' % str(x))
             for yolo_thread in self.yolo_threads:
                 yolo_thread.speed_thres = x  # ms
@@ -718,9 +721,9 @@ class YOLOSHOWBASE:
             # self.rtdetr_thread.speed_thres = x  # ms
             # self.yolov8pose_thread.speed_thres = x  # ms
         elif flag == 'line_spinbox':
-            self.line_slider.setValue(x)
+            self.ui.line_slider.setValue(x)
         elif flag == 'line_slider':
-            self.line_spinbox.setValue(x)
+            self.ui.line_spinbox.setValue(x)
             self.showStatus('Line Width: %s' % str(x))
             for yolo_thread in self.yolo_threads:
                 yolo_thread.line_thickness = x
@@ -732,7 +735,6 @@ class YOLOSHOWBASE:
             # self.yolov8seg_thread.line_thickness = x
             # self.rtdetr_thread.line_thickness = x
             # self.yolov8pose_thread.line_thickness = x
-
 
     # 修改YOLOv5、YOLOv7、YOLOv9 解决 yolo.py冲突
     def solveYoloConflict(self, ptnamelst):
@@ -828,7 +830,6 @@ class YOLOSHOWBASE:
         glo.set_value("yoloname", "yolov5 yolov7 yolov8 yolov9 yolov5-seg yolov8-seg rtdetr yolov8-pose")
         self.reloadModel()
 
-
     # 接受统计结果，然后写入json中
     def setResultStatistic(self, value):
         # 写入 JSON 文件
@@ -878,15 +879,15 @@ class YOLOSHOWBASE:
                                             color: black; 
                                             font-family: 'KaiTi';""")
         # 修改image的大小
-        width = self.rightbox_main.width() // 2.5
-        height = self.rightbox_main.height() // 2.5
+        width = self.ui.rightbox_main.width() // 2.5
+        height = self.ui.rightbox_main.height() // 2.5
         view.imageLabel.setFixedSize(width, height)
         # adjust layout (optional)
         view.widgetLayout.insertSpacing(1, 5)
         view.widgetLayout.addSpacing(5)
 
         # show view
-        w = AcrylicFlyout.make(view, self.rightbox_play, self)
+        w = AcrylicFlyout.make(view, self.ui.rightbox_play, self)
         view.closed.connect(w.close)
 
     # 获取表格结果的列表

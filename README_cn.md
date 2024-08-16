@@ -115,8 +115,6 @@ cd {YOLOSHOW程序所在的路径}
 
 ```shell
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install "PySide6-Fluent-Widgets[full]" -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install -U Pyside6 -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 ### 4. 添加字体

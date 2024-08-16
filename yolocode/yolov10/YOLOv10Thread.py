@@ -168,7 +168,7 @@ class YOLOv10Thread(QThread):
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
             self.used_model_name = self.new_model_name
-            self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
+            self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value in self.model.names.items() if isinstance(value, int)}
 
         source = str(self.source)
         # 判断输入源类型
@@ -232,7 +232,7 @@ class YOLOv10Thread(QThread):
                 self.send_msg.emit('Loading Model: {}'.format(os.path.basename(self.new_model_name)))
                 self.setup_model(self.new_model_name)
                 self.current_model_name = self.new_model_name
-                self.model.names = {key: self.names_map[int(value)] for key, value in self.model.names.items()}
+                self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value in self.model.names.items()}
             if self.is_continue:
                 if self.is_file:
                     self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))

@@ -3,39 +3,43 @@
 ################################################################################
 ## Form generated from reading UI file 'YOLOSHOWUI.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.7.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QMetaObject, QSize, Qt)
-from PySide6.QtGui import (QCursor,
-                           QFont, QIcon,
-                           QPixmap)
-from PySide6.QtWidgets import (QCheckBox, QDoubleSpinBox, QFrame,
-                               QHBoxLayout, QLabel, QLayout, QProgressBar,
-                               QPushButton, QSizePolicy, QSlider, QSpacerItem,
-                               QSpinBox, QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QFrame,
+    QHBoxLayout, QLabel, QLayout, QMainWindow,
+    QProgressBar, QPushButton, QSizePolicy, QSlider,
+    QSpacerItem, QSpinBox, QSplitter, QVBoxLayout,
+    QWidget)
 
 from qfluentwidgets import ComboBox
 from ui.utils.UpdateFrame import DoubleClickQFrame
+import YOLOSHOWUI_rc
 
-
-class Ui_mainWindow(object):
-    def setupUi(self, mainWindow):
-        if not mainWindow.objectName():
-            mainWindow.setObjectName(u"mainWindow")
-        mainWindow.resize(1538, 827)
-        mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
-"	border: 1px solid rgba(0, 0, 0, 40%);\n"
-"	border-top:none;\n"
-"	border-bottom:none;\n"
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(1500, 839)
+        MainWindow.setStyleSheet(u"")
+        self.mainWindow = QWidget(MainWindow)
+        self.mainWindow.setObjectName(u"mainWindow")
+        self.mainWindow.setStyleSheet(u"QWidget#mainWindow{\n"
+"	border:none\n"
 "}")
-        self.verticalLayout = QVBoxLayout(mainWindow)
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(6, 6, 6, 6)
-        self.mainBody = QFrame(mainWindow)
+        self.verticalLayout_4 = QVBoxLayout(self.mainWindow)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(9, -1, -1, -1)
+        self.mainBody = QFrame(self.mainWindow)
         self.mainBody.setObjectName(u"mainBody")
         self.mainBody.setStyleSheet(u"QFrame#mainBody{\n"
 "	border: 0px solid rgba(0, 0, 0, 40%);\n"
@@ -50,10 +54,10 @@ class Ui_mainWindow(object):
 "}")
         self.mainBody.setFrameShape(QFrame.StyledPanel)
         self.mainBody.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_4 = QVBoxLayout(self.mainBody)
-        self.verticalLayout_4.setSpacing(0)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout = QVBoxLayout(self.mainBody)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.topbox = DoubleClickQFrame(self.mainBody)
         self.topbox.setObjectName(u"topbox")
         self.topbox.setStyleSheet(u"")
@@ -174,11 +178,11 @@ class Ui_mainWindow(object):
         self.topBox.setStretch(0, 1)
         self.topBox.setStretch(1, 9)
 
-        self.verticalLayout_4.addWidget(self.topbox)
+        self.verticalLayout.addWidget(self.topbox)
 
         self.mainbox = QFrame(self.mainBody)
         self.mainbox.setObjectName(u"mainbox")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mainbox.sizePolicy().hasHeightForWidth())
@@ -200,7 +204,7 @@ class Ui_mainWindow(object):
         self.mainBox.setContentsMargins(0, 0, 0, 0)
         self.leftBox = QFrame(self.mainbox)
         self.leftBox.setObjectName(u"leftBox")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.leftBox.sizePolicy().hasHeightForWidth())
@@ -223,7 +227,7 @@ class Ui_mainWindow(object):
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.leftbox_top = QFrame(self.leftBox)
         self.leftbox_top.setObjectName(u"leftbox_top")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.leftbox_top.sizePolicy().hasHeightForWidth())
@@ -363,7 +367,7 @@ class Ui_mainWindow(object):
         self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 10, 0, 0)
-        self.zSpacer5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.zSpacer5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.zSpacer5)
 
@@ -394,7 +398,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.menuBox)
 
-        self.zSpacer1 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.zSpacer1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.zSpacer1)
 
@@ -422,7 +426,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.imgBox)
 
-        self.zSpacer2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.zSpacer2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.zSpacer2)
 
@@ -451,7 +455,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.webcamBox)
 
-        self.zSpacer4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.zSpacer4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.zSpacer4)
 
@@ -479,7 +483,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.folderBox)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
 
@@ -507,7 +511,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.cameraBox)
 
-        self.zSpacer3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.zSpacer3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.zSpacer3)
 
@@ -532,7 +536,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.resultBox)
 
-        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_5)
 
@@ -557,7 +561,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.tableBox)
 
-        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_6)
 
@@ -585,7 +589,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_3.addWidget(self.vsBox)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_4)
 
@@ -632,7 +636,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_2.addWidget(self.leftbox_bottom)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
@@ -758,8 +762,8 @@ class Ui_mainWindow(object):
         self.line_2.setObjectName(u"line_2")
         self.line_2.setMaximumSize(QSize(16777215, 1))
         self.line_2.setStyleSheet(u"background-color: rgba(255, 255, 255, 89);")
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
+        self.line_2.setFrameShape(QFrame.Shape.HLine)
+        self.line_2.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_7.addWidget(self.line_2)
 
@@ -862,8 +866,8 @@ class Ui_mainWindow(object):
         self.line_3.setObjectName(u"line_3")
         self.line_3.setMaximumSize(QSize(16777215, 1))
         self.line_3.setStyleSheet(u"background-color: rgba(255, 255, 255, 89);")
-        self.line_3.setFrameShape(QFrame.HLine)
-        self.line_3.setFrameShadow(QFrame.Sunken)
+        self.line_3.setFrameShape(QFrame.Shape.HLine)
+        self.line_3.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_9.addWidget(self.line_3)
 
@@ -962,8 +966,8 @@ class Ui_mainWindow(object):
         self.line_4.setObjectName(u"line_4")
         self.line_4.setMaximumSize(QSize(16777215, 1))
         self.line_4.setStyleSheet(u"background-color: rgba(255, 255, 255, 89);")
-        self.line_4.setFrameShape(QFrame.HLine)
-        self.line_4.setFrameShadow(QFrame.Sunken)
+        self.line_4.setFrameShape(QFrame.Shape.HLine)
+        self.line_4.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_11.addWidget(self.line_4)
 
@@ -1062,8 +1066,8 @@ class Ui_mainWindow(object):
         self.line_5.setObjectName(u"line_5")
         self.line_5.setMaximumSize(QSize(16777215, 1))
         self.line_5.setStyleSheet(u"background-color: rgba(255, 255, 255, 89);")
-        self.line_5.setFrameShape(QFrame.HLine)
-        self.line_5.setFrameShadow(QFrame.Sunken)
+        self.line_5.setFrameShape(QFrame.Shape.HLine)
+        self.line_5.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_13.addWidget(self.line_5)
 
@@ -1258,7 +1262,7 @@ class Ui_mainWindow(object):
         self.setting_page = QFrame(self.settingBox)
         self.setting_page.setObjectName(u"setting_page")
         self.setting_page.setMinimumSize(QSize(0, 0))
-        self.setting_page.setMaximumSize(QSize(220, 16777215))
+        self.setting_page.setMaximumSize(QSize(300, 16777215))
         self.setting_page.setStyleSheet(u"QFrame#setting_page{\n"
 "	background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #8EC5FC, stop:1 #E0C3FC);\n"
 "	border-top-left-radius:0px;\n"
@@ -1285,8 +1289,8 @@ class Ui_mainWindow(object):
 
         self.Model_QF_2 = QWidget(self.setting_page)
         self.Model_QF_2.setObjectName(u"Model_QF_2")
-        self.Model_QF_2.setMinimumSize(QSize(190, 90))
-        self.Model_QF_2.setMaximumSize(QSize(190, 90))
+        self.Model_QF_2.setMinimumSize(QSize(260, 90))
+        self.Model_QF_2.setMaximumSize(QSize(260, 90))
         self.Model_QF_2.setStyleSheet(u"QWidget#Model_QF_2{\n"
 "border:2px solid rgba(255, 255, 255, 70);\n"
 "border-radius:15px;\n"
@@ -1296,7 +1300,7 @@ class Ui_mainWindow(object):
         self.verticalLayout_21.setContentsMargins(9, 9, 9, 9)
         self.ToggleBotton_6 = QPushButton(self.Model_QF_2)
         self.ToggleBotton_6.setObjectName(u"ToggleBotton_6")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.ToggleBotton_6.sizePolicy().hasHeightForWidth())
@@ -1328,14 +1332,6 @@ class Ui_mainWindow(object):
 "color: white;\n"
 "font: 700 13pt \"Nirmala UI\";\n"
 "}")
-        icon1 = QIcon()
-        iconThemeName = u"zoom-out"
-        if QIcon.hasThemeIcon(iconThemeName):
-            icon1 = QIcon.fromTheme(iconThemeName)
-        else:
-            icon1.addFile(u"C:/Users/Administrator/YOLOv8-QingYong", QSize(), QIcon.Normal, QIcon.Off)
-
-        self.ToggleBotton_6.setIcon(icon1)
         self.ToggleBotton_6.setAutoDefault(False)
         self.ToggleBotton_6.setFlat(False)
 
@@ -1343,8 +1339,8 @@ class Ui_mainWindow(object):
 
         self.model_box = ComboBox(self.Model_QF_2)
         self.model_box.setObjectName(u"model_box")
-        self.model_box.setMinimumSize(QSize(170, 22))
-        self.model_box.setMaximumSize(QSize(170, 20))
+        self.model_box.setMinimumSize(QSize(240, 22))
+        self.model_box.setMaximumSize(QSize(240, 20))
         self.model_box.setStyleSheet(u"ComboBox {\n"
 "            background-color: rgba(255,255,255,90);\n"
 "			color: rgba(0, 0, 0, 200);\n"
@@ -1388,8 +1384,8 @@ class Ui_mainWindow(object):
 
         self.IOU_QF = QFrame(self.setting_page)
         self.IOU_QF.setObjectName(u"IOU_QF")
-        self.IOU_QF.setMinimumSize(QSize(190, 90))
-        self.IOU_QF.setMaximumSize(QSize(190, 90))
+        self.IOU_QF.setMinimumSize(QSize(260, 90))
+        self.IOU_QF.setMaximumSize(QSize(260, 90))
         self.IOU_QF.setStyleSheet(u"QFrame#IOU_QF{\n"
 "border:2px solid rgba(255, 255, 255, 70);\n"
 "border-radius:15px;\n"
@@ -1422,7 +1418,6 @@ class Ui_mainWindow(object):
 "color: white;\n"
 "font: 700 13pt \"Nirmala UI\";\n"
 "}")
-        self.ToggleBotton_2.setIcon(icon1)
         self.ToggleBotton_2.setAutoDefault(False)
         self.ToggleBotton_2.setFlat(False)
 
@@ -1502,6 +1497,8 @@ class Ui_mainWindow(object):
 
         self.horizontalLayout_16.addWidget(self.iou_slider)
 
+        self.horizontalLayout_16.setStretch(0, 3)
+        self.horizontalLayout_16.setStretch(1, 7)
 
         self.verticalLayout_15.addWidget(self.frame_3)
 
@@ -1510,8 +1507,8 @@ class Ui_mainWindow(object):
 
         self.Conf_QF = QFrame(self.setting_page)
         self.Conf_QF.setObjectName(u"Conf_QF")
-        self.Conf_QF.setMinimumSize(QSize(190, 90))
-        self.Conf_QF.setMaximumSize(QSize(190, 90))
+        self.Conf_QF.setMinimumSize(QSize(260, 90))
+        self.Conf_QF.setMaximumSize(QSize(260, 90))
         self.Conf_QF.setStyleSheet(u"QFrame#Conf_QF{\n"
 "border:2px solid rgba(255, 255, 255, 70);\n"
 "border-radius:15px;\n"
@@ -1544,7 +1541,6 @@ class Ui_mainWindow(object):
 "color: white;\n"
 "font: 700 13pt \"Nirmala UI\";\n"
 "}")
-        self.ToggleBotton_3.setIcon(icon1)
         self.ToggleBotton_3.setAutoDefault(False)
         self.ToggleBotton_3.setFlat(False)
 
@@ -1624,6 +1620,8 @@ class Ui_mainWindow(object):
 
         self.horizontalLayout_17.addWidget(self.conf_slider)
 
+        self.horizontalLayout_17.setStretch(0, 3)
+        self.horizontalLayout_17.setStretch(1, 7)
 
         self.verticalLayout_18.addWidget(self.frame)
 
@@ -1632,8 +1630,8 @@ class Ui_mainWindow(object):
 
         self.Delay_QF = QFrame(self.setting_page)
         self.Delay_QF.setObjectName(u"Delay_QF")
-        self.Delay_QF.setMinimumSize(QSize(190, 90))
-        self.Delay_QF.setMaximumSize(QSize(190, 90))
+        self.Delay_QF.setMinimumSize(QSize(260, 90))
+        self.Delay_QF.setMaximumSize(QSize(260, 90))
         self.Delay_QF.setStyleSheet(u"QFrame#Delay_QF{\n"
 "border:2px solid rgba(255, 255, 255, 70);\n"
 "border-radius:15px;\n"
@@ -1666,7 +1664,6 @@ class Ui_mainWindow(object):
 "color: white;\n"
 "font: 700 13pt \"Nirmala UI\";\n"
 "}")
-        self.ToggleBotton_4.setIcon(icon1)
         self.ToggleBotton_4.setAutoDefault(False)
         self.ToggleBotton_4.setFlat(False)
 
@@ -1742,6 +1739,8 @@ class Ui_mainWindow(object):
 
         self.horizontalLayout_18.addWidget(self.speed_slider)
 
+        self.horizontalLayout_18.setStretch(0, 3)
+        self.horizontalLayout_18.setStretch(1, 7)
 
         self.verticalLayout_19.addWidget(self.frame_2)
 
@@ -1750,8 +1749,8 @@ class Ui_mainWindow(object):
 
         self.LINE_THICKNESS = QFrame(self.setting_page)
         self.LINE_THICKNESS.setObjectName(u"LINE_THICKNESS")
-        self.LINE_THICKNESS.setMinimumSize(QSize(190, 90))
-        self.LINE_THICKNESS.setMaximumSize(QSize(190, 90))
+        self.LINE_THICKNESS.setMinimumSize(QSize(260, 90))
+        self.LINE_THICKNESS.setMaximumSize(QSize(260, 90))
         self.LINE_THICKNESS.setStyleSheet(u"QFrame#LINE_THICKNESS{\n"
 "border:2px solid rgba(255, 255, 255, 70);\n"
 "border-radius:15px;\n"
@@ -1785,7 +1784,6 @@ class Ui_mainWindow(object):
 "color: white;\n"
 "font: 700 13pt \"Nirmala UI\";\n"
 "}")
-        self.ToggleBotton_5.setIcon(icon1)
         self.ToggleBotton_5.setAutoDefault(False)
         self.ToggleBotton_5.setFlat(False)
 
@@ -1867,6 +1865,8 @@ class Ui_mainWindow(object):
 
         self.horizontalLayout_21.addWidget(self.line_slider)
 
+        self.horizontalLayout_21.setStretch(0, 3)
+        self.horizontalLayout_21.setStretch(1, 7)
 
         self.verticalLayout_23.addWidget(self.frame_5)
 
@@ -1967,7 +1967,7 @@ class Ui_mainWindow(object):
 
         self.verticalLayout_22.addWidget(self.Model_Manage)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 13, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_3 = QSpacerItem(20, 13, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_22.addItem(self.verticalSpacer_3)
 
@@ -1978,37 +1978,16 @@ class Ui_mainWindow(object):
         self.mainBox.addWidget(self.settingBox)
 
 
-        self.verticalLayout_4.addWidget(self.mainbox)
+        self.verticalLayout.addWidget(self.mainbox)
 
-        self.verticalLayout_4.setStretch(1, 95)
+        self.verticalLayout.setStretch(0, 5)
+        self.verticalLayout.setStretch(1, 95)
 
-        self.verticalLayout.addWidget(self.mainBody)
+        self.verticalLayout_4.addWidget(self.mainBody)
 
-        QWidget.setTabOrder(self.run_button, self.minimizeButton)
-        QWidget.setTabOrder(self.minimizeButton, self.closeButton)
-        QWidget.setTabOrder(self.closeButton, self.maximizeButton)
-        QWidget.setTabOrder(self.maximizeButton, self.stop_button)
-        QWidget.setTabOrder(self.stop_button, self.src_menu)
-        QWidget.setTabOrder(self.src_menu, self.src_img)
-        QWidget.setTabOrder(self.src_img, self.src_camera)
-        QWidget.setTabOrder(self.src_camera, self.src_setting)
-        QWidget.setTabOrder(self.src_setting, self.src_webcam)
-        QWidget.setTabOrder(self.src_webcam, self.src_folder)
-        QWidget.setTabOrder(self.src_folder, self.ToggleBotton_6)
-        QWidget.setTabOrder(self.ToggleBotton_6, self.model_box)
-        QWidget.setTabOrder(self.model_box, self.ToggleBotton_2)
-        QWidget.setTabOrder(self.ToggleBotton_2, self.ToggleBotton_3)
-        QWidget.setTabOrder(self.ToggleBotton_3, self.ToggleBotton_4)
-        QWidget.setTabOrder(self.ToggleBotton_4, self.iou_spinbox)
-        QWidget.setTabOrder(self.iou_spinbox, self.iou_slider)
-        QWidget.setTabOrder(self.iou_slider, self.conf_spinbox)
-        QWidget.setTabOrder(self.conf_spinbox, self.conf_slider)
-        QWidget.setTabOrder(self.conf_slider, self.speed_spinbox)
-        QWidget.setTabOrder(self.speed_spinbox, self.speed_slider)
-        QWidget.setTabOrder(self.speed_slider, self.import_button)
-        QWidget.setTabOrder(self.import_button, self.save_button)
+        MainWindow.setCentralWidget(self.mainWindow)
 
-        self.retranslateUi(mainWindow)
+        self.retranslateUi(MainWindow)
 
         self.ToggleBotton_6.setDefault(False)
         self.ToggleBotton_2.setDefault(False)
@@ -2017,58 +1996,58 @@ class Ui_mainWindow(object):
         self.ToggleBotton_5.setDefault(False)
 
 
-        QMetaObject.connectSlotsByName(mainWindow)
+        QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
-    def retranslateUi(self, mainWindow):
-        mainWindow.setWindowTitle(QCoreApplication.translate("mainWindow", u"YOLOSHOW", None))
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.closeButton.setText("")
         self.minimizeButton.setText("")
         self.maximizeButton.setText("")
-        self.title.setText(QCoreApplication.translate("mainWindow", u"YOLO SHOW -YOLO Graphical User Interface based on Pyside6", None))
-        self.label.setText(QCoreApplication.translate("mainWindow", u"YOLO SHOW", None))
-        self.label_3.setText(QCoreApplication.translate("mainWindow", u"SwimmingLiu", None))
-        self.src_menu.setText(QCoreApplication.translate("mainWindow", u" Menu   ", None))
-        self.src_img.setText(QCoreApplication.translate("mainWindow", u"Media", None))
-        self.src_webcam.setText(QCoreApplication.translate("mainWindow", u" Webcam", None))
-        self.src_folder.setText(QCoreApplication.translate("mainWindow", u" Folder  ", None))
+        self.title.setText(QCoreApplication.translate("MainWindow", u"YOLO SHOW -YOLO Graphical User Interface based on Pyside6", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"YOLO SHOW", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"SwimmingLiu", None))
+        self.src_menu.setText(QCoreApplication.translate("MainWindow", u" Menu   ", None))
+        self.src_img.setText(QCoreApplication.translate("MainWindow", u"Media", None))
+        self.src_webcam.setText(QCoreApplication.translate("MainWindow", u" Webcam", None))
+        self.src_folder.setText(QCoreApplication.translate("MainWindow", u" Folder  ", None))
 #if QT_CONFIG(shortcut)
-        self.src_folder.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
+        self.src_folder.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_camera.setText(QCoreApplication.translate("mainWindow", u"IPcam  ", None))
-        self.src_result.setText(QCoreApplication.translate("mainWindow", u"    Result Pic  ", None))
-        self.src_table.setText(QCoreApplication.translate("mainWindow", u"    Result Tab  ", None))
-        self.src_vsmode.setText(QCoreApplication.translate("mainWindow", u"VS Mode", None))
+        self.src_camera.setText(QCoreApplication.translate("MainWindow", u"IPcam  ", None))
+        self.src_result.setText(QCoreApplication.translate("MainWindow", u"    Result Pic  ", None))
+        self.src_table.setText(QCoreApplication.translate("MainWindow", u"    Result Tab  ", None))
+        self.src_vsmode.setText(QCoreApplication.translate("MainWindow", u"VS Mode", None))
 #if QT_CONFIG(shortcut)
-        self.src_vsmode.setShortcut(QCoreApplication.translate("mainWindow", u"Ctrl+S", None))
+        self.src_vsmode.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
-        self.src_setting.setText(QCoreApplication.translate("mainWindow", u"Setting", None))
+        self.src_setting.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.classesLabel.setText("")
-        self.label_5.setText(QCoreApplication.translate("mainWindow", u"Classes", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Classes", None))
         self.Class_num.setText("")
         self.targetLabel.setText("")
-        self.label_6.setText(QCoreApplication.translate("mainWindow", u"Targets", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Targets", None))
         self.Target_num.setText("")
         self.fpsLabel.setText("")
-        self.label_7.setText(QCoreApplication.translate("mainWindow", u"Fps", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Fps", None))
         self.fps_label.setText("")
         self.modelLabel.setText("")
-        self.label_8.setText(QCoreApplication.translate("mainWindow", u"Model", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.Model_label.setText("")
         self.main_leftbox.setText("")
         self.main_rightbox.setText("")
         self.run_button.setText("")
         self.stop_button.setText("")
-        self.message_bar.setText(QCoreApplication.translate("mainWindow", u"Message Bar ... ", None))
-        self.label_2.setText(QCoreApplication.translate("mainWindow", u"Settings", None))
-        self.ToggleBotton_6.setText(QCoreApplication.translate("mainWindow", u"Model", None))
+        self.message_bar.setText(QCoreApplication.translate("MainWindow", u"Message Bar ... ", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.ToggleBotton_6.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.model_box.setProperty("placeholderText", "")
-        self.ToggleBotton_2.setText(QCoreApplication.translate("mainWindow", u"IOU", None))
-        self.ToggleBotton_3.setText(QCoreApplication.translate("mainWindow", u"Confidence", None))
-        self.ToggleBotton_4.setText(QCoreApplication.translate("mainWindow", u"Delay(ms)", None))
-        self.ToggleBotton_5.setText(QCoreApplication.translate("mainWindow", u"Line Width", None))
-        self.import_button.setText(QCoreApplication.translate("mainWindow", u"Import Model", None))
-        self.save_status_button.setText(QCoreApplication.translate("mainWindow", u"Save Mode", None))
-        self.save_button.setText(QCoreApplication.translate("mainWindow", u"Save Result", None))
+        self.ToggleBotton_2.setText(QCoreApplication.translate("MainWindow", u"IOU", None))
+        self.ToggleBotton_3.setText(QCoreApplication.translate("MainWindow", u"Confidence", None))
+        self.ToggleBotton_4.setText(QCoreApplication.translate("MainWindow", u"Delay(ms)", None))
+        self.ToggleBotton_5.setText(QCoreApplication.translate("MainWindow", u"Line Width", None))
+        self.import_button.setText(QCoreApplication.translate("MainWindow", u"Import Model", None))
+        self.save_status_button.setText(QCoreApplication.translate("MainWindow", u"Save Mode", None))
+        self.save_button.setText(QCoreApplication.translate("MainWindow", u"Save Result", None))
     # retranslateUi
 

@@ -6,7 +6,7 @@ glo.set_value('yoloname', "yolov5 yolov7 yolov8 yolov9 yolov10 yolov5-seg yolov8
 import json
 import os
 import shutil
-from ui.YOLOSHOWUI import Ui_mainWindow
+from ui.YOLOSHOWUI import Ui_MainWindow
 from PySide6.QtGui import QPixmap, QImage, QMouseEvent, QGuiApplication, QColor
 from PySide6.QtWidgets import QMessageBox, QFileDialog, QMainWindow, QWidget, QApplication, QGraphicsBlurEffect, \
     QGraphicsDropShadowEffect, QMenu, QFrame, QPushButton
@@ -27,12 +27,10 @@ from yolocode.yolov10.YOLOv10Thread import YOLOv10Thread
 from yoloshow.YOLOSHOWBASE import YOLOSHOWBASE
 
 GLOBAL_WINDOW_STATE = True
-
-formType, baseType = loadUiType(r"ui/YOLOSHOWUI.ui")
-
 WIDTH_LEFT_BOX_STANDARD = 80
 WIDTH_LEFT_BOX_EXTENDED = 200
 WIDTH_LOGO = 60
+UI_FILE_PATH = "ui/YOLOSHOWUI.ui"
 
 KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
 ALL_MODEL_NAMES = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov10", "yolov5-seg", "yolov8-seg", "rtdetr",
@@ -40,7 +38,7 @@ ALL_MODEL_NAMES = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov10", "yolov5-se
 
 
 # YOLOSHOW窗口类 动态加载UI文件 和 Ui_mainWindow
-class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
+class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
     def __init__(self):
         super().__init__()
         self.current_workpath = os.getcwd()
@@ -50,18 +48,18 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.detect_result = None
 
         # --- 加载UI --- #
-        self.setupUi(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self.setAttribute(Qt.WA_TranslucentBackground, True)  # 透明背景
-
         self.setWindowFlags(Qt.FramelessWindowHint)  # 无头窗口
         self.initSiderWidget()
         # --- 加载UI --- #
 
         # --- 最大化 最小化 关闭 --- #
-        self.maximizeButton.clicked.connect(self.maxorRestore)
-        self.minimizeButton.clicked.connect(self.showMinimized)
-        self.closeButton.clicked.connect(self.close)
-        self.topbox.doubleClickFrame.connect(self.maxorRestore)
+        self.ui.maximizeButton.clicked.connect(self.maxorRestore)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.topbox.doubleClickFrame.connect(self.maxorRestore)
         # --- 最大化 最小化 关闭 --- #
 
         # --- 播放 暂停 停止 --- #
@@ -72,13 +70,13 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
                                 QtGui.QIcon.On)
         self.playIcon.addPixmap(QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"),
                                 QtGui.QIcon.Selected, QtGui.QIcon.On)
-        self.run_button.setCheckable(True)
-        self.run_button.setIcon(self.playIcon)
+        self.ui.run_button.setCheckable(True)
+        self.ui.run_button.setIcon(self.playIcon)
         # --- 播放 暂停 停止 --- #
 
         # --- 侧边栏缩放 --- #
-        self.src_menu.clicked.connect(self.scaleMenu)  # hide menu button
-        self.src_setting.clicked.connect(self.scalSetting)  # setting button
+        self.ui.src_menu.clicked.connect(self.scaleMenu)  # hide menu button
+        self.ui.src_setting.clicked.connect(self.scalSetting)  # setting button
         # --- 侧边栏缩放 --- #
 
         # --- 自动加载/动态改变 PT 模型 --- #
@@ -86,52 +84,52 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.pt_list = os.listdir(f'{self.current_workpath}/ptfiles/')
         self.pt_list = [file for file in self.pt_list if file.endswith('.pt')]
         self.pt_list.sort(key=lambda x: os.path.getsize(f'{self.current_workpath}/ptfiles/' + x))
-        self.model_box.clear()
-        self.model_box.addItems(self.pt_list)
+        self.ui.model_box.clear()
+        self.ui.model_box.addItems(self.pt_list)
         self.qtimer_search = QTimer(self)
         self.qtimer_search.timeout.connect(lambda: self.loadModels())
         self.qtimer_search.start(2000)
-        self.model_box.currentTextChanged.connect(self.changeModel)
+        self.ui.model_box.currentTextChanged.connect(self.changeModel)
         # --- 自动加载/动态改变 PT 模型 --- #
 
         # --- 导入 图片/视频、调用摄像头、导入文件夹（批量处理）、调用网络摄像头、结果统计图片、结果统计表格 --- #
-        self.src_img.clicked.connect(self.selectFile)
-        self.src_webcam.clicked.connect(self.selectWebcam)
-        self.src_folder.clicked.connect(self.selectFolder)
-        self.src_camera.clicked.connect(self.selectRtsp)
-        self.src_result.clicked.connect(self.showResultStatics)
-        self.src_table.clicked.connect(self.showTableResult)
+        self.ui.src_img.clicked.connect(self.selectFile)
+        self.ui.src_webcam.clicked.connect(self.selectWebcam)
+        self.ui.src_folder.clicked.connect(self.selectFolder)
+        self.ui.src_camera.clicked.connect(self.selectRtsp)
+        self.ui.src_result.clicked.connect(self.showResultStatics)
+        self.ui.src_table.clicked.connect(self.showTableResult)
         # --- 导入 图片/视频、调用摄像头、导入文件夹（批量处理）、调用网络摄像头 --- #
 
         # --- 导入模型、 导出结果 --- #
-        self.import_button.clicked.connect(self.importModel)
-        self.save_status_button.clicked.connect(self.saveStatus)
-        self.save_button.clicked.connect(self.saveResult)
-        self.save_button.setEnabled(False)
+        self.ui.import_button.clicked.connect(self.importModel)
+        self.ui.save_status_button.clicked.connect(self.saveStatus)
+        self.ui.save_button.clicked.connect(self.saveResult)
+        self.ui.save_button.setEnabled(False)
         # --- 导入模型、 导出结果 --- #
 
         # --- 视频、图片 预览 --- #
-        self.main_leftbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        self.main_rightbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+        self.ui.main_leftbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
+        self.ui.main_rightbox.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         # --- 视频、图片 预览 --- #
 
         # --- 状态栏 初始化 --- #
         # 状态栏阴影效果
-        self.shadowStyle(self.mainBody, QColor(0, 0, 0, 38), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Class_QF, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.classesLabel, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Target_QF, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.targetLabel, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Fps_QF, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.fpsLabel, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.Model_QF, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
-        self.shadowStyle(self.modelLabel, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.mainBody, QColor(0, 0, 0, 38), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Class_QF, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.classesLabel, QColor(142, 197, 252), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Target_QF, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.targetLabel, QColor(159, 172, 230), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Fps_QF, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.fpsLabel, QColor(170, 128, 213), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.Model_QF, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
+        self.shadowStyle(self.ui.modelLabel, QColor(162, 129, 247), top_bottom=['top', 'bottom'])
         # 状态栏默认显示
-        self.model_name = self.model_box.currentText()  # 获取默认 model
-        self.Class_num.setText('--')
-        self.Target_num.setText('--')
-        self.fps_label.setText('--')
-        self.Model_label.setText(str(self.model_name).replace(".pt", ""))
+        self.model_name = self.ui.model_box.currentText()  # 获取默认 model
+        self.ui.Class_num.setText('--')
+        self.ui.Target_num.setText('--')
+        self.ui.fps_label.setText('--')
+        self.ui.Model_label.setText(str(self.model_name).replace(".pt", ""))
         # --- 状态栏 初始化 --- #
 
         # --- YOLOv5 QThread --- #
@@ -187,20 +185,20 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
         self.initThreads()
 
         # --- 超参数调整 --- #
-        self.iou_spinbox.valueChanged.connect(
+        self.ui.iou_spinbox.valueChanged.connect(
             lambda x: self.changeValue(x, 'iou_spinbox'))  # iou box
-        self.iou_slider.valueChanged.connect(lambda x: self.changeValue(x, 'iou_slider'))  # iou scroll bar
-        self.conf_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'conf_spinbox'))  # conf box
-        self.conf_slider.valueChanged.connect(lambda x: self.changeValue(x, 'conf_slider'))  # conf scroll bar
-        self.speed_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'speed_spinbox'))  # speed box
-        self.speed_slider.valueChanged.connect(lambda x: self.changeValue(x, 'speed_slider'))  # speed scroll bar
-        self.line_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'line_spinbox'))  # line box
-        self.line_slider.valueChanged.connect(lambda x: self.changeValue(x, 'line_slider'))  # line slider
+        self.ui.iou_slider.valueChanged.connect(lambda x: self.changeValue(x, 'iou_slider'))  # iou scroll bar
+        self.ui.conf_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'conf_spinbox'))  # conf box
+        self.ui.conf_slider.valueChanged.connect(lambda x: self.changeValue(x, 'conf_slider'))  # conf scroll bar
+        self.ui.speed_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'speed_spinbox'))  # speed box
+        self.ui.speed_slider.valueChanged.connect(lambda x: self.changeValue(x, 'speed_slider'))  # speed scroll bar
+        self.ui.line_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'line_spinbox'))  # line box
+        self.ui.line_slider.valueChanged.connect(lambda x: self.changeValue(x, 'line_slider'))  # line slider
         # --- 超参数调整 --- #
 
         # --- 开始 / 停止 --- #
-        self.run_button.clicked.connect(self.runorContinue)
-        self.stop_button.clicked.connect(self.stopDetect)
+        self.ui.run_button.clicked.connect(self.runorContinue)
+        self.ui.stop_button.clicked.connect(self.stopDetect)
         # --- 开始 / 停止 --- #
 
         # --- Setting栏 初始化 --- #
@@ -213,7 +211,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     def initThreads(self):
         self.yolo_threads = [self.yolov5_thread, self.yolov7_thread, self.yolov8_thread, self.yolov9_thread,
-                             self.yolov10_thread,
+                             self.yolov10_thread, self.rtdetr_thread,
                              self.yolov5seg_thread, self.yolov8seg_thread, self.yolov8pose_thread,
                              self.yolov8obb_thread]
 
@@ -351,14 +349,14 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
                 conf = config['conf']
                 delay = config['delay']
                 line_thickness = config['line_thickness']
-        self.iou_spinbox.setValue(iou)
-        self.iou_slider.setValue(int(iou * 100))
-        self.conf_spinbox.setValue(conf)
-        self.conf_slider.setValue(int(conf * 100))
-        self.speed_spinbox.setValue(delay)
-        self.speed_slider.setValue(delay)
-        self.line_spinbox.setValue(line_thickness)
-        self.line_slider.setValue(line_thickness)
+        self.ui.iou_spinbox.setValue(iou)
+        self.ui.iou_slider.setValue(int(iou * 100))
+        self.ui.conf_spinbox.setValue(conf)
+        self.ui.conf_slider.setValue(int(conf * 100))
+        self.ui.speed_spinbox.setValue(delay)
+        self.ui.speed_slider.setValue(delay)
+        self.ui.line_spinbox.setValue(line_thickness)
+        self.ui.line_slider.setValue(line_thickness)
 
     # 加载 pt 模型到 model_box
     def loadModels(self):
@@ -368,8 +366,8 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
         if pt_list != self.pt_list:
             self.pt_list = pt_list
-            self.model_box.clear()
-            self.model_box.addItems(self.pt_list)
+            self.ui.model_box.clear()
+            self.ui.model_box.addItems(self.pt_list)
 
     def stopOtherModelProcess(self, yolo_thread, current_yoloname):
         yolo_thread.quit()
@@ -403,7 +401,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
                     self.stopOtherModelProcess(self.yolov8obb_thread, current_yoloname)
 
     def changeModelProcess(self, yolo_thread, yoloname):
-        yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.model_box.currentText()
+        yolo_thread.new_model_name = f'{self.current_workpath}/ptfiles/' + self.ui.model_box.currentText()
         # 重载 common 和 yolo 模块
         glo.set_value('yoloname', yoloname)
         self.reloadModel()
@@ -412,8 +410,8 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
 
     # Model 变化
     def changeModel(self):
-        self.model_name = self.model_box.currentText()
-        self.Model_label.setText(str(self.model_name).replace(".pt", ""))  # 修改状态栏显示
+        self.model_name = self.ui.model_box.currentText()
+        self.ui.Model_label.setText(str(self.model_name).replace(".pt", ""))  # 修改状态栏显示
         if "yolov5" in self.model_name and not self.checkSegName(self.model_name):
             self.changeModelProcess(self.yolov5_thread, "yolov5")
         elif "yolov7" in self.model_name:
@@ -441,7 +439,7 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
     def runModelProcess(self, yolo_thread):
         yolo_thread.source = self.inputPath
         yolo_thread.stop_dtc = False
-        if self.run_button.isChecked():
+        if self.ui.run_button.isChecked():
             yolo_thread.is_continue = True
             if not yolo_thread.isRunning():
                 yolo_thread.start()
@@ -450,9 +448,9 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
             self.showStatus('Pause Detection')
 
     def runModel(self, runbuttonStatus=None):
-        self.save_status_button.setEnabled(False)
+        self.ui.save_status_button.setEnabled(False)
         if runbuttonStatus:
-            self.run_button.setChecked(True)
+            self.ui.run_button.setChecked(True)
         if "yolov5" in self.model_name and not self.checkSegName(self.model_name):
             self.runModelProcess(self.yolov5_thread)
         elif "yolov7" in self.model_name:
@@ -476,8 +474,8 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
             self.runModelProcess(self.yolov8obb_thread)
         else:
             self.showStatus('The current model is not supported')
-            if self.run_button.isChecked():
-                self.run_button.setChecked(False)
+            if self.ui.run_button.isChecked():
+                self.ui.run_button.setChecked(False)
 
     # 重新加载模型
     def resignModel(self, yoloname):
@@ -529,16 +527,16 @@ class YOLOSHOW(formType, baseType, Ui_mainWindow, YOLOSHOWBASE):
             self.runModel()
         else:
             self.showStatus("Please select the Image/Video before starting detection...")
-            self.run_button.setChecked(False)
+            self.ui.run_button.setChecked(False)
 
     # 停止识别
     def stopDetect(self):
         self.quitRunningModel(stop_status=True)
-        self.run_button.setChecked(False)
-        self.save_status_button.setEnabled(True)
-        self.progress_bar.setValue(0)
-        self.main_leftbox.clear()  # clear image display
-        self.main_rightbox.clear()
-        self.Class_num.setText('--')
-        self.Target_num.setText('--')
-        self.fps_label.setText('--')
+        self.ui.run_button.setChecked(False)
+        self.ui.save_status_button.setEnabled(True)
+        self.ui.progress_bar.setValue(0)
+        self.ui.main_leftbox.clear()  # clear image display
+        self.ui.main_rightbox.clear()
+        self.ui.Class_num.setText('--')
+        self.ui.Target_num.setText('--')
+        self.ui.fps_label.setText('--')
