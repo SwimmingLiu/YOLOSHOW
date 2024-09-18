@@ -90,7 +90,8 @@ class CometLogger:
             "log_code": False,
             "log_env_gpu": True,
             "log_env_cpu": True,
-            "project_name": COMET_PROJECT_NAME,}
+            "project_name": COMET_PROJECT_NAME,
+        }
         self.default_experiment_kwargs.update(experiment_kwargs)
         self.experiment = self._get_experiment(self.comet_mode, run_id)
 
@@ -146,13 +147,16 @@ class CometLogger:
 
         self.comet_log_per_class_metrics = COMET_LOG_PER_CLASS_METRICS
 
-        self.experiment.log_others({
-            "comet_mode": COMET_MODE,
-            "comet_max_image_uploads": COMET_MAX_IMAGE_UPLOADS,
-            "comet_log_per_class_metrics": COMET_LOG_PER_CLASS_METRICS,
-            "comet_log_batch_metrics": COMET_LOG_BATCH_METRICS,
-            "comet_log_confusion_matrix": COMET_LOG_CONFUSION_MATRIX,
-            "comet_model_name": COMET_MODEL_NAME,})
+        self.experiment.log_others(
+            {
+                "comet_mode": COMET_MODE,
+                "comet_max_image_uploads": COMET_MAX_IMAGE_UPLOADS,
+                "comet_log_per_class_metrics": COMET_LOG_PER_CLASS_METRICS,
+                "comet_log_batch_metrics": COMET_LOG_BATCH_METRICS,
+                "comet_log_confusion_matrix": COMET_LOG_CONFUSION_MATRIX,
+                "comet_model_name": COMET_MODEL_NAME,
+            }
+        )
 
         # Check if running the Experiment with the Comet Optimizer
         if hasattr(self.opt, "comet_optimizer_id"):
@@ -169,7 +173,9 @@ class CometLogger:
                     **self.default_experiment_kwargs,
                 )
 
-            return comet_ml.OfflineExperiment(**self.default_experiment_kwargs,)
+            return comet_ml.OfflineExperiment(
+                **self.default_experiment_kwargs,
+            )
 
         else:
             try:
@@ -182,10 +188,12 @@ class CometLogger:
                 return comet_ml.Experiment(**self.default_experiment_kwargs)
 
             except ValueError:
-                logger.warning("COMET WARNING: "
-                               "Comet credentials have not been set. "
-                               "Comet will default to offline logging. "
-                               "Please set your credentials to enable online logging.")
+                logger.warning(
+                    "COMET WARNING: "
+                    "Comet credentials have not been set. "
+                    "Comet will default to offline logging. "
+                    "Please set your credentials to enable online logging."
+                )
                 return self._get_experiment("offline", experiment_id)
 
         return
@@ -213,7 +221,8 @@ class CometLogger:
             "fitness_score": fitness_score[-1],
             "epochs_trained": epoch + 1,
             "save_period": opt.save_period,
-            "total_epochs": opt.epochs,}
+            "total_epochs": opt.epochs,
+        }
 
         model_files = glob.glob(f"{path}/*.pt")
         for model_path in model_files:
@@ -262,23 +271,21 @@ class CometLogger:
 
         metadata = []
         for cls, *xyxy in filtered_labels.tolist():
-            metadata.append({
-                "label": f"{self.class_names[int(cls)]}-gt",
-                "score": 100,
-                "box": {
-                    "x": xyxy[0],
-                    "y": xyxy[1],
-                    "x2": xyxy[2],
-                    "y2": xyxy[3]},})
+            metadata.append(
+                {
+                    "label": f"{self.class_names[int(cls)]}-gt",
+                    "score": 100,
+                    "box": {"x": xyxy[0], "y": xyxy[1], "x2": xyxy[2], "y2": xyxy[3]},
+                }
+            )
         for *xyxy, conf, cls in filtered_detections.tolist():
-            metadata.append({
-                "label": f"{self.class_names[int(cls)]}",
-                "score": conf * 100,
-                "box": {
-                    "x": xyxy[0],
-                    "y": xyxy[1],
-                    "x2": xyxy[2],
-                    "y2": xyxy[3]},})
+            metadata.append(
+                {
+                    "label": f"{self.class_names[int(cls)]}",
+                    "score": conf * 100,
+                    "box": {"x": xyxy[0], "y": xyxy[1], "x2": xyxy[2], "y2": xyxy[3]},
+                }
+            )
 
         self.metadata_dict[image_name] = metadata
         self.logged_images_count += 1
@@ -371,8 +378,9 @@ class CometLogger:
         for split in ["train", "val", "test"]:
             if data_dict.get(split):
                 split_path = data_dict.get(split)
-                data_dict[split] = (f"{path}/{split_path}" if isinstance(split, str) else [
-                    f"{path}/{x}" for x in split_path])
+                data_dict[split] = (
+                    f"{path}/{split_path}" if isinstance(split, str) else [f"{path}/{x}" for x in split_path]
+                )
 
         return data_dict
 
@@ -475,8 +483,10 @@ class CometLogger:
                             'f1': f1[i],
                             'true_positives': tp[i],
                             'false_positives': fp[i],
-                            'support': nt[c]},
-                        prefix=class_name)
+                            'support': nt[c],
+                        },
+                        prefix=class_name,
+                    )
 
         if self.comet_log_confusion_matrix:
             epoch = self.experiment.curr_epoch

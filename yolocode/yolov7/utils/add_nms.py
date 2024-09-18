@@ -1,6 +1,7 @@
 import numpy as np
 import onnx
 from onnx import shape_inference
+
 try:
     import onnx_graphsurgeon as gs
 except Exception as e:
@@ -10,13 +11,13 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
+
 class RegisterNMS(object):
     def __init__(
         self,
         onnx_model_path: str,
         precision: str = "fp32",
     ):
-
         self.graph = gs.import_onnx(onnx.load(onnx_model_path))
         assert self.graph
         LOGGER.info("ONNX graph created successfully")
@@ -24,6 +25,7 @@ class RegisterNMS(object):
         self.graph.fold_constants()
         self.precision = precision
         self.batch_size = 1
+
     def infer(self):
         """
         Sanitize the graph by cleaning any unconnected nodes, do a topological resort,

@@ -4,7 +4,7 @@ from qfluentwidgets import MessageBoxBase, SubtitleLabel, LineEdit, PushButton, 
 
 
 class CustomMessageBox(MessageBoxBase):
-    """ Custom message box """
+    """Custom message box"""
 
     def __init__(self, parent=None, mode=None):
         super().__init__(parent)
@@ -15,7 +15,6 @@ class CustomMessageBox(MessageBoxBase):
         else:
             self.titleLabel = SubtitleLabel('Input Rtsp URL', self)
             self.urlLineEdit.setPlaceholderText('rtsp://')
-
 
         self.urlLineEdit.setFont(QFont("Segoe UI", 14))
         self.urlLineEdit.setClearButtonEnabled(True)

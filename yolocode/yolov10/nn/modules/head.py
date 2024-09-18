@@ -79,7 +79,7 @@ class Detect(nn.Module):
     def forward(self, x):
         """Concatenates and returns predicted bounding boxes and class probabilities."""
         y = self.forward_feat(x, self.cv2, self.cv3)
-        
+
         if self.training:
             return y
 
@@ -494,20 +494,25 @@ class RTDETRDecoder(nn.Module):
         for layer in self.input_proj:
             xavier_uniform_(layer[0].weight)
 
-class v10Detect(Detect):
 
+class v10Detect(Detect):
     max_det = -1
 
     def __init__(self, nc=80, ch=()):
         super().__init__(nc, ch)
         c3 = max(ch[0], min(self.nc, 100))  # channels
-        self.cv3 = nn.ModuleList(nn.Sequential(nn.Sequential(Conv(x, x, 3, g=x), Conv(x, c3, 1)), \
-                                               nn.Sequential(Conv(c3, c3, 3, g=c3), Conv(c3, c3, 1)), \
-                                                nn.Conv2d(c3, self.nc, 1)) for i, x in enumerate(ch))
+        self.cv3 = nn.ModuleList(
+            nn.Sequential(
+                nn.Sequential(Conv(x, x, 3, g=x), Conv(x, c3, 1)),
+                nn.Sequential(Conv(c3, c3, 3, g=c3), Conv(c3, c3, 1)),
+                nn.Conv2d(c3, self.nc, 1),
+            )
+            for i, x in enumerate(ch)
+        )
 
         self.one2one_cv2 = copy.deepcopy(self.cv2)
         self.one2one_cv3 = copy.deepcopy(self.cv3)
-    
+
     def forward(self, x):
         one2one = self.forward_feat([xi.detach() for xi in x], self.one2one_cv2, self.one2one_cv3)
         if not self.export:
@@ -518,7 +523,7 @@ class v10Detect(Detect):
             if not self.export:
                 return {"one2many": one2many, "one2one": one2one}
             else:
-                assert(self.max_det != -1)
+                assert self.max_det != -1
                 boxes, scores, labels = ops.v10postprocess(one2one.permute(0, 2, 1), self.max_det, self.nc)
                 return torch.cat([boxes, scores.unsqueeze(-1), labels.unsqueeze(-1)], dim=-1)
         else:

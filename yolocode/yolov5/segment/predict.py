@@ -44,9 +44,22 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
 from yolocode.yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolocode.yolov5.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_boxes, scale_segments,
-                           strip_optimizer)
+from yolocode.yolov5.utils.general import (
+    LOGGER,
+    Profile,
+    check_file,
+    check_img_size,
+    check_imshow,
+    check_requirements,
+    colorstr,
+    cv2,
+    increment_path,
+    non_max_suppression,
+    print_args,
+    scale_boxes,
+    scale_segments,
+    strip_optimizer,
+)
 from yolocode.yolov5.utils.plots import Annotator, colors, save_one_box
 from yolocode.yolov5.utils.segment.general import masks2segments, process_mask, process_mask_native
 from yolocode.yolov5.utils.torch_utils import select_device, smart_inference_mode
@@ -165,7 +178,8 @@ def run(
                 if save_txt:
                     segments = [
                         scale_segments(im0.shape if retina_masks else im.shape[2:], x, im0.shape, normalize=True)
-                        for x in reversed(masks2segments(masks))]
+                        for x in reversed(masks2segments(masks))
+                    ]
 
                 # Print results
                 for c in det[:, 5].unique():
@@ -176,8 +190,11 @@ def run(
                 annotator.masks(
                     masks,
                     colors=[colors(x, True) for x in det[:, 5]],
-                    im_gpu=torch.as_tensor(im0, dtype=torch.float16).to(device).permute(2, 0, 1).flip(0).contiguous() /
-                    255 if retina_masks else im[i])
+                    im_gpu=torch.as_tensor(im0, dtype=torch.float16).to(device).permute(2, 0, 1).flip(0).contiguous()
+                    / 255
+                    if retina_masks
+                    else im[i],
+                )
 
                 # Write results
                 for j, (*xyxy, conf, cls) in enumerate(reversed(det[:, :6])):
@@ -229,7 +246,7 @@ def run(
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
 
     # Print results
-    t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
+    t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
@@ -240,10 +257,19 @@ def run(
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weights", nargs="+", type=str, default=r"E:\YOLO\YOLOSHOW\ptfiles\yolov5n-seg.pt",
-                        help="model path or triton URL")
-    parser.add_argument("--source", type=str, default=r"D:\ChromeDownload\ImagesTest\CrystalLiu1.jpg",
-                        help="file/dir/URL/glob/screen/0(webcam)")
+    parser.add_argument(
+        "--weights",
+        nargs="+",
+        type=str,
+        default=r"E:\YOLO\YOLOSHOW\ptfiles\yolov5n-seg.pt",
+        help="model path or triton URL",
+    )
+    parser.add_argument(
+        "--source",
+        type=str,
+        default=r"D:\ChromeDownload\ImagesTest\CrystalLiu1.jpg",
+        help="file/dir/URL/glob/screen/0(webcam)",
+    )
     parser.add_argument("--data", type=str, default=ROOT / "data/coco128-seg.yaml", help="(optional) dataset.yaml path")
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')

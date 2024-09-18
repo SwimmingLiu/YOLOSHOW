@@ -7,18 +7,18 @@ from ..metrics import ap_per_class
 def fitness(x):
     # Model fitness as a weighted combination of metrics
     w = [0.0, 0.0, 0.1, 0.9, 0.0, 0.0, 0.1, 0.9, 0.1, 0.9]
-    return (x[:, :len(w)] * w).sum(1)
+    return (x[:, : len(w)] * w).sum(1)
 
 
 def ap_per_class_box_and_mask(
-        tp_m,
-        tp_b,
-        conf,
-        pred_cls,
-        target_cls,
-        plot=False,
-        save_dir=".",
-        names=(),
+    tp_m,
+    tp_b,
+    conf,
+    pred_cls,
+    target_cls,
+    plot=False,
+    save_dir=".",
+    names=(),
 ):
     """
     Args:
@@ -26,22 +26,12 @@ def ap_per_class_box_and_mask(
         tp_m: tp of masks.
         other arguments see `func: ap_per_class`.
     """
-    results_boxes = ap_per_class(tp_b,
-                                 conf,
-                                 pred_cls,
-                                 target_cls,
-                                 plot=plot,
-                                 save_dir=save_dir,
-                                 names=names,
-                                 prefix="Box")[2:]
-    results_masks = ap_per_class(tp_m,
-                                 conf,
-                                 pred_cls,
-                                 target_cls,
-                                 plot=plot,
-                                 save_dir=save_dir,
-                                 names=names,
-                                 prefix="Mask")[2:]
+    results_boxes = ap_per_class(
+        tp_b, conf, pred_cls, target_cls, plot=plot, save_dir=save_dir, names=names, prefix="Box"
+    )[2:]
+    results_masks = ap_per_class(
+        tp_m, conf, pred_cls, target_cls, plot=plot, save_dir=save_dir, names=names, prefix="Mask"
+    )[2:]
 
     results = {
         "boxes": {
@@ -49,18 +39,20 @@ def ap_per_class_box_and_mask(
             "r": results_boxes[1],
             "ap": results_boxes[3],
             "f1": results_boxes[2],
-            "ap_class": results_boxes[4]},
+            "ap_class": results_boxes[4],
+        },
         "masks": {
             "p": results_masks[0],
             "r": results_masks[1],
             "ap": results_masks[3],
             "f1": results_masks[2],
-            "ap_class": results_masks[4]}}
+            "ap_class": results_masks[4],
+        },
+    }
     return results
 
 
 class Metric:
-
     def __init__(self) -> None:
         self.p = []  # (nc, )
         self.r = []  # (nc, )
@@ -178,9 +170,9 @@ class Semantic_Metrics:
         self.nc = nc  # number of classes
         self.device = device
         self.iou = []
-        self.c_bit_counts = torch.zeros(nc, dtype = torch.long).to(device)
-        self.c_intersection_counts = torch.zeros(nc, dtype = torch.long).to(device)
-        self.c_union_counts = torch.zeros(nc, dtype = torch.long).to(device)
+        self.c_bit_counts = torch.zeros(nc, dtype=torch.long).to(device)
+        self.c_intersection_counts = torch.zeros(nc, dtype=torch.long).to(device)
+        self.c_union_counts = torch.zeros(nc, dtype=torch.long).to(device)
 
     def update(self, pred_masks, target_masks):
         nb, nc, h, w = pred_masks.shape
@@ -189,10 +181,12 @@ class Semantic_Metrics:
         for b in range(nb):
             onehot_mask = pred_masks[b].to(device)
             # convert predict mask to one hot
-            semantic_mask = torch.flatten(onehot_mask, start_dim = 1).permute(1, 0) # class x h x w -> (h x w) x class
+            semantic_mask = torch.flatten(onehot_mask, start_dim=1).permute(1, 0)  # class x h x w -> (h x w) x class
             max_idx = semantic_mask.argmax(1)
-            output_masks = (torch.zeros(semantic_mask.shape).to(self.device)).scatter(1, max_idx.unsqueeze(1), 1.0) # one hot: (h x w) x class
-            output_masks = torch.reshape(output_masks.permute(1, 0), (nc, h, w)) # (h x w) x class -> class x h x w
+            output_masks = (torch.zeros(semantic_mask.shape).to(self.device)).scatter(
+                1, max_idx.unsqueeze(1), 1.0
+            )  # one hot: (h x w) x class
+            output_masks = torch.reshape(output_masks.permute(1, 0), (nc, h, w))  # (h x w) x class -> class x h x w
             onehot_mask = output_masks.int()
 
             for c in range(self.nc):
@@ -202,7 +196,7 @@ class Semantic_Metrics:
                 # calculate IoU
                 intersection = (torch.logical_and(pred_mask, target_mask).sum()).item()
                 union = (torch.logical_or(pred_mask, target_mask).sum()).item()
-                iou = 0. if (0 == union) else (intersection / union)
+                iou = 0.0 if (0 == union) else (intersection / union)
 
                 # record class pixel counts, intersection counts, union counts
                 self.c_bit_counts[c] += target_mask.int().sum()
@@ -213,22 +207,26 @@ class Semantic_Metrics:
 
     def results(self):
         # Mean IoU
-        miou = 0. if (0 == len(self.iou)) else np.sum(self.iou) / (len(self.iou) * self.nc)
+        miou = 0.0 if (0 == len(self.iou)) else np.sum(self.iou) / (len(self.iou) * self.nc)
 
         # Frequency Weighted IoU
         c_iou = self.c_intersection_counts / (self.c_union_counts + 1)  # add smooth
         # c_bit_counts = self.c_bit_counts.astype(int)
         total_c_bit_counts = self.c_bit_counts.sum()
-        freq_ious = torch.zeros(1, dtype = torch.long).to(self.device) if (0 == total_c_bit_counts) else (self.c_bit_counts / total_c_bit_counts) * c_iou
+        freq_ious = (
+            torch.zeros(1, dtype=torch.long).to(self.device)
+            if (0 == total_c_bit_counts)
+            else (self.c_bit_counts / total_c_bit_counts) * c_iou
+        )
         fwiou = (freq_ious.sum()).item()
 
         return (miou, fwiou)
 
     def reset(self):
         self.iou = []
-        self.c_bit_counts = torch.zeros(self.nc, dtype = torch.long).to(self.device)
-        self.c_intersection_counts = torch.zeros(self.nc, dtype = torch.long).to(self.device)
-        self.c_union_counts = torch.zeros(self.nc, dtype = torch.long).to(self.device)
+        self.c_bit_counts = torch.zeros(self.nc, dtype=torch.long).to(self.device)
+        self.c_intersection_counts = torch.zeros(self.nc, dtype=torch.long).to(self.device)
+        self.c_union_counts = torch.zeros(self.nc, dtype=torch.long).to(self.device)
 
 
 KEYS = [
@@ -247,7 +245,7 @@ KEYS = [
     "metrics/mAP_0.5(M)",
     "metrics/mAP_0.5:0.95(M)",  # metrics
     "metrics/MIOUS(S)",
-    "metrics/FWIOUS(S)",        # metrics
+    "metrics/FWIOUS(S)",  # metrics
     "val/box_loss",
     "val/seg_loss",  # val loss
     "val/cls_loss",
@@ -256,7 +254,8 @@ KEYS = [
     "val/dic_loss",
     "x/lr0",
     "x/lr1",
-    "x/lr2",]
+    "x/lr2",
+]
 
 BEST_KEYS = [
     "best/epoch",
@@ -269,4 +268,5 @@ BEST_KEYS = [
     "best/mAP_0.5(M)",
     "best/mAP_0.5:0.95(M)",
     "best/MIOUS(S)",
-    "best/FWIOUS(S)",]
+    "best/FWIOUS(S)",
+]

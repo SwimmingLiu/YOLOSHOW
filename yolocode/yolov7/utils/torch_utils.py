@@ -108,9 +108,9 @@ def profile(x, ops, n=100, device=None):
     for m in ops if isinstance(ops, list) else [ops]:
         m = m.to(device) if hasattr(m, 'to') else m  # device
         m = m.half() if hasattr(m, 'half') and isinstance(x, torch.Tensor) and x.dtype is torch.float16 else m  # type
-        dtf, dtb, t = 0., 0., [0., 0., 0.]  # dt forward, backward
+        dtf, dtb, t = 0.0, 0.0, [0.0, 0.0, 0.0]  # dt forward, backward
         try:
-            flops = thop.profile(m, inputs=(x,), verbose=False)[0] / 1E9 * 2  # GFLOPS
+            flops = thop.profile(m, inputs=(x,), verbose=False)[0] / 1e9 * 2  # GFLOPS
         except:
             flops = 0
 
@@ -160,7 +160,7 @@ def find_modules(model, mclass=nn.Conv2d):
 
 def sparsity(model):
     # Return global model sparsity
-    a, b = 0., 0.
+    a, b = 0.0, 0.0
     for p in model.parameters():
         a += p.numel()
         b += (p == 0).sum()
@@ -170,6 +170,7 @@ def sparsity(model):
 def prune(model, amount=0.3):
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
+
     print('Pruning model... ', end='')
     for name, m in model.named_modules():
         if isinstance(m, nn.Conv2d):
@@ -180,13 +181,19 @@ def prune(model, amount=0.3):
 
 def fuse_conv_and_bn(conv, bn):
     # Fuse convolution and batchnorm layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
-    fusedconv = nn.Conv2d(conv.in_channels,
-                          conv.out_channels,
-                          kernel_size=conv.kernel_size,
-                          stride=conv.stride,
-                          padding=conv.padding,
-                          groups=conv.groups,
-                          bias=True).requires_grad_(False).to(conv.weight.device)
+    fusedconv = (
+        nn.Conv2d(
+            conv.in_channels,
+            conv.out_channels,
+            kernel_size=conv.kernel_size,
+            stride=conv.stride,
+            padding=conv.padding,
+            groups=conv.groups,
+            bias=True,
+        )
+        .requires_grad_(False)
+        .to(conv.weight.device)
+    )
 
     # prepare filters
     w_conv = conv.weight.clone().view(conv.out_channels, -1)
@@ -209,14 +216,17 @@ def model_info(model, verbose=False, img_size=640):
         print('%5s %40s %9s %12s %20s %10s %10s' % ('layer', 'name', 'gradient', 'parameters', 'shape', 'mu', 'sigma'))
         for i, (name, p) in enumerate(model.named_parameters()):
             name = name.replace('module_list.', '')
-            print('%5g %40s %9s %12g %20s %10.3g %10.3g' %
-                  (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std()))
+            print(
+                '%5g %40s %9s %12g %20s %10.3g %10.3g'
+                % (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std())
+            )
 
     try:  # FLOPS
         from thop import profile
+
         stride = max(int(model.stride.max()), 32) if hasattr(model, 'stride') else 32
         img = torch.zeros((1, model.yaml.get('ch', 3), stride, stride), device=next(model.parameters()).device)  # input
-        flops = profile(deepcopy(model), inputs=(img,), verbose=False)[0] / 1E9 * 2  # stride GFLOPS
+        flops = profile(deepcopy(model), inputs=(img,), verbose=False)[0] / 1e9 * 2  # stride GFLOPS
         img_size = img_size if isinstance(img_size, list) else [img_size, img_size]  # expand if int/float
         fs = ', %.1f GFLOPS' % (flops * img_size[0] / stride * img_size[1] / stride)  # 640x640 GFLOPS
     except (ImportError, Exception):
@@ -267,7 +277,7 @@ def copy_attr(a, b, include=(), exclude=()):
 
 
 class ModelEMA:
-    """ Model Exponential Moving Average from https://github.com/rwightman/pytorch-image-models
+    """Model Exponential Moving Average from https://github.com/rwightman/pytorch-image-models
     Keep a moving average of everything in the model state_dict (parameters and buffers).
     This is intended to allow functionality like
     https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
@@ -296,7 +306,7 @@ class ModelEMA:
             for k, v in self.ema.state_dict().items():
                 if v.dtype.is_floating_point:
                     v *= d
-                    v += (1. - d) * msd[k].detach()
+                    v += (1.0 - d) * msd[k].detach()
 
     def update_attr(self, model, include=(), exclude=('process_group', 'reducer')):
         # Update EMA attributes
@@ -315,16 +325,16 @@ class BatchNormXd(torch.nn.modules.batchnorm._BatchNorm):
         #  we could return the one that was originally created)
         return
 
+
 def revert_sync_batchnorm(module):
     # this is very similar to the function that it is trying to revert:
     # https://github.com/pytorch/pytorch/blob/c8b3686a3e4ba63dc59e5dcfe5db3430df256833/torch/nn/modules/batchnorm.py#L679
     module_output = module
     if isinstance(module, torch.nn.modules.batchnorm.SyncBatchNorm):
         new_cls = BatchNormXd
-        module_output = BatchNormXd(module.num_features,
-                                               module.eps, module.momentum,
-                                               module.affine,
-                                               module.track_running_stats)
+        module_output = BatchNormXd(
+            module.num_features, module.eps, module.momentum, module.affine, module.track_running_stats
+        )
         if module.affine:
             with torch.no_grad():
                 module_output.weight = module.weight
@@ -341,11 +351,10 @@ def revert_sync_batchnorm(module):
 
 
 class TracedModel(nn.Module):
-
-    def __init__(self, model=None, device=None, img_size=(640,640)): 
+    def __init__(self, model=None, device=None, img_size=(640, 640)):
         super(TracedModel, self).__init__()
-        
-        print(" Convert model to Traced-model... ") 
+
+        print(" Convert model to Traced-model... ")
         self.stride = model.stride
         self.names = model.names
         self.model = model
@@ -356,17 +365,17 @@ class TracedModel(nn.Module):
 
         self.detect_layer = self.model.model[-1]
         self.model.traced = True
-        
+
         rand_example = torch.rand(1, 3, img_size, img_size)
-        
+
         traced_script_module = torch.jit.trace(self.model, rand_example, strict=False)
-        #traced_script_module = torch.jit.script(self.model)
+        # traced_script_module = torch.jit.script(self.model)
         traced_script_module.save("traced_model.pt")
         print(" traced_script_module saved! ")
         self.model = traced_script_module
         self.model.to(device)
         self.detect_layer.to(device)
-        print(" model is traced! \n") 
+        print(" model is traced! \n")
 
     def forward(self, x, augment=False, profile=False):
         out = self.model(x)

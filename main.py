@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+
 # 将ui目录添加到系统路径中
 sys.path.append(os.path.join(os.getcwd(), "ui"))
 # 禁止标准输出

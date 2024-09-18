@@ -2,7 +2,7 @@ import threading
 
 
 class Callbacks:
-    """"
+    """ "
     Handles all registered callbacks for YOLOv5 Hooks
     """
 
@@ -27,7 +27,8 @@ class Callbacks:
             'on_model_save': [],
             'on_train_end': [],
             'on_params_update': [],
-            'teardown': [],}
+            'teardown': [],
+        }
         self.stop_training = False  # set True to interrupt training
 
     def register_action(self, hook, name='', callback=None):
@@ -44,7 +45,7 @@ class Callbacks:
         self._callbacks[hook].append({'name': name, 'callback': callback})
 
     def get_registered_actions(self, hook=None):
-        """"
+        """ "
         Returns all the registered actions by callback hook
 
         Args:

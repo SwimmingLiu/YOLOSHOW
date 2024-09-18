@@ -5,7 +5,7 @@ import threading
 
 
 class Callbacks:
-    """" Handles all registered callbacks for YOLOv5 Hooks."""
+    """ " Handles all registered callbacks for YOLOv5 Hooks."""
 
     def __init__(self):
         # Define the available callbacks

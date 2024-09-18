@@ -18,8 +18,7 @@ import cv2
 import numpy as np
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import QFileDialog, QGraphicsDropShadowEffect, QFrame, QPushButton, QApplication
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, \
-    QParallelAnimationGroup, QPoint
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint
 from qfluentwidgets import RoundMenu, MenuAnimationType, Action
 import importlib
 from ui.utils.rtspDialog import CustomMessageBox
@@ -58,7 +57,6 @@ class YOLOSHOWBASE:
 
         # 将左侧菜单栏的按钮固定宽度
         for child_left_box_widget in self.ui.leftbox_bottom.children():
-
             if isinstance(child_left_box_widget, QFrame):
                 child_left_box_widget.setFixedWidth(WIDTH_LEFT_BOX_EXTENDED)
 
@@ -225,7 +223,7 @@ class YOLOSHOWBASE:
             self,  # 父窗口对象
             "Select your Image / Video",  # 标题
             file_path,  # 默认打开路径为当前路径
-            "Image / Video type (*.jpg *.jpeg *.png *.bmp *.dib *.jpe *.jp2 *.mp4)"  # 选择类型过滤项，过滤内容在括号中
+            "Image / Video type (*.jpg *.jpeg *.png *.bmp *.dib *.jpe *.jp2 *.mp4)",  # 选择类型过滤项，过滤内容在括号中
         )
         if file:
             self.inputPath = file
@@ -291,12 +289,16 @@ class YOLOSHOWBASE:
         FolderPath = QFileDialog.getExistingDirectory(
             self,
             "Select your Folder",
-            folder_path  # 起始目录
+            folder_path,  # 起始目录
         )
         if FolderPath:
             FileFormat = [".mp4", ".mkv", ".avi", ".flv", ".jpg", ".png", ".jpeg", ".bmp", ".dib", ".jpe", ".jp2"]
-            Foldername = [(FolderPath + "/" + filename) for filename in os.listdir(FolderPath) for jpgname in FileFormat
-                          if jpgname in filename]
+            Foldername = [
+                (FolderPath + "/" + filename)
+                for filename in os.listdir(FolderPath)
+                for jpgname in FileFormat
+                if jpgname in filename
+            ]
             # self.yolov5_thread.source = Foldername
             self.inputPath = Foldername
             self.showStatus('Loaded Folder：{}'.format(os.path.basename(FolderPath)))
@@ -341,6 +343,7 @@ class YOLOSHOWBASE:
         try:
             # 解析URL获取主机名和端口
             from urllib.parse import urlparse
+
             parsed_url = urlparse(url)
             hostname = parsed_url.hostname
             port = parsed_url.port or 554  # RTSP默认端口是554
@@ -361,6 +364,7 @@ class YOLOSHOWBASE:
         try:
             # 解析URL获取主机名和端口
             from urllib.parse import urlparse
+
             parsed_url = urlparse(url)
             hostname = parsed_url.hostname
             port = parsed_url.port or 80  # HTTP默认端口是80
@@ -400,8 +404,9 @@ class YOLOSHOWBASE:
                 img_src_ = cv2.resize(img_src, (nw, nh))
 
             frame = cv2.cvtColor(img_src_, cv2.COLOR_BGR2RGB)
-            img = QImage(frame.data, frame.shape[1], frame.shape[0], frame.shape[2] * frame.shape[1],
-                         QImage.Format_RGB888)
+            img = QImage(
+                frame.data, frame.shape[1], frame.shape[0], frame.shape[2] * frame.shape[1], QImage.Format_RGB888
+            )
             label.setPixmap(QPixmap.fromImage(img))
         except Exception as e:
             print(repr(e))
@@ -425,7 +430,7 @@ class YOLOSHOWBASE:
             self,  # 父窗口对象
             "Select your YOLO Model",  # 标题
             self.model_path,  # 默认打开路径为当前路径
-            "Model File (*.pt)"  # 选择类型过滤项，过滤内容在括号中
+            "Model File (*.pt)",  # 选择类型过滤项，过滤内容在括号中
         )
         if file:
             fileptPath = os.path.join(self.pt_Path, os.path.basename(file))
@@ -525,10 +530,16 @@ class YOLOSHOWBASE:
 
     # 导出结果
     def saveResult(self):
-        if (not self.yolov5_thread.res_status and not self.yolov7_thread.res_status
-                and not self.yolov8_thread.res_status and not self.yolov9_thread.res_status
-                and not self.yolov5seg_thread.res_status and not self.yolov8seg_thread.res_status
-                and not self.rtdetr_thread.res_status and not self.yolov8pose_thread.res_status):
+        if (
+            not self.yolov5_thread.res_status
+            and not self.yolov7_thread.res_status
+            and not self.yolov8_thread.res_status
+            and not self.yolov9_thread.res_status
+            and not self.yolov5seg_thread.res_status
+            and not self.yolov8seg_thread.res_status
+            and not self.rtdetr_thread.res_status
+            and not self.yolov8pose_thread.res_status
+        ):
             self.showStatus("Please select the Image/Video before starting detection...")
             return
         config_file = f'{self.current_workpath}/config/save.json'
@@ -547,8 +558,11 @@ class YOLOSHOWBASE:
                 self.saveResultProcess(self.OutputDir, self.yolov5_thread, folder=True)
             elif "yolov7" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov7_thread, folder=True)
-            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                    self.model_name):
+            elif (
+                "yolov8" in self.model_name
+                and not self.checkSegName(self.model_name)
+                and not self.checkPoseName(self.model_name)
+            ):
                 self.saveResultProcess(self.OutputDir, self.yolov8_thread, folder=True)
             elif "yolov9" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov9_thread, folder=True)
@@ -565,14 +579,17 @@ class YOLOSHOWBASE:
                 self,  # 父窗口对象
                 "Save Image/Video",  # 标题
                 save_path,  # 起始目录
-                "Image/Vide Type (*.jpg *.jpeg *.png *.bmp *.dib  *.jpe  *.jp2 *.mp4)"  # 选择类型过滤项，过滤内容在括号中
+                "Image/Vide Type (*.jpg *.jpeg *.png *.bmp *.dib  *.jpe  *.jp2 *.mp4)",  # 选择类型过滤项，过滤内容在括号中
             )
             if "yolov5" in self.model_name and not self.checkSegName(self.model_name):
                 self.saveResultProcess(self.OutputDir, self.yolov5_thread, folder=False)
             elif "yolov7" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov7_thread, folder=False)
-            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                    self.model_name):
+            elif (
+                "yolov8" in self.model_name
+                and not self.checkSegName(self.model_name)
+                and not self.checkPoseName(self.model_name)
+            ):
                 self.saveResultProcess(self.OutputDir, self.yolov8_thread, folder=False)
             elif "yolov9" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov9_thread, folder=False)
@@ -627,11 +644,12 @@ class YOLOSHOWBASE:
             conf = 0.25
             delay = 10
             line_thickness = 3
-            new_config = {"iou": iou,
-                          "conf": conf,
-                          "delay": delay,
-                          "line_thickness": line_thickness,
-                          }
+            new_config = {
+                "iou": iou,
+                "conf": conf,
+                "delay": delay,
+                "line_thickness": line_thickness,
+            }
             new_json = json.dumps(new_config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(new_json)
@@ -744,6 +762,7 @@ class YOLOSHOWBASE:
                 glo.set_value('yoloname', "yolov5")
                 self.reloadModel()
                 from models.yolo import Detect_YOLOV5
+
                 net = torch.load(ptname)
                 for _module_index in range(len(net['model'].model)):
                     _module = net['model'].model[_module_index]
@@ -766,6 +785,7 @@ class YOLOSHOWBASE:
                 glo.set_value('yoloname', "yolov5-seg")
                 self.reloadModel()
                 from models.yolo import Segment_YOLOV5
+
                 net = torch.load(ptname)
                 for _module_index in range(len(net['model'].model)):
                     _module = net['model'].model[_module_index]
@@ -789,6 +809,7 @@ class YOLOSHOWBASE:
                 glo.set_value('yoloname', "yolov7")
                 self.reloadModel()
                 from models.yolo import Detect_YOLOV7
+
                 net = torch.load(ptname)
                 for _module_index in range(len(net['model'].model)):
                     _module = net['model'].model[_module_index]
@@ -811,6 +832,7 @@ class YOLOSHOWBASE:
                 glo.set_value('yoloname', "yolov9")
                 self.reloadModel()
                 from models.yolo import Detect_YOLOV9
+
                 net = torch.load(ptname)
                 for _module_index in range(len(net['model'].model)):
                     _module = net['model'].model[_module_index]
@@ -859,14 +881,14 @@ class YOLOSHOWBASE:
                 title='Detected Target Category Distribution (Percentage)',
                 content=result_str,
                 image=self.current_workpath + r'\config\result.png',
-                isClosable=True
+                isClosable=True,
             )
 
         else:
             view = AcrylicFlyoutView(
                 title='Result Statistics',
                 content="No completed target detection results detected, please execute the detection task first!",
-                isClosable=True
+                isClosable=True,
             )
 
         # 修改字体大小

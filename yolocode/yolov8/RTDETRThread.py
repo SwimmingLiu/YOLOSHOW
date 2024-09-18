@@ -154,7 +154,7 @@ class RTDETRThread(QThread):
             76: "scissors",
             77: "teddy bear",
             78: "hair drier",
-            79: "toothbrush"
+            79: "toothbrush",
         }  # coco.names 配对
         self.results_picture = dict()  # 结果图片
         self.results_table = list()  # 结果表格
@@ -162,7 +162,6 @@ class RTDETRThread(QThread):
         callbacks.add_integration_callbacks(self)
 
     def run(self):
-
         if not self.model:
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
@@ -189,7 +188,9 @@ class RTDETRThread(QThread):
             self.setup_source(source)
             self.detect()
 
-    def detect(self, ):
+    def detect(
+        self,
+    ):
         # warmup model
         if not self.done_warmup:
             self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
@@ -377,10 +378,10 @@ class RTDETRThread(QThread):
         )
         self.source_type = self.dataset.source_type
         if not getattr(self, "stream", True) and (
-                self.source_type.stream
-                or self.source_type.screenshot
-                or len(self.dataset) > 1000  # many images
-                or any(getattr(self.dataset, "video_flag", [False]))
+            self.source_type.stream
+            or self.source_type.screenshot
+            or len(self.dataset) > 1000  # many images
+            or any(getattr(self.dataset, "video_flag", [False]))
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
         self.vid_path = [None] * self.dataset.bs

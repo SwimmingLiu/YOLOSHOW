@@ -22,9 +22,24 @@ from models.common import DetectMultiBackend
 from models.yolo import SegmentationModel
 from utils.callbacks import Callbacks
 from utils.coco_utils import getCocoIds, getMappingId, getMappingIndex
-from utils.general import (LOGGER, NUM_THREADS, TQDM_BAR_FORMAT, Profile, check_dataset, check_img_size,
-                           check_requirements, check_yaml, coco80_to_coco91_class, colorstr, increment_path,
-                           non_max_suppression, print_args, scale_boxes, xywh2xyxy, xyxy2xywh)
+from utils.general import (
+    LOGGER,
+    NUM_THREADS,
+    TQDM_BAR_FORMAT,
+    Profile,
+    check_dataset,
+    check_img_size,
+    check_requirements,
+    check_yaml,
+    coco80_to_coco91_class,
+    colorstr,
+    increment_path,
+    non_max_suppression,
+    print_args,
+    scale_boxes,
+    xywh2xyxy,
+    xyxy2xywh,
+)
 from utils.metrics import ConfusionMatrix, box_iou
 from utils.plots import output_to_target, plot_val_study
 from utils.panoptic.dataloaders import create_dataloader
@@ -60,12 +75,15 @@ def save_one_json(predn, jdict, path, class_map, pred_masks):
     with ThreadPool(NUM_THREADS) as pool:
         rles = pool.map(single_encode, pred_masks)
     for i, (p, b) in enumerate(zip(predn.tolist(), box.tolist())):
-        jdict.append({
-            'image_id': image_id,
-            'category_id': class_map[int(p[5])],
-            'bbox': [round(x, 3) for x in b],
-            'score': round(p[4], 5),
-            'segmentation': rles[i]})
+        jdict.append(
+            {
+                'image_id': image_id,
+                'category_id': class_map[int(p[5])],
+                'bbox': [round(x, 3) for x in b],
+                'score': round(p[4], 5),
+                'segmentation': rles[i],
+            }
+        )
 
 
 def process_batch(detections, labels, iouv, pred_masks=None, gt_masks=None, overlap=False, masks=False):
@@ -107,36 +125,36 @@ def process_batch(detections, labels, iouv, pred_masks=None, gt_masks=None, over
 
 @smart_inference_mode()
 def run(
-        data,
-        weights=None,  # model.pt path(s)
-        batch_size=32,  # batch size
-        imgsz=640,  # inference size (pixels)
-        conf_thres=0.001,  # confidence threshold
-        iou_thres=0.6,  # NMS IoU threshold
-        max_det=300,  # maximum detections per image
-        task='val',  # train, val, test, speed or study
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        workers=8,  # max dataloader workers (per RANK in DDP mode)
-        single_cls=False,  # treat as single-class dataset
-        augment=False,  # augmented inference
-        verbose=False,  # verbose output
-        save_txt=False,  # save results to *.txt
-        save_hybrid=False,  # save label+prediction hybrid results to *.txt
-        save_conf=False,  # save confidences in --save-txt labels
-        save_json=False,  # save a COCO-JSON results file
-        project=ROOT / 'runs/val-pan',  # save to project/name
-        name='exp',  # save to project/name
-        exist_ok=False,  # existing project/name ok, do not increment
-        half=True,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
-        model=None,
-        dataloader=None,
-        save_dir=Path(''),
-        plots=True,
-        overlap=False,
-        mask_downsample_ratio=1,
-        compute_loss=None,
-        callbacks=Callbacks(),
+    data,
+    weights=None,  # model.pt path(s)
+    batch_size=32,  # batch size
+    imgsz=640,  # inference size (pixels)
+    conf_thres=0.001,  # confidence threshold
+    iou_thres=0.6,  # NMS IoU threshold
+    max_det=300,  # maximum detections per image
+    task='val',  # train, val, test, speed or study
+    device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    workers=8,  # max dataloader workers (per RANK in DDP mode)
+    single_cls=False,  # treat as single-class dataset
+    augment=False,  # augmented inference
+    verbose=False,  # verbose output
+    save_txt=False,  # save results to *.txt
+    save_hybrid=False,  # save label+prediction hybrid results to *.txt
+    save_conf=False,  # save confidences in --save-txt labels
+    save_json=False,  # save a COCO-JSON results file
+    project=ROOT / 'runs/val-pan',  # save to project/name
+    name='exp',  # save to project/name
+    exist_ok=False,  # existing project/name ok, do not increment
+    half=True,  # use FP16 half-precision inference
+    dnn=False,  # use OpenCV DNN for ONNX inference
+    model=None,
+    dataloader=None,
+    save_dir=Path(''),
+    plots=True,
+    overlap=False,
+    mask_downsample_ratio=1,
+    compute_loss=None,
+    callbacks=Callbacks(),
 ):
     if save_json:
         check_requirements(['pycocotools'])
@@ -178,7 +196,7 @@ def run(
     # Configure
     model.eval()
     cuda = device.type != 'cpu'
-    #is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
+    # is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
     is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'val2017.txt')  # COCO dataset
     nc = 1 if single_cls else int(data['nc'])  # number of classes
     stuff_names = data.get('stuff_names', [])  # names of stuff classes
@@ -193,22 +211,26 @@ def run(
     if not training:
         if pt and not single_cls:  # check --weights are trained on --data
             ncm = model.model.nc
-            assert ncm == nc, f'{weights} ({ncm} classes) trained on different --data than what you passed ({nc} ' \
-                              f'classes). Pass correct combination of --weights and --data that are trained together.'
+            assert ncm == nc, (
+                f'{weights} ({ncm} classes) trained on different --data than what you passed ({nc} '
+                f'classes). Pass correct combination of --weights and --data that are trained together.'
+            )
         model.warmup(imgsz=(1 if pt else batch_size, 3, imgsz, imgsz))  # warmup
         pad, rect = (0.0, False) if task == 'speed' else (0.5, pt)  # square inference for benchmarks
         task = task if task in ('train', 'val', 'test') else 'val'  # path to train/val/test images
-        dataloader = create_dataloader(data[task],
-                                       imgsz,
-                                       batch_size,
-                                       stride,
-                                       single_cls,
-                                       pad=pad,
-                                       rect=rect,
-                                       workers=workers,
-                                       prefix=colorstr(f'{task}: '),
-                                       overlap_mask=overlap,
-                                       mask_downsample_ratio=mask_downsample_ratio)[0]
+        dataloader = create_dataloader(
+            data[task],
+            imgsz,
+            batch_size,
+            stride,
+            single_cls,
+            pad=pad,
+            rect=rect,
+            workers=workers,
+            prefix=colorstr(f'{task}: '),
+            overlap_mask=overlap,
+            mask_downsample_ratio=mask_downsample_ratio,
+        )[0]
 
     seen = 0
     confusion_matrix = ConfusionMatrix(nc=nc)
@@ -216,11 +238,24 @@ def run(
     if isinstance(names, (list, tuple)):  # old format
         names = dict(enumerate(names))
     class_map = coco80_to_coco91_class() if is_coco else list(range(1000))
-    s = ('%22s' + '%11s' * 12) % ('Class', 'Images', 'Instances', 'Box(P', "R", "mAP50", "mAP50-95)", "Mask(P", "R",
-                                  "mAP50", "mAP50-95)", 'S(MIoU', 'FWIoU)')
+    s = ('%22s' + '%11s' * 12) % (
+        'Class',
+        'Images',
+        'Instances',
+        'Box(P',
+        "R",
+        "mAP50",
+        "mAP50-95)",
+        "Mask(P",
+        "R",
+        "mAP50",
+        "mAP50-95)",
+        'S(MIoU',
+        'FWIoU)',
+    )
     dt = Profile(), Profile(), Profile()
     metrics = Metrics()
-    semantic_metrics = Semantic_Metrics(nc = (nc + stuff_nc), device = device)
+    semantic_metrics = Semantic_Metrics(nc=(nc + stuff_nc), device=device)
     loss = torch.zeros(6, device=device)
     jdict, stats = [], []
     semantic_jdict = []
@@ -242,33 +277,28 @@ def run(
 
         # Inference
         with dt[1]:
-            preds, train_out = model(im)# if compute_loss else (*model(im, augment=augment)[:2], None)
-            #train_out, preds, protos = p if len(p) == 3 else p[1]
-            #preds = p
-            #train_out = p[1][0] if len(p[1]) == 3 else p[0]
+            preds, train_out = model(im)  # if compute_loss else (*model(im, augment=augment)[:2], None)
+            # train_out, preds, protos = p if len(p) == 3 else p[1]
+            # preds = p
+            # train_out = p[1][0] if len(p[1]) == 3 else p[0]
             # protos = train_out[-1]
-            #print(preds.shape)
-            #print(train_out[0].shape)
-            #print(train_out[1].shape)
-            #print(train_out[2].shape)
+            # print(preds.shape)
+            # print(train_out[0].shape)
+            # print(train_out[1].shape)
+            # print(train_out[2].shape)
             _, pred_masks, protos, psemasks = train_out
 
         # Loss
         if compute_loss:
-            loss += compute_loss(train_out, targets, masks, semasks = semasks)[1]  # box, obj, cls
+            loss += compute_loss(train_out, targets, masks, semasks=semasks)[1]  # box, obj, cls
 
         # NMS
         targets[:, 2:] *= torch.tensor((width, height, width, height), device=device)  # to pixels
         lb = [targets[targets[:, 0] == i, 1:] for i in range(nb)] if save_hybrid else []  # for autolabelling
         with dt[2]:
-            preds = non_max_suppression(preds,
-                                        conf_thres,
-                                        iou_thres,
-                                        labels=lb,
-                                        multi_label=True,
-                                        agnostic=single_cls,
-                                        max_det=max_det,
-                                        nm=nm)
+            preds = non_max_suppression(
+                preds, conf_thres, iou_thres, labels=lb, multi_label=True, agnostic=single_cls, max_det=max_det, nm=nm
+            )
 
         # Metrics
         plot_masks = []  # masks for plotting
@@ -278,7 +308,10 @@ def run(
             semantic_metrics.update(psemasks, semasks)
         else:
             _, _, smh, smw = semasks.shape
-            semantic_metrics.update(torch.nn.functional.interpolate(psemasks, size = (smh, smw), mode = 'bilinear', align_corners = False), semasks)
+            semantic_metrics.update(
+                torch.nn.functional.interpolate(psemasks, size=(smh, smw), mode='bilinear', align_corners=False),
+                semasks,
+            )
 
         if plots and batch_i < 3:
             plot_semasks.append(psemasks.clone().detach().cpu())
@@ -316,10 +349,14 @@ def run(
                     scale_boxes(im[si].shape[1:], tbox, shape, shapes[si][1])  # native-space labels
                     labelsn = torch.cat((labels[:, 0:1], tbox), 1)  # native-space labels
                     correct_bboxes = process_batch(predn, labelsn, iouv)
-                    correct_masks = process_batch(predn, labelsn, iouv, pred_masks, gt_masks, overlap=overlap, masks=True)
+                    correct_masks = process_batch(
+                        predn, labelsn, iouv, pred_masks, gt_masks, overlap=overlap, masks=True
+                    )
                     if plots:
                         confusion_matrix.process_batch(predn, labelsn)
-                stats.append((correct_masks, correct_bboxes, pred[:, 4], pred[:, 5], labels[:, 0]))  # (conf, pcls, tcls)
+                stats.append(
+                    (correct_masks, correct_bboxes, pred[:, 4], pred[:, 5], labels[:, 0])
+                )  # (conf, pcls, tcls)
 
                 pred_masks = torch.as_tensor(pred_masks, dtype=torch.uint8)
                 if plots and batch_i < 3:
@@ -329,8 +366,9 @@ def run(
                 if save_txt:
                     save_one_txt(predn, save_conf, shape, file=save_dir / 'labels' / f'{path.stem}.txt')
                 if save_json:
-                    pred_masks = scale_image(im[si].shape[1:],
-                                            pred_masks.permute(1, 2, 0).contiguous().cpu().numpy(), shape, shapes[si][1])
+                    pred_masks = scale_image(
+                        im[si].shape[1:], pred_masks.permute(1, 2, 0).contiguous().cpu().numpy(), shape, shapes[si][1]
+                    )
                     save_one_json(predn, jdict, path, class_map, pred_masks)  # append to COCO-JSON dictionary
                 # callbacks.run('on_val_image_end', pred, predn, path, names, im[si])
 
@@ -343,14 +381,18 @@ def run(
             w_ratio = mask_w / w0
 
             if h_ratio == w_ratio:
-                psemask = torch.nn.functional.interpolate(psemask[None, :], size = (h0, w0), mode = 'bilinear', align_corners = False)
+                psemask = torch.nn.functional.interpolate(
+                    psemask[None, :], size=(h0, w0), mode='bilinear', align_corners=False
+                )
             else:
                 transform = transforms.CenterCrop((h0, w0))
 
                 if (1 != h_ratio) and (1 != w_ratio):
                     h_new = h0 if (h_ratio < w_ratio) else int(mask_h / w_ratio)
                     w_new = w0 if (h_ratio > w_ratio) else int(mask_w / h_ratio)
-                    psemask = torch.nn.functional.interpolate(psemask[None, :], size = (h_new, w_new), mode = 'bilinear', align_corners = False)
+                    psemask = torch.nn.functional.interpolate(
+                        psemask[None, :], size=(h_new, w_new), mode='bilinear', align_corners=False
+                    )
 
                 psemask = transform(psemask)
 
@@ -358,22 +400,24 @@ def run(
 
             nc, h, w = psemask.shape
 
-            semantic_mask = torch.flatten(psemask, start_dim = 1).permute(1, 0) # class x h x w -> (h x w) x class
+            semantic_mask = torch.flatten(psemask, start_dim=1).permute(1, 0)  # class x h x w -> (h x w) x class
 
             max_idx = semantic_mask.argmax(1)
-            output_masks = torch.zeros(semantic_mask.shape).scatter(1, max_idx.cpu().unsqueeze(1), 1.0) # one hot: (h x w) x class
-            output_masks = torch.reshape(output_masks.permute(1, 0), (nc, h, w)) # (h x w) x class -> class x h x w
-            psemask = output_masks.to(device = device)
+            output_masks = torch.zeros(semantic_mask.shape).scatter(
+                1, max_idx.cpu().unsqueeze(1), 1.0
+            )  # one hot: (h x w) x class
+            output_masks = torch.reshape(output_masks.permute(1, 0), (nc, h, w))  # (h x w) x class -> class x h x w
+            psemask = output_masks.to(device=device)
 
             # TODO: check is_coco
-            instances_ids = getCocoIds(name = 'instances')
-            stuff_mask = torch.zeros((h, w), device = device)
+            instances_ids = getCocoIds(name='instances')
+            stuff_mask = torch.zeros((h, w), device=device)
             check_semantic_mask = False
             for idx, pred_semantic_mask in enumerate(psemask):
                 category_id = int(getMappingId(idx))
                 if 183 == category_id:
                     # set all non-stuff pixels to other
-                    pred_semantic_mask = (torch.logical_xor(stuff_mask, torch.ones((h, w), device = device))).int()
+                    pred_semantic_mask = (torch.logical_xor(stuff_mask, torch.ones((h, w), device=device))).int()
 
                 # ignore the classes which all zeros / unlabeled class
                 if (0 >= torch.max(pred_semantic_mask)) or (0 >= category_id):
@@ -383,15 +427,15 @@ def run(
                     # record all stuff mask
                     stuff_mask = torch.logical_or(stuff_mask, pred_semantic_mask)
 
-                if (category_id not in instances_ids):
-                    rle = maskUtils.encode(np.asfortranarray(pred_semantic_mask.cpu(), dtype = np.uint8))
+                if category_id not in instances_ids:
+                    rle = maskUtils.encode(np.asfortranarray(pred_semantic_mask.cpu(), dtype=np.uint8))
                     rle['counts'] = rle['counts'].decode('utf-8')
 
                     temp_d = {
                         'image_id': int(image_id) if image_id.isnumeric() else image_id,
                         'category_id': category_id,
                         'segmentation': rle,
-                        'score': 1
+                        'score': 1,
                     }
 
                     semantic_jdict.append(temp_d)
@@ -399,16 +443,16 @@ def run(
 
             if not check_semantic_mask:
                 # append a other mask for evaluation if the image without any mask
-                other_mask = (torch.ones((h, w), device = device)).int()
+                other_mask = (torch.ones((h, w), device=device)).int()
 
-                rle = maskUtils.encode(np.asfortranarray(other_mask.cpu(), dtype = np.uint8))
+                rle = maskUtils.encode(np.asfortranarray(other_mask.cpu(), dtype=np.uint8))
                 rle['counts'] = rle['counts'].decode('utf-8')
 
                 temp_d = {
                     'image_id': int(image_id) if image_id.isnumeric() else image_id,
                     'category_id': 183,
                     'segmentation': rle,
-                    'score': 1
+                    'score': 1,
                 }
 
                 semantic_jdict.append(temp_d)
@@ -418,10 +462,19 @@ def run(
             if len(plot_masks):
                 plot_masks = torch.cat(plot_masks, dim=0)
             if len(plot_semasks):
-                plot_semasks = torch.cat(plot_semasks, dim = 0)
-            plot_images_and_masks(im, targets, masks, semasks, paths, save_dir / f'val_batch{batch_i}_labels.jpg', names)
-            plot_images_and_masks(im, output_to_target(preds, max_det=15), plot_masks, plot_semasks, paths,
-                                  save_dir / f'val_batch{batch_i}_pred.jpg', names)  # pred
+                plot_semasks = torch.cat(plot_semasks, dim=0)
+            plot_images_and_masks(
+                im, targets, masks, semasks, paths, save_dir / f'val_batch{batch_i}_labels.jpg', names
+            )
+            plot_images_and_masks(
+                im,
+                output_to_target(preds, max_det=15),
+                plot_masks,
+                plot_semasks,
+                paths,
+                save_dir / f'val_batch{batch_i}_pred.jpg',
+                names,
+            )  # pred
 
         # callbacks.run('on_val_batch_end')
 
@@ -444,7 +497,7 @@ def run(
             LOGGER.info(pf % (names[c], seen, nt[c], *metrics.class_result(i), *semantic_metrics.results()))
 
     # Print speeds
-    t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
+    t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
     if not training:
         shape = (batch_size, 3, imgsz, imgsz)
         LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {shape}' % t)
@@ -503,16 +556,24 @@ def run(
             cocoStuffEval.params.imgIds = imgIds  # image IDs to evaluate
             cocoStuffEval.evaluate()
             stats, statsClass = cocoStuffEval.summarize()
-            stuffIds = getCocoIds(name = 'stuff')
-            title = ' {:<5} | {:^6} | {:^6} '.format('class', 'iou', 'macc') if (0 >= len(stuff_names)) else \
-                    ' {:<5} | {:<20} | {:^6} | {:^6} '.format('class', 'class name', 'iou', 'macc')
+            stuffIds = getCocoIds(name='stuff')
+            title = (
+                ' {:<5} | {:^6} | {:^6} '.format('class', 'iou', 'macc')
+                if (0 >= len(stuff_names))
+                else ' {:<5} | {:<20} | {:^6} | {:^6} '.format('class', 'class name', 'iou', 'macc')
+            )
             print(title)
             for idx, (iou, macc) in enumerate(zip(statsClass['ious'], statsClass['maccs'])):
-                id = (idx + 1)
+                id = idx + 1
                 if id not in stuffIds:
                     continue
-                content = ' {:<5} | {:0.4f} | {:0.4f} '.format(str(id), iou, macc) if (0 >= len(stuff_names)) else \
-                            ' {:<5} | {:<20} | {:0.4f} | {:0.4f} '.format(str(id), str(stuff_names[getMappingIndex(id, name = 'stuff')]), iou, macc)
+                content = (
+                    ' {:<5} | {:0.4f} | {:0.4f} '.format(str(id), iou, macc)
+                    if (0 >= len(stuff_names))
+                    else ' {:<5} | {:<20} | {:0.4f} | {:0.4f} '.format(
+                        str(id), str(stuff_names[getMappingIndex(id, name='stuff')]), iou, macc
+                    )
+                )
                 print(content)
 
         except Exception as e:
@@ -560,7 +621,7 @@ def parse_opt():
 
 
 def main(opt):
-    #check_requirements(requirements=ROOT / 'requirements.txt', exclude=('tensorboard', 'thop'))
+    # check_requirements(requirements=ROOT / 'requirements.txt', exclude=('tensorboard', 'thop'))
 
     if opt.task in ('train', 'val', 'test'):  # run normally
         if opt.conf_thres > 0.001:  # https://github.com/

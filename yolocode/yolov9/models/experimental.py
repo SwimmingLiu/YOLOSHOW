@@ -34,7 +34,7 @@ class MixConv2d(nn.Module):
         super().__init__()
         n = len(k)  # number of convolutions
         if equal_ch:  # equal c_ per group
-            i = torch.linspace(0, n - 1E-6, c2).floor()  # c2 indices
+            i = torch.linspace(0, n - 1e-6, c2).floor()  # c2 indices
             c_ = [(i == g).sum() for g in range(n)]  # intermediate channels
         else:  # equal weight.numel() per group
             b = [c2] + [0] * n
@@ -44,8 +44,9 @@ class MixConv2d(nn.Module):
             a[0] = 1
             c_ = np.linalg.lstsq(a, b, rcond=None)[0].round()  # solve for equal weight indices, ax = b
 
-        self.m = nn.ModuleList([
-            nn.Conv2d(c1, int(c_), k, s, k // 2, groups=math.gcd(c1, int(c_)), bias=False) for k, c_ in zip(k, c_)])
+        self.m = nn.ModuleList(
+            [nn.Conv2d(c1, int(c_), k, s, k // 2, groups=math.gcd(c1, int(c_)), bias=False) for k, c_ in zip(k, c_)]
+        )
         self.bn = nn.BatchNorm2d(c2)
         self.act = nn.SiLU()
 
@@ -77,7 +78,7 @@ def attempt_load(weights, device=None, inplace=True, fuse=True):
 
         # Model compatibility updates
         if not hasattr(ckpt, 'stride'):
-            ckpt.stride = torch.tensor([32.])
+            ckpt.stride = torch.tensor([32.0])
         if hasattr(ckpt, 'names') and isinstance(ckpt.names, (list, tuple)):
             ckpt.names = dict(enumerate(ckpt.names))  # convert to dict
 

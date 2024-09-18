@@ -9,10 +9,22 @@ from pathlib import Path
 
 from models.common import DetectMultiBackend_YOLOv9
 from yolocode.yolov9.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow,
-                                           check_requirements, colorstr, cv2,
-                                           increment_path, non_max_suppression, print_args, scale_boxes,
-                                           strip_optimizer, xyxy2xywh)
+from yolocode.yolov9.utils.general import (
+    LOGGER,
+    Profile,
+    check_file,
+    check_img_size,
+    check_imshow,
+    check_requirements,
+    colorstr,
+    cv2,
+    increment_path,
+    non_max_suppression,
+    print_args,
+    scale_boxes,
+    strip_optimizer,
+    xyxy2xywh,
+)
 from yolocode.yolov9.utils.plots import Annotator, colors, save_one_box
 from yolocode.yolov9.utils.torch_utils import select_device, smart_inference_mode
 
@@ -29,8 +41,7 @@ class YOLOv9Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
-
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv9Thread, self).__init__()
@@ -71,11 +82,10 @@ class YOLOv9Thread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
 
     def run(self):
-
         source = str(self.source)
         # 判断输入源类型
         self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
@@ -109,7 +119,8 @@ class YOLOv9Thread(QThread):
         elif self.is_folder:
             for source_i in self.source:
                 dataset_list.append(
-                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
+                )
         else:
             dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
         self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
@@ -201,8 +212,9 @@ class YOLOv9Thread(QThread):
 
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms,
-                                               max_det=self.max_det)
+                    pred = non_max_suppression(
+                        pred, self.conf_thres, self.iou_thres, self.classes, self.agnostic_nms, max_det=self.max_det
+                    )
 
                 # Second-stage classifier (optional)
                 # pred = utils.general.apply_classifier(pred, classifier_model, im, im0s)
@@ -270,9 +282,11 @@ class YOLOv9Thread(QThread):
                                 else:  # stream
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
                                 save_path = str(
-                                    Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps,
-                                                                     (w, h))
+                                    Path(save_path).with_suffix('.mp4')
+                                )  # force *.mp4 suffix on results videos
+                                self.vid_writer[i] = cv2.VideoWriter(
+                                    save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h)
+                                )
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:

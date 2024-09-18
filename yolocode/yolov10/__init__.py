@@ -23,5 +23,5 @@ __all__ = (
     "download",
     "settings",
     "Explorer",
-    "YOLOv10"
+    "YOLOv10",
 )

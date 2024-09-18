@@ -14,7 +14,16 @@ from torch.utils.data import DataLoader, distributed
 from tqdm import tqdm
 
 from ..augmentations import augment_hsv
-from ..dataloaders import InfiniteDataLoader, LoadImagesAndLabels, seed_worker, get_hash, verify_image_label, HELP_URL, TQDM_BAR_FORMAT, LOCAL_RANK
+from ..dataloaders import (
+    InfiniteDataLoader,
+    LoadImagesAndLabels,
+    seed_worker,
+    get_hash,
+    verify_image_label,
+    HELP_URL,
+    TQDM_BAR_FORMAT,
+    LOCAL_RANK,
+)
 from ..general import NUM_THREADS, LOGGER, xyn2xy, xywhn2xyxy, xyxy2xywhn
 from ..torch_utils import torch_distributed_zero_first
 from ..coco_utils import annToMask, getCocoIds
@@ -23,25 +32,27 @@ from .augmentations import mixup, random_perspective, copy_paste, letterbox
 RANK = int(os.getenv('RANK', -1))
 
 
-def create_dataloader(path,
-                      imgsz,
-                      batch_size,
-                      stride,
-                      single_cls=False,
-                      hyp=None,
-                      augment=False,
-                      cache=False,
-                      pad=0.0,
-                      rect=False,
-                      rank=-1,
-                      workers=8,
-                      image_weights=False,
-                      close_mosaic=False,
-                      quad=False,
-                      prefix='',
-                      shuffle=False,
-                      mask_downsample_ratio=1,
-                      overlap_mask=False):
+def create_dataloader(
+    path,
+    imgsz,
+    batch_size,
+    stride,
+    single_cls=False,
+    hyp=None,
+    augment=False,
+    cache=False,
+    pad=0.0,
+    rect=False,
+    rank=-1,
+    workers=8,
+    image_weights=False,
+    close_mosaic=False,
+    quad=False,
+    prefix='',
+    shuffle=False,
+    mask_downsample_ratio=1,
+    overlap_mask=False,
+):
     if rect and shuffle:
         LOGGER.warning('WARNING ⚠️ --rect is incompatible with DataLoader shuffle, setting shuffle=False')
         shuffle = False
@@ -60,13 +71,14 @@ def create_dataloader(path,
             image_weights=image_weights,
             prefix=prefix,
             downsample_ratio=mask_downsample_ratio,
-            overlap=overlap_mask)
+            overlap=overlap_mask,
+        )
 
     batch_size = min(batch_size, len(dataset))
     nd = torch.cuda.device_count()  # number of CUDA devices
     nw = min([os.cpu_count() // max(nd, 1), batch_size if batch_size > 1 else 0, workers])  # number of workers
     sampler = None if rank == -1 else distributed.DistributedSampler(dataset, shuffle=shuffle)
-    #loader = DataLoader if image_weights else InfiniteDataLoader  # only DataLoader allows for attribute updates
+    # loader = DataLoader if image_weights else InfiniteDataLoader  # only DataLoader allows for attribute updates
     loader = DataLoader if image_weights or close_mosaic else InfiniteDataLoader
     generator = torch.Generator()
     generator.manual_seed(6148914691236517205 + RANK)
@@ -82,6 +94,7 @@ def create_dataloader(path,
         generator=generator,
     ), dataset
 
+
 def img2stuff_paths(img_paths):
     # Define label paths as a function of image paths
     sa, sb = f'{os.sep}images{os.sep}', f'{os.sep}stuff{os.sep}'  # /images/, /segmentations/ substrings
@@ -89,7 +102,6 @@ def img2stuff_paths(img_paths):
 
 
 class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
-
     def __init__(
         self,
         path,
@@ -121,22 +133,23 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
             stride,
             pad,
             min_items,
-            prefix)        
+            prefix,
+        )
         self.downsample_ratio = downsample_ratio
         self.overlap = overlap
 
         # semantic segmentation
         self.coco_ids = getCocoIds()
-        
+
         # Check cache
         self.seg_files = img2stuff_paths(self.im_files)  # labels
         p = Path(path)
-        cache_path = (p.with_suffix('') if p.is_file() else Path(self.seg_files[0]).parent)
+        cache_path = p.with_suffix('') if p.is_file() else Path(self.seg_files[0]).parent
         cache_path = Path(str(cache_path) + '_stuff').with_suffix('.cache')
         try:
-            cache, exists = np.load(cache_path, allow_pickle = True).item(), True  # load dict
-            #assert cache['version'] == self.cache_version  # matches current version
-            #assert cache['hash'] == get_hash(self.seg_files + self.im_files)  # identical hash
+            cache, exists = np.load(cache_path, allow_pickle=True).item(), True  # load dict
+            # assert cache['version'] == self.cache_version  # matches current version
+            # assert cache['hash'] == get_hash(self.seg_files + self.im_files)  # identical hash
         except Exception:
             cache, exists = self.cache_seg_labels(cache_path, prefix), False  # run cache ops
 
@@ -144,7 +157,7 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
         nf, nm, ne, nc, n = cache.pop('results')  # found, missing, empty, corrupt, total
         if exists and LOCAL_RANK in {-1, 0}:
             d = f"Scanning '{cache_path}' images and labels... {nf} found, {nm} missing, {ne} empty, {nc} corrupt"
-            tqdm(None, desc = (prefix + d), total = n, initial = n, bar_format = TQDM_BAR_FORMAT)  # display cache results
+            tqdm(None, desc=(prefix + d), total=n, initial=n, bar_format=TQDM_BAR_FORMAT)  # display cache results
             if cache['msgs']:
                 LOGGER.info('\n'.join(cache['msgs']))  # display warnings
         assert (0 < nf) or (not augment), f'{prefix}No labels found in {cache_path}, can not start training. {HELP_URL}'
@@ -182,8 +195,9 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
 
             # MixUp augmentation
             if random.random() < hyp["mixup"]:
-                img, labels, segments, seg_cls, semantic_masks = mixup(img, labels, segments, seg_cls, semantic_masks,
-                                                                       *self.load_mosaic(random.randint(0, self.n - 1)))
+                img, labels, segments, seg_cls, semantic_masks = mixup(
+                    img, labels, segments, seg_cls, semantic_masks, *self.load_mosaic(random.randint(0, self.n - 1))
+                )
 
         else:
             # Load image
@@ -209,49 +223,54 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
 
             seg_cls = self.seg_cls[index].copy()
             semantic_masks = self.semantic_masks[index].copy()
-            #semantic_masks = [xyn2xy(x, ratio[0] * w, ratio[1] * h, padw = pad[0], padh = pad[1]) for x in semantic_masks]
+            # semantic_masks = [xyn2xy(x, ratio[0] * w, ratio[1] * h, padw = pad[0], padh = pad[1]) for x in semantic_masks]
             if len(semantic_masks):
                 for ss in range(len(semantic_masks)):
                     semantic_masks[ss] = xyn2xy(
                         semantic_masks[ss],
                         ratio[0] * w,
                         ratio[1] * h,
-                        padw = pad[0],
-                        padh = pad[1],
+                        padw=pad[0],
+                        padh=pad[1],
                     )
-                    
+
             if labels.size:  # normalized xywh to pixel xyxy format
                 labels[:, 1:] = xywhn2xyxy(labels[:, 1:], ratio[0] * w, ratio[1] * h, padw=pad[0], padh=pad[1])
 
             if self.augment:
                 img, labels, segments, semantic_masks = random_perspective(
-                                                           img,
-                                                           labels,
-                                                           segments=segments,
-                                                           semantic_masks = semantic_masks,
-                                                           degrees=hyp["degrees"],
-                                                           translate=hyp["translate"],
-                                                           scale=hyp["scale"],
-                                                           shear=hyp["shear"],
-                                                           perspective=hyp["perspective"])
+                    img,
+                    labels,
+                    segments=segments,
+                    semantic_masks=semantic_masks,
+                    degrees=hyp["degrees"],
+                    translate=hyp["translate"],
+                    scale=hyp["scale"],
+                    shear=hyp["shear"],
+                    perspective=hyp["perspective"],
+                )
 
         nl = len(labels)  # number of labels
         if nl:
             labels[:, 1:5] = xyxy2xywhn(labels[:, 1:5], w=img.shape[1], h=img.shape[0], clip=True, eps=1e-3)
             if self.overlap:
-                masks, sorted_idx = polygons2masks_overlap(img.shape[:2],
-                                                           segments,
-                                                           downsample_ratio=self.downsample_ratio)
+                masks, sorted_idx = polygons2masks_overlap(
+                    img.shape[:2], segments, downsample_ratio=self.downsample_ratio
+                )
                 masks = masks[None]  # (640, 640) -> (1, 640, 640)
                 labels = labels[sorted_idx]
             else:
                 masks = polygons2masks(img.shape[:2], segments, color=1, downsample_ratio=self.downsample_ratio)
 
-        masks = (torch.from_numpy(masks) if len(masks) else torch.zeros(1 if self.overlap else nl, img.shape[0] //
-                                                                        self.downsample_ratio, img.shape[1] //
-                                                                        self.downsample_ratio))
-        semantic_masks = polygons2masks(img.shape[:2], semantic_masks, color = 1, downsample_ratio=self.downsample_ratio)
-        #semantic_masks = polygons2masks(img.shape[:2], semantic_masks, color = 1, downsample_ratio=1)
+        masks = (
+            torch.from_numpy(masks)
+            if len(masks)
+            else torch.zeros(
+                1 if self.overlap else nl, img.shape[0] // self.downsample_ratio, img.shape[1] // self.downsample_ratio
+            )
+        )
+        semantic_masks = polygons2masks(img.shape[:2], semantic_masks, color=1, downsample_ratio=self.downsample_ratio)
+        # semantic_masks = polygons2masks(img.shape[:2], semantic_masks, color = 1, downsample_ratio=1)
         semantic_masks = torch.from_numpy(semantic_masks)
         # TODO: albumentations support
         if self.augment:
@@ -272,7 +291,7 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
                     labels[:, 2] = 1 - labels[:, 2]
                     masks = torch.flip(masks, dims=[1])
                 if ns:
-                    semantic_masks = torch.flip(semantic_masks, dims = [1])
+                    semantic_masks = torch.flip(semantic_masks, dims=[1])
 
             # Flip left-right
             if random.random() < hyp["fliplr"]:
@@ -281,7 +300,7 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
                     labels[:, 1] = 1 - labels[:, 1]
                     masks = torch.flip(masks, dims=[2])
                 if ns:
-                    semantic_masks = torch.flip(semantic_masks, dims = [2])
+                    semantic_masks = torch.flip(semantic_masks, dims=[2])
 
             # Cutouts  # labels = cutout(img, labels, p=0.5)
 
@@ -290,12 +309,13 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
             labels_out[:, 1:] = torch.from_numpy(labels)
 
         # Combine semantic masks
-        semantic_seg_masks = torch.zeros((len(self.coco_ids), img.shape[0] // self.downsample_ratio, 
-                                          img.shape[1] // self.downsample_ratio), dtype = torch.uint8)
-        #semantic_seg_masks = torch.zeros((len(self.coco_ids), img.shape[0], img.shape[1]), dtype = torch.uint8)
+        semantic_seg_masks = torch.zeros(
+            (len(self.coco_ids), img.shape[0] // self.downsample_ratio, img.shape[1] // self.downsample_ratio),
+            dtype=torch.uint8,
+        )
+        # semantic_seg_masks = torch.zeros((len(self.coco_ids), img.shape[0], img.shape[1]), dtype = torch.uint8)
         for cls_id, semantic_mask in zip(seg_cls, semantic_masks):
             semantic_seg_masks[cls_id] = (semantic_seg_masks[cls_id].logical_or(semantic_mask)).int()
-
 
         # Convert
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
@@ -334,7 +354,11 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
             padw = x1a - x1b
             padh = y1a - y1b
 
-            labels, segments, semantic_masks = self.labels[index].copy(), self.segments[index].copy(), self.semantic_masks[index].copy()
+            labels, segments, semantic_masks = (
+                self.labels[index].copy(),
+                self.segments[index].copy(),
+                self.semantic_masks[index].copy(),
+            )
 
             if labels.size:
                 labels[:, 1:] = xywhn2xyxy(labels[:, 1:], w, h, padw, padh)  # normalized xywh to pixel xyxy format
@@ -349,37 +373,43 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
         labels4 = np.concatenate(labels4, 0)
         for i in range(len(semantic_masks4)):
             if i < len(segments4):
-                np.clip(labels4[:, 1:][i], 0, 2 * s, out = labels4[:, 1:][i])
-                np.clip(segments4[i], 0, 2 * s, out = segments4[i])
-            np.clip(semantic_masks4[i], 0, 2 * s, out = semantic_masks4[i])
+                np.clip(labels4[:, 1:][i], 0, 2 * s, out=labels4[:, 1:][i])
+                np.clip(segments4[i], 0, 2 * s, out=segments4[i])
+            np.clip(semantic_masks4[i], 0, 2 * s, out=semantic_masks4[i])
         # img4, labels4 = replicate(img4, labels4)  # replicate
 
         # 3 additional image indices
         # Augment
-        img4, labels4, segments4, seg_cls, semantic_masks4 = copy_paste(img4, labels4, segments4, seg_cls, semantic_masks4, p=self.hyp["copy_paste"])
-        img4, labels4, segments4, semantic_masks4 = random_perspective(img4,
-                                                      labels4,
-                                                      segments4,
-                                                      semantic_masks4,
-                                                      degrees=self.hyp["degrees"],
-                                                      translate=self.hyp["translate"],
-                                                      scale=self.hyp["scale"],
-                                                      shear=self.hyp["shear"],
-                                                      perspective=self.hyp["perspective"],
-                                                      border=self.mosaic_border)  # border to remove
+        img4, labels4, segments4, seg_cls, semantic_masks4 = copy_paste(
+            img4, labels4, segments4, seg_cls, semantic_masks4, p=self.hyp["copy_paste"]
+        )
+        img4, labels4, segments4, semantic_masks4 = random_perspective(
+            img4,
+            labels4,
+            segments4,
+            semantic_masks4,
+            degrees=self.hyp["degrees"],
+            translate=self.hyp["translate"],
+            scale=self.hyp["scale"],
+            shear=self.hyp["shear"],
+            perspective=self.hyp["perspective"],
+            border=self.mosaic_border,
+        )  # border to remove
 
         return img4, labels4, segments4, seg_cls, semantic_masks4
 
-    def cache_seg_labels(self, path = Path('./labels_stuff.cache'), prefix = ''):
+    def cache_seg_labels(self, path=Path('./labels_stuff.cache'), prefix=''):
         # Cache dataset labels, check images and read shapes
         x = {}  # dict
         nm, nf, ne, nc, msgs = 0, 0, 0, 0, []  # number missing, found, empty, corrupt, messages
         desc = f"{prefix}Scanning '{path.parent / path.stem}' images and labels..."
         with Pool(NUM_THREADS) as pool:
-            pbar = tqdm(pool.imap(verify_image_label, zip(self.im_files, self.seg_files, repeat(prefix))),
-                        desc = desc,
-                        total = len(self.im_files),
-                        bar_format = TQDM_BAR_FORMAT)
+            pbar = tqdm(
+                pool.imap(verify_image_label, zip(self.im_files, self.seg_files, repeat(prefix))),
+                desc=desc,
+                total=len(self.im_files),
+                bar_format=TQDM_BAR_FORMAT,
+            )
             for im_file, lb, shape, segments, nm_f, nf_f, ne_f, nc_f, msg in pbar:
                 nm += nm_f
                 nf += nf_f
@@ -415,7 +445,6 @@ class LoadImagesAndLabelsAndMasks(LoadImagesAndLabels):  # for training/testing
         for i, l in enumerate(label):
             l[:, 0] = i  # add target image index for build_targets()
         return torch.stack(img, 0), torch.cat(label, 0), path, shapes, batched_masks, torch.stack(semantic_masks, 0)
-
 
 
 def polygon2mask(img_size, polygons, color=1, downsample_ratio=1):
@@ -455,8 +484,10 @@ def polygons2masks(img_size, polygons, color, downsample_ratio=1):
 
 def polygons2masks_overlap(img_size, segments, downsample_ratio=1):
     """Return a (640, 640) overlap mask."""
-    masks = np.zeros((img_size[0] // downsample_ratio, img_size[1] // downsample_ratio),
-                     dtype=np.int32 if len(segments) > 255 else np.uint8)
+    masks = np.zeros(
+        (img_size[0] // downsample_ratio, img_size[1] // downsample_ratio),
+        dtype=np.int32 if len(segments) > 255 else np.uint8,
+    )
     areas = []
     ms = []
     for si in range(len(segments)):

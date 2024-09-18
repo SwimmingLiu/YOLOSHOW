@@ -31,10 +31,10 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
 
     def metric(k):  # compute metric
         r = wh[:, None] / k[None]
-        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        x = torch.min(r, 1.0 / r).min(2)[0]  # ratio metric
         best = x.max(1)[0]  # best_x
-        aat = (x > 1. / thr).float().sum(1).mean()  # anchors above threshold
-        bpr = (best > 1. / thr).float().mean()  # best possible recall
+        aat = (x > 1.0 / thr).float().sum(1).mean()  # anchors above threshold
+        bpr = (best > 1.0 / thr).float().mean()  # best possible recall
         return bpr, aat
 
     anchors = m.anchor_grid.clone().cpu().view(-1, 2)  # current anchors
@@ -60,28 +60,28 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
 
 
 def kmean_anchors(path='./data/coco.yaml', n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
-    """ Creates kmeans-evolved anchors from training dataset
+    """Creates kmeans-evolved anchors from training dataset
 
-        Arguments:
-            path: path to dataset *.yaml, or a loaded dataset
-            n: number of anchors
-            img_size: image size used for training
-            thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
-            gen: generations to evolve anchors using genetic algorithm
-            verbose: print all results
+    Arguments:
+        path: path to dataset *.yaml, or a loaded dataset
+        n: number of anchors
+        img_size: image size used for training
+        thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
+        gen: generations to evolve anchors using genetic algorithm
+        verbose: print all results
 
-        Return:
-            k: kmeans evolved anchors
+    Return:
+        k: kmeans evolved anchors
 
-        Usage:
-            from utils.autoanchor import *; _ = kmean_anchors()
+    Usage:
+        from utils.autoanchor import *; _ = kmean_anchors()
     """
-    thr = 1. / thr
+    thr = 1.0 / thr
     prefix = colorstr('autoanchor: ')
 
     def metric(k, wh):  # compute metrics
         r = wh[:, None] / k[None]
-        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        x = torch.min(r, 1.0 / r).min(2)[0]  # ratio metric
         # x = wh_iou(wh, torch.tensor(k))  # iou metric
         return x, x.max(1)[0]  # x, best_x
 
@@ -94,8 +94,11 @@ def kmean_anchors(path='./data/coco.yaml', n=9, img_size=640, thr=4.0, gen=1000,
         x, best = metric(k, wh0)
         bpr, aat = (best > thr).float().mean(), (x > thr).float().mean() * n  # best possible recall, anch > thr
         print(f'{prefix}thr={thr:.2f}: {bpr:.4f} best possible recall, {aat:.2f} anchors past thr')
-        print(f'{prefix}n={n}, img_size={img_size}, metric_all={x.mean():.3f}/{best.mean():.3f}-mean/best, '
-              f'past_thr={x[x > thr].mean():.3f}-mean: ', end='')
+        print(
+            f'{prefix}n={n}, img_size={img_size}, metric_all={x.mean():.3f}/{best.mean():.3f}-mean/best, '
+            f'past_thr={x[x > thr].mean():.3f}-mean: ',
+            end='',
+        )
         for i, x in enumerate(k):
             print('%i,%i' % (round(x[0]), round(x[1])), end=',  ' if i < len(k) - 1 else '\n')  # use in *.cfg
         return k
@@ -104,6 +107,7 @@ def kmean_anchors(path='./data/coco.yaml', n=9, img_size=640, thr=4.0, gen=1000,
         with open(path) as f:
             data_dict = yaml.load(f, Loader=yaml.SafeLoader)  # model dict
         from utils.datasets import LoadImagesAndLabels
+
         dataset = LoadImagesAndLabels(data_dict['train'], augment=True, rect=True)
     else:
         dataset = path  # dataset

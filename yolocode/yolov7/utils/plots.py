@@ -29,7 +29,7 @@ matplotlib.use('Agg')  # for writing to files only
 def color_list():
     # Return first 10 plt colors as (r,g,b) https://stackoverflow.com/questions/51350872/python-from-color-name-to-rgb
     def hex2rgb(h):
-        return tuple(int(h[1 + i:1 + i + 2], 16) for i in (0, 2, 4))
+        return tuple(int(h[1 + i : 1 + i + 2], 16) for i in (0, 2, 4))
 
     return [hex2rgb(h) for h in matplotlib.colors.TABLEAU_COLORS.values()]  # or BASE_ (8), CSS4_ (148), XKCD_ (949)
 
@@ -85,14 +85,14 @@ def plot_one_box_PIL(box, img, color=None, label=None, line_thickness=None):
 def plot_wh_methods():  # from utils.plots import *; plot_wh_methods()
     # Compares the two methods for width-height anchor multiplication
     # https://github.com/ultralytics/yolov3/issues/168
-    x = np.arange(-4.0, 4.0, .1)
+    x = np.arange(-4.0, 4.0, 0.1)
     ya = np.exp(x)
     yb = torch.sigmoid(torch.from_numpy(x)).numpy() * 2
 
     fig = plt.figure(figsize=(6, 3), tight_layout=True)
     plt.plot(x, ya, '.-', label='YOLOv3')
-    plt.plot(x, yb ** 2, '.-', label='YOLOR ^2')
-    plt.plot(x, yb ** 1.6, '.-', label='YOLOR ^1.6')
+    plt.plot(x, yb**2, '.-', label='YOLOR ^2')
+    plt.plot(x, yb**1.6, '.-', label='YOLOR ^1.6')
     plt.xlim(left=-4, right=4)
     plt.ylim(bottom=0, top=6)
     plt.xlabel('input')
@@ -127,7 +127,7 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max
     tf = max(tl - 1, 1)  # font thickness
     bs, _, h, w = images.shape  # batch size, _, height, width
     bs = min(bs, max_subplots)  # limit plot images
-    ns = np.ceil(bs ** 0.5)  # number of subplots (square)
+    ns = np.ceil(bs**0.5)  # number of subplots (square)
 
     # Check if we should resize
     scale_factor = max_size / max(h, w)
@@ -148,7 +148,7 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max
         if scale_factor < 1:
             img = cv2.resize(img, (w, h))
 
-        mosaic[block_y:block_y + h, block_x:block_x + w, :] = img
+        mosaic[block_y : block_y + h, block_x : block_x + w, :] = img
         if len(targets) > 0:
             image_targets = targets[targets[:, 0] == i]
             boxes = xywh2xyxy(image_targets[:, 2:6]).T
@@ -176,14 +176,22 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max
         if paths:
             label = Path(paths[i]).name[:40]  # trim to 40 char
             t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
-            cv2.putText(mosaic, label, (block_x + 5, block_y + t_size[1] + 5), 0, tl / 3, [220, 220, 220], thickness=tf,
-                        lineType=cv2.LINE_AA)
+            cv2.putText(
+                mosaic,
+                label,
+                (block_x + 5, block_y + t_size[1] + 5),
+                0,
+                tl / 3,
+                [220, 220, 220],
+                thickness=tf,
+                lineType=cv2.LINE_AA,
+            )
 
         # Image border
         cv2.rectangle(mosaic, (block_x, block_y), (block_x + w, block_y + h), (255, 255, 255), thickness=3)
 
     if fname:
-        r = min(1280. / max(h, w) / ns, 1.0)  # ratio to limit image size
+        r = min(1280.0 / max(h, w) / ns, 1.0)  # ratio to limit image size
         mosaic = cv2.resize(mosaic, (int(ns * w * r), int(ns * h * r)), interpolation=cv2.INTER_AREA)
         # cv2.imwrite(fname, cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB))  # cv2 save
         Image.fromarray(mosaic).save(fname)  # PIL save
@@ -253,11 +261,24 @@ def plot_study_txt(path='', x=None):  # from utils.plots import *; plot_study_tx
         #     ax[i].set_title(s[i])
 
         j = y[3].argmax() + 1
-        ax2.plot(y[6, 1:j], y[3, 1:j] * 1E2, '.-', linewidth=2, markersize=8,
-                 label=f.stem.replace('study_coco_', '').replace('yolo', 'YOLO'))
+        ax2.plot(
+            y[6, 1:j],
+            y[3, 1:j] * 1e2,
+            '.-',
+            linewidth=2,
+            markersize=8,
+            label=f.stem.replace('study_coco_', '').replace('yolo', 'YOLO'),
+        )
 
-    ax2.plot(1E3 / np.array([209, 140, 97, 58, 35, 18]), [34.6, 40.5, 43.0, 47.5, 49.7, 51.5],
-             'k.-', linewidth=2, markersize=8, alpha=.25, label='EfficientDet')
+    ax2.plot(
+        1e3 / np.array([209, 140, 97, 58, 35, 18]),
+        [34.6, 40.5, 43.0, 47.5, 49.7, 51.5],
+        'k.-',
+        linewidth=2,
+        markersize=8,
+        alpha=0.25,
+        label='EfficientDet',
+    )
 
     ax2.grid(alpha=0.2)
     ax2.set_yticks(np.arange(20, 60, 5))
@@ -332,7 +353,7 @@ def plot_evolution(yaml_file='data/hyp.finetune.yaml'):  # from utils.plots impo
         # mu = (y * weights).sum() / weights.sum()  # best weighted result
         mu = y[f.argmax()]  # best single result
         plt.subplot(6, 5, i + 1)
-        plt.scatter(y, f, c=hist2d(y, f, 20), cmap='viridis', alpha=.8, edgecolors='none')
+        plt.scatter(y, f, c=hist2d(y, f, 20), cmap='viridis', alpha=0.8, edgecolors='none')
         plt.plot(mu, f.max(), 'k+', markersize=15)
         plt.title('%s = %.3g' % (k, mu), fontdict={'size': 9})  # limit to 40 characters
         if i % 5 != 0:
@@ -353,7 +374,7 @@ def profile_idetection(start=0, stop=0, labels=(), save_dir=''):
             n = results.shape[1]  # number of rows
             x = np.arange(start, min(stop, n) if stop else n)
             results = results[:, x]
-            t = (results[0] - results[0].min())  # set t0=0s
+            t = results[0] - results[0].min()  # set t0=0s
             results[0] = x
             for i, a in enumerate(ax):
                 if i < len(results):
@@ -401,8 +422,18 @@ def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
     # Plot training 'results*.txt'. from utils.plots import *; plot_results(save_dir='runs/train/exp')
     fig, ax = plt.subplots(2, 5, figsize=(12, 6), tight_layout=True)
     ax = ax.ravel()
-    s = ['Box', 'Objectness', 'Classification', 'Precision', 'Recall',
-         'val Box', 'val Objectness', 'val Classification', 'mAP@0.5', 'mAP@0.5:0.95']
+    s = [
+        'Box',
+        'Objectness',
+        'Classification',
+        'Precision',
+        'Recall',
+        'val Box',
+        'val Objectness',
+        'val Classification',
+        'mAP@0.5',
+        'mAP@0.5:0.95',
+    ]
     if bucket:
         # files = ['https://storage.googleapis.com/%s/results%g.txt' % (bucket, x) for x in id]
         files = ['results%g.txt' % x for x in id]
@@ -431,32 +462,69 @@ def plot_results(start=0, stop=0, bucket='', id=(), labels=(), save_dir=''):
 
     ax[1].legend()
     fig.savefig(Path(save_dir) / 'results.png', dpi=200)
-    
-    
+
+
 def output_to_keypoint(output):
     # Convert model output to target format [batch_id, class_id, x, y, w, h, conf]
     targets = []
     for i, o in enumerate(output):
-        kpts = o[:,6:]
-        o = o[:,:6]
+        kpts = o[:, 6:]
+        o = o[:, :6]
         for index, (*box, conf, cls) in enumerate(o.detach().cpu().numpy()):
-            targets.append([i, cls, *list(*xyxy2xywh(np.array(box)[None])), conf, *list(kpts.detach().cpu().numpy()[index])])
+            targets.append(
+                [i, cls, *list(*xyxy2xywh(np.array(box)[None])), conf, *list(kpts.detach().cpu().numpy()[index])]
+            )
     return np.array(targets)
 
 
 def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
-    #Plot the skeleton and keypointsfor coco datatset
-    palette = np.array([[255, 128, 0], [255, 153, 51], [255, 178, 102],
-                        [230, 230, 0], [255, 153, 255], [153, 204, 255],
-                        [255, 102, 255], [255, 51, 255], [102, 178, 255],
-                        [51, 153, 255], [255, 153, 153], [255, 102, 102],
-                        [255, 51, 51], [153, 255, 153], [102, 255, 102],
-                        [51, 255, 51], [0, 255, 0], [0, 0, 255], [255, 0, 0],
-                        [255, 255, 255]])
+    # Plot the skeleton and keypointsfor coco datatset
+    palette = np.array(
+        [
+            [255, 128, 0],
+            [255, 153, 51],
+            [255, 178, 102],
+            [230, 230, 0],
+            [255, 153, 255],
+            [153, 204, 255],
+            [255, 102, 255],
+            [255, 51, 255],
+            [102, 178, 255],
+            [51, 153, 255],
+            [255, 153, 153],
+            [255, 102, 102],
+            [255, 51, 51],
+            [153, 255, 153],
+            [102, 255, 102],
+            [51, 255, 51],
+            [0, 255, 0],
+            [0, 0, 255],
+            [255, 0, 0],
+            [255, 255, 255],
+        ]
+    )
 
-    skeleton = [[16, 14], [14, 12], [17, 15], [15, 13], [12, 13], [6, 12],
-                [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3],
-                [1, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7]]
+    skeleton = [
+        [16, 14],
+        [14, 12],
+        [17, 15],
+        [15, 13],
+        [12, 13],
+        [6, 12],
+        [7, 13],
+        [6, 7],
+        [6, 8],
+        [7, 9],
+        [8, 10],
+        [9, 11],
+        [2, 3],
+        [1, 2],
+        [1, 3],
+        [2, 4],
+        [3, 5],
+        [4, 6],
+        [5, 7],
+    ]
 
     pose_limb_color = palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
     pose_kpt_color = palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
@@ -475,15 +543,15 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
 
     for sk_id, sk in enumerate(skeleton):
         r, g, b = pose_limb_color[sk_id]
-        pos1 = (int(kpts[(sk[0]-1)*steps]), int(kpts[(sk[0]-1)*steps+1]))
-        pos2 = (int(kpts[(sk[1]-1)*steps]), int(kpts[(sk[1]-1)*steps+1]))
+        pos1 = (int(kpts[(sk[0] - 1) * steps]), int(kpts[(sk[0] - 1) * steps + 1]))
+        pos2 = (int(kpts[(sk[1] - 1) * steps]), int(kpts[(sk[1] - 1) * steps + 1]))
         if steps == 3:
-            conf1 = kpts[(sk[0]-1)*steps+2]
-            conf2 = kpts[(sk[1]-1)*steps+2]
-            if conf1<0.5 or conf2<0.5:
+            conf1 = kpts[(sk[0] - 1) * steps + 2]
+            conf2 = kpts[(sk[1] - 1) * steps + 2]
+            if conf1 < 0.5 or conf2 < 0.5:
                 continue
-        if pos1[0]%640 == 0 or pos1[1]%640==0 or pos1[0]<0 or pos1[1]<0:
+        if pos1[0] % 640 == 0 or pos1[1] % 640 == 0 or pos1[0] < 0 or pos1[1] < 0:
             continue
-        if pos2[0] % 640 == 0 or pos2[1] % 640 == 0 or pos2[0]<0 or pos2[1]<0:
+        if pos2[0] % 640 == 0 or pos2[1] % 640 == 0 or pos2[0] < 0 or pos2[1] < 0:
             continue
         cv2.line(im, pos1, pos2, (int(r), int(g), int(b)), thickness=2)

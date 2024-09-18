@@ -1,18 +1,37 @@
 # coding:utf-8
 from typing import Union
-from PySide6.QtCore import QPoint, Qt, QRect, QRectF, Signal, QSize, QMargins, QPropertyAnimation, QObject, \
-    QParallelAnimationGroup, QEasingCurve
+from PySide6.QtCore import (
+    QPoint,
+    Qt,
+    QRect,
+    QRectF,
+    Signal,
+    QSize,
+    QMargins,
+    QPropertyAnimation,
+    QObject,
+    QParallelAnimationGroup,
+    QEasingCurve,
+)
 from PySide6.QtGui import QPixmap, QPainter, QColor, QPainterPath, QIcon, QImage, QCursor, QFont
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QApplication, QGraphicsDropShadowEffect, QFrame
-from qfluentwidgets import  FluentIconBase, FlyoutAnimationType, \
-    FlyoutAnimationManager, drawIcon, isDarkTheme, ImageLabel, TransparentToolButton, FluentIcon, FluentStyleSheet, \
-    TextWrap
+from qfluentwidgets import (
+    FluentIconBase,
+    FlyoutAnimationType,
+    FlyoutAnimationManager,
+    drawIcon,
+    isDarkTheme,
+    ImageLabel,
+    TransparentToolButton,
+    FluentIcon,
+    FluentStyleSheet,
+    TextWrap,
+)
 from qfluentwidgets.common.screen import getCurrentScreenGeometry
 from qfluentwidgets.components.material import AcrylicWidget
 
 
 class IconWidget(QWidget):
-
     def __init__(self, icon, parent=None):
         super().__init__(parent=parent)
         self.setFixedSize(36, 54)
@@ -23,14 +42,14 @@ class IconWidget(QWidget):
             return
 
         painter = QPainter(self)
-        painter.setRenderHints(QPainter.Antialiasing |
-                               QPainter.SmoothPixmapTransform)
+        painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
 
         rect = QRectF(8, (self.height() - 20) / 2, 20, 20)
         drawIcon(self.icon, painter, rect)
 
+
 class FlyoutViewBase(QWidget):
-    """ Flyout view base class """
+    """Flyout view base class"""
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -54,13 +73,21 @@ class FlyoutViewBase(QWidget):
         rect = self.rect().adjusted(1, 1, -1, -1)
         painter.drawRoundedRect(rect, 8, 8)
 
+
 class FlyoutView(FlyoutViewBase):
-    """ Flyout view """
+    """Flyout view"""
 
     closed = Signal()
 
-    def __init__(self, title: str, content: str, icon: Union[FluentIconBase, QIcon, str] = None,
-                 image: Union[str, QPixmap, QImage] = None, isClosable=False, parent=None):
+    def __init__(
+        self,
+        title: str,
+        content: str,
+        icon: Union[FluentIconBase, QIcon, str] = None,
+        image: Union[str, QPixmap, QImage] = None,
+        isClosable=False,
+        parent=None,
+    ):
         super().__init__(parent=parent)
         """
         Parameters
@@ -140,8 +167,7 @@ class FlyoutView(FlyoutViewBase):
 
         # add close button
         self.closeButton.setVisible(self.isClosable)
-        self.viewLayout.addWidget(
-            self.closeButton, 0, Qt.AlignRight | Qt.AlignTop)
+        self.viewLayout.addWidget(self.closeButton, 0, Qt.AlignRight | Qt.AlignTop)
 
         # adjust content margins
         margins = QMargins(6, 5, 6, 5)
@@ -154,7 +180,7 @@ class FlyoutView(FlyoutViewBase):
         self._addImageToLayout()
 
     def addWidget(self, widget: QWidget, stretch=0, align=Qt.AlignLeft):
-        """ add widget to view """
+        """add widget to view"""
         self.widgetLayout.addSpacing(8)
         self.widgetLayout.addWidget(widget, stretch, align)
 
@@ -164,9 +190,7 @@ class FlyoutView(FlyoutViewBase):
         self.vBoxLayout.insertWidget(0, self.imageLabel)
 
     def _adjustText(self):
-        w = min(900, QApplication.screenAt(
-            QCursor.pos()).geometry().width() - 200)
-
+        w = min(900, QApplication.screenAt(QCursor.pos()).geometry().width() - 200)
 
         # adjust title
         chars = max(min(w / 10, 120), 30)
@@ -185,8 +209,9 @@ class FlyoutView(FlyoutViewBase):
         self._adjustImage()
         self.adjustSize()
 
+
 class Flyout(QWidget):
-    """ Flyout """
+    """Flyout"""
 
     closed = Signal()
 
@@ -202,11 +227,10 @@ class Flyout(QWidget):
         self.setShadowEffect()
 
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint |
-                            Qt.NoDropShadowWindowHint)
+        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
 
     def setShadowEffect(self, blurRadius=35, offset=(0, 8)):
-        """ add shadow to dialog """
+        """add shadow to dialog"""
         color = QColor(0, 0, 0, 80 if isDarkTheme() else 30)
         self.shadowEffect = QGraphicsDropShadowEffect(self.view)
         self.shadowEffect.setBlurRadius(blurRadius)
@@ -228,15 +252,21 @@ class Flyout(QWidget):
         super().showEvent(e)
 
     def exec(self, pos: QPoint, aniType=FlyoutAnimationType.PULL_UP):
-        """ show calendar view """
+        """show calendar view"""
         self.aniManager = FlyoutAnimationManager.make(aniType, self)
         self.show()
         self.aniManager.exec(pos)
 
     @classmethod
-    def make(cls, view: FlyoutViewBase, target: Union[QWidget, QPoint, QFrame] = None, parent=None,
-             aniType=FlyoutAnimationType.PULL_UP, isDeleteOnClose=True):
-        """ create and show a flyout
+    def make(
+        cls,
+        view: FlyoutViewBase,
+        target: Union[QWidget, QPoint, QFrame] = None,
+        parent=None,
+        aniType=FlyoutAnimationType.PULL_UP,
+        isDeleteOnClose=True,
+    ):
+        """create and show a flyout
 
         Parameters
         ----------
@@ -271,10 +301,19 @@ class Flyout(QWidget):
         return w
 
     @classmethod
-    def create(cls, title: str, content: str, icon: Union[FluentIconBase, QIcon, str] = None,
-               image: Union[str, QPixmap, QImage] = None, isClosable=False, target: Union[QWidget, QPoint] = None,
-               parent=None, aniType=FlyoutAnimationType.PULL_UP, isDeleteOnClose=True):
-        """ create and show a flyout using the default view
+    def create(
+        cls,
+        title: str,
+        content: str,
+        icon: Union[FluentIconBase, QIcon, str] = None,
+        image: Union[str, QPixmap, QImage] = None,
+        isClosable=False,
+        target: Union[QWidget, QPoint] = None,
+        parent=None,
+        aniType=FlyoutAnimationType.PULL_UP,
+        isDeleteOnClose=True,
+    ):
+        """create and show a flyout using the default view
 
         Parameters
         ----------
@@ -320,7 +359,7 @@ class Flyout(QWidget):
 
 
 class AcrylicFlyoutViewBase(AcrylicWidget, FlyoutViewBase):
-    """ Acrylic flyout view base """
+    """Acrylic flyout view base"""
 
     def acrylicClipPath(self):
         path = QPainterPath()
@@ -340,7 +379,7 @@ class AcrylicFlyoutViewBase(AcrylicWidget, FlyoutViewBase):
 
 
 class AcrylicFlyoutView(AcrylicWidget, FlyoutView):
-    """ Acrylic flyout view """
+    """Acrylic flyout view"""
 
     def acrylicClipPath(self):
         path = QPainterPath()
@@ -360,13 +399,22 @@ class AcrylicFlyoutView(AcrylicWidget, FlyoutView):
 
 
 class AcrylicFlyout(Flyout):
-    """ Acrylic flyout """
+    """Acrylic flyout"""
 
     @classmethod
-    def create(cls, title: str, content: str, icon: Union[FluentIconBase, QIcon, str] = None,
-               image: Union[str, QPixmap, QImage] = None, isClosable=False, target: Union[QWidget, QPoint] = None,
-               parent=None, aniType=FlyoutAnimationType.PULL_UP, isDeleteOnClose=True):
-        """ create and show a flyout using the default view
+    def create(
+        cls,
+        title: str,
+        content: str,
+        icon: Union[FluentIconBase, QIcon, str] = None,
+        image: Union[str, QPixmap, QImage] = None,
+        isClosable=False,
+        target: Union[QWidget, QPoint] = None,
+        parent=None,
+        aniType=FlyoutAnimationType.PULL_UP,
+        isDeleteOnClose=True,
+    ):
+        """create and show a flyout using the default view
 
         Parameters
         ----------
@@ -403,7 +451,7 @@ class AcrylicFlyout(Flyout):
         return w
 
     def exec(self, pos: QPoint, aniType=FlyoutAnimationType.PULL_UP):
-        """ show calendar view """
+        """show calendar view"""
         self.aniManager = FlyoutAnimationManager.make(aniType, self)
 
         if isinstance(self.view, AcrylicWidget):
@@ -412,5 +460,3 @@ class AcrylicFlyout(Flyout):
 
         self.show()
         self.aniManager.exec(pos)
-
-

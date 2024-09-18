@@ -44,31 +44,42 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 from models.common import DetectMultiBackend
 from yolocode.yolov9.utils.augmentations import classify_transforms
 from yolocode.yolov9.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
-from yolocode.yolov9.utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, print_args, strip_optimizer)
+from yolocode.yolov9.utils.general import (
+    LOGGER,
+    Profile,
+    check_file,
+    check_img_size,
+    check_imshow,
+    check_requirements,
+    colorstr,
+    cv2,
+    increment_path,
+    print_args,
+    strip_optimizer,
+)
 from yolocode.yolov9.utils.plots import Annotator
 from yolocode.yolov9.utils.torch_utils import select_device, smart_inference_mode
 
 
 @smart_inference_mode()
 def run(
-        weights=ROOT / 'yolov5s-cls.pt',  # model.pt path(s)
-        source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
-        data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
-        imgsz=(224, 224),  # inference size (height, width)
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        view_img=False,  # show results
-        save_txt=False,  # save results to *.txt
-        nosave=False,  # do not save images/videos
-        augment=False,  # augmented inference
-        visualize=False,  # visualize features
-        update=False,  # update all models
-        project=ROOT / 'runs/predict-cls',  # save results to project/name
-        name='exp',  # save results to project/name
-        exist_ok=False,  # existing project/name ok, do not increment
-        half=False,  # use FP16 half-precision inference
-        dnn=False,  # use OpenCV DNN for ONNX inference
-        vid_stride=1,  # video frame-rate stride
+    weights=ROOT / 'yolov5s-cls.pt',  # model.pt path(s)
+    source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
+    data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
+    imgsz=(224, 224),  # inference size (height, width)
+    device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    view_img=False,  # show results
+    save_txt=False,  # save results to *.txt
+    nosave=False,  # do not save images/videos
+    augment=False,  # augmented inference
+    visualize=False,  # visualize features
+    update=False,  # update all models
+    project=ROOT / 'runs/predict-cls',  # save results to project/name
+    name='exp',  # save results to project/name
+    exist_ok=False,  # existing project/name ok, do not increment
+    half=False,  # use FP16 half-precision inference
+    dnn=False,  # use OpenCV DNN for ONNX inference
+    vid_stride=1,  # video frame-rate stride
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -180,7 +191,7 @@ def run(
         LOGGER.info(f"{s}{dt[1].dt * 1E3:.1f}ms")
 
     # Print results
-    t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
+    t = tuple(x.t / seen * 1e3 for x in dt)  # speeds per image
     LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *imgsz)}' % t)
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''

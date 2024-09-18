@@ -10,7 +10,7 @@ from qfluentwidgets import TableWidget, isDarkTheme, setTheme, Theme, TableView,
 
 
 class TableViewDelegate(TableItemDelegate):
-    """ Custom table item delegate """
+    """Custom table item delegate"""
 
     def initStyleOption(self, option: QStyleOptionViewItem, index: QModelIndex):
         super().initStyleOption(option, index)
@@ -26,8 +26,7 @@ class TableViewDelegate(TableItemDelegate):
 
 
 class TableViewQWidget(QWidget):
-
-    def __init__(self,infoList=None):
+    def __init__(self, infoList=None):
         super().__init__()
         # setTheme(Theme.DARK)
         self.setWindowTitle("Result Statistics")

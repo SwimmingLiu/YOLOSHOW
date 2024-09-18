@@ -30,7 +30,6 @@ class YOLOSHOWWindow(YOLOSHOW):
         if event.mimeData().hasUrls():  # 检查是否为文件
             event.acceptProposedAction()  # 接受拖拽的数据
 
-
     def dropEvent(self, event):
         # files = [url.toLocalFile() for url in event.mimeData().urls()]  # 获取所有文件路径
         file = event.mimeData().urls()[0].toLocalFile()  # ==> 获取文件路径
@@ -38,9 +37,12 @@ class YOLOSHOWWindow(YOLOSHOW):
             # 判断是否是文件夹
             if os.path.isdir(file):
                 FileFormat = [".mp4", ".mkv", ".avi", ".flv", ".jpg", ".png", ".jpeg", ".bmp", ".dib", ".jpe", ".jp2"]
-                Foldername = [(file + "/" + filename) for filename in os.listdir(file) for jpgname in
-                              FileFormat
-                              if jpgname in filename]
+                Foldername = [
+                    (file + "/" + filename)
+                    for filename in os.listdir(file)
+                    for jpgname in FileFormat
+                    if jpgname in filename
+                ]
                 self.inputPath = Foldername
                 self.showImg(self.inputPath[0], self.main_leftbox, 'path')  # 显示文件夹中第一张图片
                 self.showStatus('Loaded Folder：{}'.format(os.path.basename(file)))
@@ -80,8 +82,7 @@ class YOLOSHOWWindow(YOLOSHOW):
         # PyQt6获取屏幕参数
         screen = QGuiApplication.primaryScreen().size()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2,
-                  (screen.height() - size.height()) / 2 - 10)
+        self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2 - 10)
 
     # 拖动窗口 改变窗口大小
     def resizeEvent(self, event):
@@ -120,6 +121,7 @@ class YOLOSHOWWindow(YOLOSHOW):
             self.setWindowOpacity(1.0)
             self.closed.emit()
 
+
 # 多套一个类 为了实现MouseLabel方法
 class YOLOSHOWVSWindow(YOLOSHOWVS):
     closed = Signal()
@@ -132,16 +134,14 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
         self.right_grip = CustomGrip(self, Qt.RightEdge, True)
         self.top_grip = CustomGrip(self, Qt.TopEdge, True)
         self.bottom_grip = CustomGrip(self, Qt.BottomEdge, True)
-        self.setAcceptDrops(True) # ==> 设置窗口支持拖动（必须设置）
+        self.setAcceptDrops(True)  # ==> 设置窗口支持拖动（必须设置）
         # --- 拖动窗口 改变窗口大小 --- #
         self.animation_window = None
-
 
     # 鼠标拖入事件
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():  # 检查是否为文件
             event.acceptProposedAction()  # 接受拖拽的数据
-
 
     def dropEvent(self, event):
         # files = [url.toLocalFile() for url in event.mimeData().urls()]  # 获取所有文件路径
@@ -150,9 +150,12 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
             # 判断是否是文件夹
             if os.path.isdir(file):
                 FileFormat = [".mp4", ".mkv", ".avi", ".flv", ".jpg", ".png", ".jpeg", ".bmp", ".dib", ".jpe", ".jp2"]
-                Foldername = [(file + "/" + filename) for filename in os.listdir(file) for jpgname in
-                              FileFormat
-                              if jpgname in filename]
+                Foldername = [
+                    (file + "/" + filename)
+                    for filename in os.listdir(file)
+                    for jpgname in FileFormat
+                    if jpgname in filename
+                ]
                 self.inputPath = Foldername
                 self.showImg(self.inputPath[0], self.main_leftbox, 'path')  # 显示文件夹中第一张图片
                 self.showStatus('Loaded Folder：{}'.format(os.path.basename(file)))
@@ -173,7 +176,6 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
                 self.showStatus('Loaded File：{}'.format(os.path.basename(self.inputPath)))
         glo.set_value('inputPath', self.inputPath)
 
-
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.LeftButton:
             self.mouse_start_pt = event.globalPosition().toPoint()
@@ -193,8 +195,7 @@ class YOLOSHOWVSWindow(YOLOSHOWVS):
         # PyQt6获取屏幕参数
         screen = QGuiApplication.primaryScreen().size()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2,
-                  (screen.height() - size.height()) / 2 - 10)
+        self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2 - 10)
 
     # 拖动窗口 改变窗口大小
     def resizeEvent(self, event):

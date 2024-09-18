@@ -8,11 +8,31 @@ import os
 import shutil
 from ui.YOLOSHOWUI import Ui_MainWindow
 from PySide6.QtGui import QPixmap, QImage, QMouseEvent, QGuiApplication, QColor
-from PySide6.QtWidgets import QMessageBox, QFileDialog, QMainWindow, QWidget, QApplication, QGraphicsBlurEffect, \
-    QGraphicsDropShadowEffect, QMenu, QFrame, QPushButton
+from PySide6.QtWidgets import (
+    QMessageBox,
+    QFileDialog,
+    QMainWindow,
+    QWidget,
+    QApplication,
+    QGraphicsBlurEffect,
+    QGraphicsDropShadowEffect,
+    QMenu,
+    QFrame,
+    QPushButton,
+)
 from PySide6.QtUiTools import QUiLoader, loadUiType
-from PySide6.QtCore import QFile, QTimer, Qt, QEventLoop, QThread, QPropertyAnimation, QEasingCurve, \
-    QParallelAnimationGroup, QPoint, Signal
+from PySide6.QtCore import (
+    QFile,
+    QTimer,
+    Qt,
+    QEventLoop,
+    QThread,
+    QPropertyAnimation,
+    QEasingCurve,
+    QParallelAnimationGroup,
+    QPoint,
+    Signal,
+)
 from PySide6 import QtCore, QtGui
 from yolocode.yolov5.YOLOv5Thread import YOLOv5Thread
 from yolocode.yolov7.YOLOv7Thread import YOLOv7Thread
@@ -33,8 +53,18 @@ WIDTH_LOGO = 60
 UI_FILE_PATH = "ui/YOLOSHOWUI.ui"
 
 KEYS_LEFT_BOX_MENU = ['src_menu', 'src_setting', 'src_webcam', 'src_folder', 'src_camera', 'src_vsmode', 'src_setting']
-ALL_MODEL_NAMES = ["yolov5", "yolov7", "yolov8", "yolov9", "yolov10", "yolov5-seg", "yolov8-seg", "rtdetr",
-                   "yolov8-pose", "yolov8-obb"]
+ALL_MODEL_NAMES = [
+    "yolov5",
+    "yolov7",
+    "yolov8",
+    "yolov9",
+    "yolov10",
+    "yolov5-seg",
+    "yolov8-seg",
+    "rtdetr",
+    "yolov8-pose",
+    "yolov8-obb",
+]
 
 
 # YOLOSHOW窗口类 动态加载UI文件 和 Ui_mainWindow
@@ -64,12 +94,15 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
 
         # --- 播放 暂停 停止 --- #
         self.playIcon = QtGui.QIcon()
-        self.playIcon.addPixmap(QtGui.QPixmap(f"{self.current_workpath}/images/newsize/play.png"), QtGui.QIcon.Normal,
-                                QtGui.QIcon.Off)
-        self.playIcon.addPixmap(QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"), QtGui.QIcon.Active,
-                                QtGui.QIcon.On)
-        self.playIcon.addPixmap(QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"),
-                                QtGui.QIcon.Selected, QtGui.QIcon.On)
+        self.playIcon.addPixmap(
+            QtGui.QPixmap(f"{self.current_workpath}/images/newsize/play.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off
+        )
+        self.playIcon.addPixmap(
+            QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"), QtGui.QIcon.Active, QtGui.QIcon.On
+        )
+        self.playIcon.addPixmap(
+            QtGui.QPixmap(f"{self.current_workpath}/images/newsize/pause.png"), QtGui.QIcon.Selected, QtGui.QIcon.On
+        )
         self.ui.run_button.setCheckable(True)
         self.ui.run_button.setIcon(self.playIcon)
         # --- 播放 暂停 停止 --- #
@@ -185,8 +218,7 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
         self.initThreads()
 
         # --- 超参数调整 --- #
-        self.ui.iou_spinbox.valueChanged.connect(
-            lambda x: self.changeValue(x, 'iou_spinbox'))  # iou box
+        self.ui.iou_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'iou_spinbox'))  # iou box
         self.ui.iou_slider.valueChanged.connect(lambda x: self.changeValue(x, 'iou_slider'))  # iou scroll bar
         self.ui.conf_spinbox.valueChanged.connect(lambda x: self.changeValue(x, 'conf_spinbox'))  # conf box
         self.ui.conf_slider.valueChanged.connect(lambda x: self.changeValue(x, 'conf_slider'))  # conf scroll bar
@@ -210,18 +242,33 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
         # --- MessageBar Init --- #
 
     def initThreads(self):
-        self.yolo_threads = [self.yolov5_thread, self.yolov7_thread, self.yolov8_thread, self.yolov9_thread,
-                             self.yolov10_thread, self.rtdetr_thread,
-                             self.yolov5seg_thread, self.yolov8seg_thread, self.yolov8pose_thread,
-                             self.yolov8obb_thread]
+        self.yolo_threads = [
+            self.yolov5_thread,
+            self.yolov7_thread,
+            self.yolov8_thread,
+            self.yolov9_thread,
+            self.yolov10_thread,
+            self.rtdetr_thread,
+            self.yolov5seg_thread,
+            self.yolov8seg_thread,
+            self.yolov8pose_thread,
+            self.yolov8obb_thread,
+        ]
 
     # 导出结果
     def saveResult(self):
-        if (not self.yolov5_thread.res_status and not self.yolov7_thread.res_status
-                and not self.yolov8_thread.res_status and not self.yolov9_thread.res_status and not self.yolov10_thread.res_status
-                and not self.yolov5seg_thread.res_status and not self.yolov8seg_thread.res_status
-                and not self.rtdetr_thread.res_status and not self.yolov8pose_thread.res_status
-                and not self.yolov8obb_thread.res_status):
+        if (
+            not self.yolov5_thread.res_status
+            and not self.yolov7_thread.res_status
+            and not self.yolov8_thread.res_status
+            and not self.yolov9_thread.res_status
+            and not self.yolov10_thread.res_status
+            and not self.yolov5seg_thread.res_status
+            and not self.yolov8seg_thread.res_status
+            and not self.rtdetr_thread.res_status
+            and not self.yolov8pose_thread.res_status
+            and not self.yolov8obb_thread.res_status
+        ):
             self.showStatus("Please select the Image/Video before starting detection...")
             return
         config_file = f'{self.current_workpath}/config/save.json'
@@ -240,8 +287,12 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
                 self.saveResultProcess(self.OutputDir, self.yolov5_thread, folder=True)
             elif "yolov7" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov7_thread, folder=True)
-            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                    self.model_name) and not self.checkObbName(self.model_name):
+            elif (
+                "yolov8" in self.model_name
+                and not self.checkSegName(self.model_name)
+                and not self.checkPoseName(self.model_name)
+                and not self.checkObbName(self.model_name)
+            ):
                 self.saveResultProcess(self.OutputDir, self.yolov8_thread, folder=True)
             elif "yolov9" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov9_thread, folder=True)
@@ -262,14 +313,18 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
                 self,  # 父窗口对象
                 "Save Image/Video",  # 标题
                 save_path,  # 起始目录
-                "Image/Vide Type (*.jpg *.jpeg *.png *.bmp *.dib  *.jpe  *.jp2 *.mp4)"  # 选择类型过滤项，过滤内容在括号中
+                "Image/Vide Type (*.jpg *.jpeg *.png *.bmp *.dib  *.jpe  *.jp2 *.mp4)",  # 选择类型过滤项，过滤内容在括号中
             )
             if "yolov5" in self.model_name and not self.checkSegName(self.model_name):
                 self.saveResultProcess(self.OutputDir, self.yolov5_thread, folder=False)
             elif "yolov7" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov7_thread, folder=False)
-            elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                    self.model_name) and not self.checkObbName(self.model_name):
+            elif (
+                "yolov8" in self.model_name
+                and not self.checkSegName(self.model_name)
+                and not self.checkPoseName(self.model_name)
+                and not self.checkObbName(self.model_name)
+            ):
                 self.saveResultProcess(self.OutputDir, self.yolov8_thread, folder=False)
             elif "yolov9" in self.model_name:
                 self.saveResultProcess(self.OutputDir, self.yolov9_thread, folder=False)
@@ -329,11 +384,12 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             conf = 0.25
             delay = 10
             line_thickness = 3
-            new_config = {"iou": iou,
-                          "conf": conf,
-                          "delay": delay,
-                          "line_thickness": line_thickness,
-                          }
+            new_config = {
+                "iou": iou,
+                "conf": conf,
+                "delay": delay,
+                "line_thickness": line_thickness,
+            }
             new_json = json.dumps(new_config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(new_json)
@@ -416,8 +472,12 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             self.changeModelProcess(self.yolov5_thread, "yolov5")
         elif "yolov7" in self.model_name:
             self.changeModelProcess(self.yolov7_thread, "yolov7")
-        elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                self.model_name) and not self.checkObbName(self.model_name):
+        elif (
+            "yolov8" in self.model_name
+            and not self.checkSegName(self.model_name)
+            and not self.checkPoseName(self.model_name)
+            and not self.checkObbName(self.model_name)
+        ):
             self.changeModelProcess(self.yolov8_thread, "yolov8")
         elif "yolov9" in self.model_name:
             self.changeModelProcess(self.yolov9_thread, "yolov9")
@@ -455,8 +515,12 @@ class YOLOSHOW(QMainWindow, YOLOSHOWBASE):
             self.runModelProcess(self.yolov5_thread)
         elif "yolov7" in self.model_name:
             self.runModelProcess(self.yolov7_thread)
-        elif "yolov8" in self.model_name and not self.checkSegName(self.model_name) and not self.checkPoseName(
-                self.model_name) and not self.checkObbName(self.model_name):
+        elif (
+            "yolov8" in self.model_name
+            and not self.checkSegName(self.model_name)
+            and not self.checkPoseName(self.model_name)
+            and not self.checkObbName(self.model_name)
+        ):
             self.runModelProcess(self.yolov8_thread)
         elif "yolov9" in self.model_name:
             self.runModelProcess(self.yolov9_thread)

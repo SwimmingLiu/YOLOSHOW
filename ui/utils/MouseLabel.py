@@ -17,6 +17,7 @@ from YOLOSHOW import *
 #         print('当鼠标划过标签label2时触发事件')
 #
 
+
 class Label_click_Mouse(QLabel):
     clicked = Signal()
 

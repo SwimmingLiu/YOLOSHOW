@@ -23,15 +23,15 @@ from val import run as val_det
 
 
 def run(
-        weights=ROOT / 'yolo.pt',  # weights path
-        imgsz=640,  # inference size (pixels)
-        batch_size=1,  # batch size
-        data=ROOT / 'data/coco.yaml',  # dataset.yaml path
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        half=False,  # use FP16 half-precision inference
-        test=False,  # test exports only
-        pt_only=False,  # test PyTorch only
-        hard_fail=False,  # throw error on benchmark failure
+    weights=ROOT / 'yolo.pt',  # weights path
+    imgsz=640,  # inference size (pixels)
+    batch_size=1,  # batch size
+    data=ROOT / 'data/coco.yaml',  # dataset.yaml path
+    device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    half=False,  # use FP16 half-precision inference
+    test=False,  # test exports only
+    pt_only=False,  # test PyTorch only
+    hard_fail=False,  # throw error on benchmark failure
 ):
     y, t = [], time.time()
     device = select_device(device)
@@ -85,22 +85,25 @@ def run(
 
 
 def test(
-        weights=ROOT / 'yolo.pt',  # weights path
-        imgsz=640,  # inference size (pixels)
-        batch_size=1,  # batch size
-        data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        half=False,  # use FP16 half-precision inference
-        test=False,  # test exports only
-        pt_only=False,  # test PyTorch only
-        hard_fail=False,  # throw error on benchmark failure
+    weights=ROOT / 'yolo.pt',  # weights path
+    imgsz=640,  # inference size (pixels)
+    batch_size=1,  # batch size
+    data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
+    device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+    half=False,  # use FP16 half-precision inference
+    test=False,  # test exports only
+    pt_only=False,  # test PyTorch only
+    hard_fail=False,  # throw error on benchmark failure
 ):
     y, t = [], time.time()
     device = select_device(device)
     for i, (name, f, suffix, gpu) in export.export_formats().iterrows():  # index, (name, file, suffix, gpu-capable)
         try:
-            w = weights if f == '-' else \
-                export.run(weights=weights, imgsz=[imgsz], include=[f], device=device, half=half)[-1]  # weights
+            w = (
+                weights
+                if f == '-'
+                else export.run(weights=weights, imgsz=[imgsz], include=[f], device=device, half=half)[-1]
+            )  # weights
             assert suffix in str(w), 'export failed'
             y.append([name, True])
         except Exception:

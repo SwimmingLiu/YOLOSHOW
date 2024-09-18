@@ -60,21 +60,21 @@ def check_anchors(dataset, model, thr=4.0, imgsz=640):
 
 
 def kmean_anchors(dataset='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
-    """ Creates kmeans-evolved anchors from training dataset
+    """Creates kmeans-evolved anchors from training dataset
 
-        Arguments:
-            dataset: path to data.yaml, or a loaded dataset
-            n: number of anchors
-            img_size: image size used for training
-            thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
-            gen: generations to evolve anchors using genetic algorithm
-            verbose: print all results
+    Arguments:
+        dataset: path to data.yaml, or a loaded dataset
+        n: number of anchors
+        img_size: image size used for training
+        thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
+        gen: generations to evolve anchors using genetic algorithm
+        verbose: print all results
 
-        Return:
-            k: kmeans evolved anchors
+    Return:
+        k: kmeans evolved anchors
 
-        Usage:
-            from utils.autoanchor import *; _ = kmean_anchors()
+    Usage:
+        from utils.autoanchor import *; _ = kmean_anchors()
     """
     from scipy.cluster.vq import kmeans
 
@@ -95,9 +95,11 @@ def kmean_anchors(dataset='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen
         k = k[np.argsort(k.prod(1))]  # sort small to large
         x, best = metric(k, wh0)
         bpr, aat = (best > thr).float().mean(), (x > thr).float().mean() * n  # best possible recall, anch > thr
-        s = f'{PREFIX}thr={thr:.2f}: {bpr:.4f} best possible recall, {aat:.2f} anchors past thr\n' \
-            f'{PREFIX}n={n}, img_size={img_size}, metric_all={x.mean():.3f}/{best.mean():.3f}-mean/best, ' \
+        s = (
+            f'{PREFIX}thr={thr:.2f}: {bpr:.4f} best possible recall, {aat:.2f} anchors past thr\n'
+            f'{PREFIX}n={n}, img_size={img_size}, metric_all={x.mean():.3f}/{best.mean():.3f}-mean/best, '
             f'past_thr={x[x > thr].mean():.3f}-mean: '
+        )
         for x in k:
             s += '%i,%i, ' % (round(x[0]), round(x[1]))
         if verbose:
@@ -108,6 +110,7 @@ def kmean_anchors(dataset='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen
         with open(dataset, errors='ignore') as f:
             data_dict = yaml.safe_load(f)  # model dict
         from utils.dataloaders import LoadImagesAndLabels
+
         dataset = LoadImagesAndLabels(data_dict['train'], augment=True, rect=True)
 
     # Get label wh

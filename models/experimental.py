@@ -10,8 +10,11 @@ yoloname = glo.get_value('yoloname')
 yoloname1 = glo.get_value('yoloname1')
 yoloname2 = glo.get_value('yoloname2')
 
-yolo_name = ((str(yoloname1) if yoloname1 else '') + (str(yoloname2) if str(
-    yoloname2) else '')) if yoloname1 or yoloname2 else yoloname
+yolo_name = (
+    ((str(yoloname1) if yoloname1 else '') + (str(yoloname2) if str(yoloname2) else ''))
+    if yoloname1 or yoloname2
+    else yoloname
+)
 
 
 class Sum(nn.Module):
@@ -21,7 +24,7 @@ class Sum(nn.Module):
         self.weight = weight  # apply weights boolean
         self.iter = range(n - 1)  # iter object
         if weight:
-            self.w = nn.Parameter(-torch.arange(1., n) / 2, requires_grad=True)  # layer weights
+            self.w = nn.Parameter(-torch.arange(1.0, n) / 2, requires_grad=True)  # layer weights
 
     def forward(self, x):
         y = x[0]  # no weight
@@ -33,13 +36,15 @@ class Sum(nn.Module):
             for i in self.iter:
                 y = y + x[i + 1]
         return y
+
+
 class MixConv2d(nn.Module):
     # Mixed Depthwise Conv https://arxiv.org/abs/1907.09595
     def __init__(self, c1, c2, k=(1, 3), s=1, equal_ch=True):
         super(MixConv2d, self).__init__()
         groups = len(k)
         if equal_ch:  # equal c_ per group
-            i = torch.linspace(0, groups - 1E-6, c2).floor()  # c2 indices
+            i = torch.linspace(0, groups - 1e-6, c2).floor()  # c2 indices
             c_ = [(i == g).sum() for g in range(groups)]  # intermediate channels
         else:  # equal weight.numel() per group
             b = [c2] + [0] * groups
@@ -55,26 +60,31 @@ class MixConv2d(nn.Module):
 
     def forward(self, x):
         return x + self.act(self.bn(torch.cat([m(x) for m in self.m], 1)))
-class Ensemble(nn.ModuleList):
-        # Ensemble of models
-        def __init__(self):
-            super(Ensemble, self).__init__()
 
-        def forward(self, x, augment=False):
-            y = []
-            for module in self:
-                y.append(module(x, augment)[0])
-            # y = torch.stack(y).max(0)[0]  # max ensemble
-            # y = torch.stack(y).mean(0)  # mean ensemble
-            y = torch.cat(y, 1)  # nms ensemble
-            return y, None  # inference, train output
+
+class Ensemble(nn.ModuleList):
+    # Ensemble of models
+    def __init__(self):
+        super(Ensemble, self).__init__()
+
+    def forward(self, x, augment=False):
+        y = []
+        for module in self:
+            y.append(module(x, augment)[0])
+        # y = torch.stack(y).max(0)[0]  # max ensemble
+        # y = torch.stack(y).mean(0)  # mean ensemble
+        y = torch.cat(y, 1)  # nms ensemble
+        return y, None  # inference, train output
+
 
 ### --- YOLOv5 Code --- ###
 if 'yolov5' in yolo_name:
     from yolocode.yolov5.utils.downloads import attempt_download_YOLOV5
+
     def attempt_load_YOLOv5(weights, device=None, inplace=True, fuse=True):
         # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
         from models.yolo import Detect_YOLOV5, Model_YOLOV5
+
         # import sys
         # sys.path.insert(0, self.parent_workpath + 'yolocode/yolov7')
         # os.chdir(self.parent_workpath + 'yolocode/yolov7')
@@ -121,6 +131,7 @@ if 'yolov5' in yolo_name:
 if 'yolov7' in yolo_name:
     from yolocode.yolov7.models.common import Conv, DWConv_YOLOV7
     from yolocode.yolov7.utils.google_utils import attempt_download
+
     class CrossConv(nn.Module):
         # Cross Convolution Downsample
         def __init__(self, c1, c2, k=3, s=1, g=1, e=1.0, shortcut=False):
@@ -133,16 +144,19 @@ if 'yolov7' in yolo_name:
 
         def forward(self, x):
             return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
+
     class ORT_NMS(torch.autograd.Function):
         '''ONNX-Runtime NMS operation'''
 
         @staticmethod
-        def forward(ctx,
-                    boxes,
-                    scores,
-                    max_output_boxes_per_class=torch.tensor([100]),
-                    iou_threshold=torch.tensor([0.45]),
-                    score_threshold=torch.tensor([0.25])):
+        def forward(
+            ctx,
+            boxes,
+            scores,
+            max_output_boxes_per_class=torch.tensor([100]),
+            iou_threshold=torch.tensor([0.45]),
+            score_threshold=torch.tensor([0.25]),
+        ):
             device = boxes.device
             batch = scores.shape[0]
             num_det = random.randint(0, 100)
@@ -156,21 +170,22 @@ if 'yolov7' in yolo_name:
         @staticmethod
         def symbolic(g, boxes, scores, max_output_boxes_per_class, iou_threshold, score_threshold):
             return g.op("NonMaxSuppression", boxes, scores, max_output_boxes_per_class, iou_threshold, score_threshold)
+
     class TRT_NMS(torch.autograd.Function):
         '''TensorRT NMS operation'''
 
         @staticmethod
         def forward(
-                ctx,
-                boxes,
-                scores,
-                background_class=-1,
-                box_coding=1,
-                iou_threshold=0.45,
-                max_output_boxes=100,
-                plugin_version="1",
-                score_activation=0,
-                score_threshold=0.25,
+            ctx,
+            boxes,
+            scores,
+            background_class=-1,
+            box_coding=1,
+            iou_threshold=0.45,
+            max_output_boxes=100,
+            plugin_version="1",
+            score_activation=0,
+            score_threshold=0.25,
         ):
             batch_size, num_boxes, num_classes = scores.shape
             num_det = torch.randint(0, max_output_boxes, (batch_size, 1), dtype=torch.int32)
@@ -180,29 +195,34 @@ if 'yolov7' in yolo_name:
             return num_det, det_boxes, det_scores, det_classes
 
         @staticmethod
-        def symbolic(g,
-                     boxes,
-                     scores,
-                     background_class=-1,
-                     box_coding=1,
-                     iou_threshold=0.45,
-                     max_output_boxes=100,
-                     plugin_version="1",
-                     score_activation=0,
-                     score_threshold=0.25):
-            out = g.op("TRT::EfficientNMS_TRT",
-                       boxes,
-                       scores,
-                       background_class_i=background_class,
-                       box_coding_i=box_coding,
-                       iou_threshold_f=iou_threshold,
-                       max_output_boxes_i=max_output_boxes,
-                       plugin_version_s=plugin_version,
-                       score_activation_i=score_activation,
-                       score_threshold_f=score_threshold,
-                       outputs=4)
+        def symbolic(
+            g,
+            boxes,
+            scores,
+            background_class=-1,
+            box_coding=1,
+            iou_threshold=0.45,
+            max_output_boxes=100,
+            plugin_version="1",
+            score_activation=0,
+            score_threshold=0.25,
+        ):
+            out = g.op(
+                "TRT::EfficientNMS_TRT",
+                boxes,
+                scores,
+                background_class_i=background_class,
+                box_coding_i=box_coding,
+                iou_threshold_f=iou_threshold,
+                max_output_boxes_i=max_output_boxes,
+                plugin_version_s=plugin_version,
+                score_activation_i=score_activation,
+                score_threshold_f=score_threshold,
+                outputs=4,
+            )
             nums, boxes, scores, classes = out
             return nums, boxes, scores, classes
+
     class ONNX_ORT(nn.Module):
         '''onnx module with ONNX-Runtime NMS operation.'''
 
@@ -213,9 +233,11 @@ if 'yolov7' in yolo_name:
             self.iou_threshold = torch.tensor([iou_thres]).to(device)
             self.score_threshold = torch.tensor([score_thres]).to(device)
             self.max_wh = max_wh  # if max_wh != 0 : non-agnostic else : agnostic
-            self.convert_matrix = torch.tensor([[1, 0, 1, 0], [0, 1, 0, 1], [-0.5, 0, 0.5, 0], [0, -0.5, 0, 0.5]],
-                                               dtype=torch.float32,
-                                               device=self.device)
+            self.convert_matrix = torch.tensor(
+                [[1, 0, 1, 0], [0, 1, 0, 1], [-0.5, 0, 0.5, 0], [0, -0.5, 0, 0.5]],
+                dtype=torch.float32,
+                device=self.device,
+            )
             self.n_classes = n_classes
 
         def forward(self, x):
@@ -232,14 +254,16 @@ if 'yolov7' in yolo_name:
             dis = category_id.float() * self.max_wh
             nmsbox = boxes + dis
             max_score_tp = max_score.transpose(1, 2).contiguous()
-            selected_indices = ORT_NMS.apply(nmsbox, max_score_tp, self.max_obj, self.iou_threshold,
-                                             self.score_threshold)
+            selected_indices = ORT_NMS.apply(
+                nmsbox, max_score_tp, self.max_obj, self.iou_threshold, self.score_threshold
+            )
             X, Y = selected_indices[:, 0], selected_indices[:, 2]
             selected_boxes = boxes[X, Y, :]
             selected_categories = category_id[X, Y, :].float()
             selected_scores = max_score[X, Y, :]
             X = X.unsqueeze(1).float()
             return torch.cat([X, selected_boxes, selected_categories, selected_scores], 1)
+
     class ONNX_TRT(nn.Module):
         '''onnx module with TensorRT NMS operation.'''
 
@@ -247,8 +271,8 @@ if 'yolov7' in yolo_name:
             super().__init__()
             assert max_wh is None
             self.device = device if device else torch.device('cpu')
-            self.background_class = -1,
-            self.box_coding = 1,
+            self.background_class = (-1,)
+            self.box_coding = (1,)
             self.iou_threshold = iou_thres
             self.max_obj = max_obj
             self.plugin_version = '1'
@@ -265,17 +289,25 @@ if 'yolov7' in yolo_name:
                 # so there is no need to multiplicate.
             else:
                 scores *= conf  # conf = obj_conf * cls_conf
-            num_det, det_boxes, det_scores, det_classes = TRT_NMS.apply(boxes, scores, self.background_class,
-                                                                        self.box_coding,
-                                                                        self.iou_threshold, self.max_obj,
-                                                                        self.plugin_version, self.score_activation,
-                                                                        self.score_threshold)
+            num_det, det_boxes, det_scores, det_classes = TRT_NMS.apply(
+                boxes,
+                scores,
+                self.background_class,
+                self.box_coding,
+                self.iou_threshold,
+                self.max_obj,
+                self.plugin_version,
+                self.score_activation,
+                self.score_threshold,
+            )
             return num_det, det_boxes, det_scores, det_classes
+
     class End2End(nn.Module):
         '''export onnx or tensorrt model with NMS operation.'''
 
-        def __init__(self, model, max_obj=100, iou_thres=0.45, score_thres=0.25, max_wh=None, device=None,
-                     n_classes=80):
+        def __init__(
+            self, model, max_obj=100, iou_thres=0.45, score_thres=0.25, max_wh=None, device=None, n_classes=80
+        ):
             super().__init__()
             device = device if device else torch.device('cpu')
             assert isinstance(max_wh, (int)) or max_wh is None
@@ -289,7 +321,8 @@ if 'yolov7' in yolo_name:
             x = self.model(x)
             x = self.end2end(x)
             return x
-    def attempt_load(weights, map_location=None,device=None,inplace=True,fuse=True):
+
+    def attempt_load(weights, map_location=None, device=None, inplace=True, fuse=True):
         # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
         model = Ensemble()
         for w in weights if isinstance(weights, list) else [weights]:
@@ -319,6 +352,7 @@ if 'yolov7' in yolo_name:
 ### --- YOLOv9 Code --- ###
 if 'yolov9' in yolo_name:
     from yolocode.yolov9.utils.downloads import attempt_download_YOLOV9
+
     def attempt_load_YOLOV9(weights, device=None, inplace=True, fuse=True):
         # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
         from models.yolo import Detect, Model
@@ -330,7 +364,7 @@ if 'yolov9' in yolo_name:
 
             # Model compatibility updates
             if not hasattr(ckpt, 'stride'):
-                ckpt.stride = torch.tensor([32.])
+                ckpt.stride = torch.tensor([32.0])
             if hasattr(ckpt, 'names') and isinstance(ckpt.names, (list, tuple)):
                 ckpt.names = dict(enumerate(ckpt.names))  # convert to dict
 

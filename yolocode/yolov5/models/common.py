@@ -340,7 +340,16 @@ class Concat(nn.Module):
 
 class DetectMultiBackend(nn.Module):
     # YOLOv5 MultiBackend class for python inference on various backends
-    def __init__(self, weights="yolov5s.pt", device=torch.device("cpu"), dnn=False, data=None, fp16=False, fuse=True,parent_workpath=None):
+    def __init__(
+        self,
+        weights="yolov5s.pt",
+        device=torch.device("cpu"),
+        dnn=False,
+        data=None,
+        fp16=False,
+        fuse=True,
+        parent_workpath=None,
+    ):
         # Usage:
         #   PyTorch:              weights = *.pt
         #   TorchScript:                    *.torchscript
@@ -354,7 +363,11 @@ class DetectMultiBackend(nn.Module):
         #   TensorFlow Lite:                *.tflite
         #   TensorFlow Edge TPU:            *_edgetpu.tflite
         #   PaddlePaddle:                   *_paddle_model
-        from yolocode.yolov5.models.experimental import attempt_download, attempt_load  # scoped to avoid circular import
+        from yolocode.yolov5.models.experimental import (
+            attempt_download,
+            attempt_load,
+        )  # scoped to avoid circular import
+
         super().__init__()
         w = str(weights[0] if isinstance(weights, list) else weights)
         pt, jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs, paddle, triton = self._model_type(w)

@@ -50,9 +50,10 @@ def smartCrossEntropyLoss(label_smoothing=0.0):
 
 def smart_DDP(model):
     # Model DDP creation with checks
-    assert not check_version(torch.__version__, '1.12.0', pinned=True), \
-        'torch==1.12.0 torchvision==0.13.0 DDP training is not supported due to a known issue. ' \
+    assert not check_version(torch.__version__, '1.12.0', pinned=True), (
+        'torch==1.12.0 torchvision==0.13.0 DDP training is not supported due to a known issue. '
         'Please upgrade or downgrade torch to use DDP. See https://github.com/ultralytics/yolov5/issues/8395'
+    )
     if check_version(torch.__version__, '1.11.0'):
         return DDP(model, device_ids=[LOCAL_RANK], output_device=LOCAL_RANK, static_graph=True)
     else:
@@ -62,6 +63,7 @@ def smart_DDP(model):
 def reshape_classifier_output(model, n=1000):
     # Update a TorchVision classification model to class count 'n' if required
     from models.common import Classify
+
     name, m = list((model.model if hasattr(model, 'model') else model).named_children())[-1]  # last module
     if isinstance(m, Classify):  # YOLOv5 Classify() head
         if m.linear.out_features != n:
@@ -111,8 +113,9 @@ def select_device(device='', batch_size=0, newline=True):
         os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # force torch.cuda.is_available() = False
     elif device:  # non-cpu device requested
         os.environ['CUDA_VISIBLE_DEVICES'] = device  # set environment variable - must be before assert is_available()
-        assert torch.cuda.is_available() and torch.cuda.device_count() >= len(device.replace(',', '')), \
-            f"Invalid CUDA '--device {device}' requested, use '--device cpu' or pass valid CUDA device(s)"
+        assert torch.cuda.is_available() and torch.cuda.device_count() >= len(
+            device.replace(',', '')
+        ), f"Invalid CUDA '--device {device}' requested, use '--device cpu' or pass valid CUDA device(s)"
 
     if not cpu and not mps and torch.cuda.is_available():  # prefer GPU if available
         devices = device.split(',') if device else '0'  # range(torch.cuda.device_count())  # i.e. 0,1,6,7
@@ -145,7 +148,7 @@ def time_sync():
 
 
 def profile(input, ops, n=10, device=None):
-    """ YOLOv5 speed/memory/FLOPs profiler
+    """YOLOv5 speed/memory/FLOPs profiler
     Usage:
         input = torch.randn(16, 3, 640, 640)
         m1 = lambda x: x * torch.sigmoid(x)
@@ -155,8 +158,10 @@ def profile(input, ops, n=10, device=None):
     results = []
     if not isinstance(device, torch.device):
         device = select_device(device)
-    print(f"{'Params':>12s}{'GFLOPs':>12s}{'GPU_mem (GB)':>14s}{'forward (ms)':>14s}{'backward (ms)':>14s}"
-          f"{'input':>24s}{'output':>24s}")
+    print(
+        f"{'Params':>12s}{'GFLOPs':>12s}{'GPU_mem (GB)':>14s}{'forward (ms)':>14s}{'backward (ms)':>14s}"
+        f"{'input':>24s}{'output':>24s}"
+    )
 
     for x in input if isinstance(input, list) else [input]:
         x = x.to(device)
@@ -166,7 +171,7 @@ def profile(input, ops, n=10, device=None):
             m = m.half() if hasattr(m, 'half') and isinstance(x, torch.Tensor) and x.dtype is torch.float16 else m
             tf, tb, t = 0, 0, [0, 0, 0]  # dt forward, backward
             try:
-                flops = thop.profile(m, inputs=(x,), verbose=False)[0] / 1E9 * 2  # GFLOPs
+                flops = thop.profile(m, inputs=(x,), verbose=False)[0] / 1e9 * 2  # GFLOPs
             except Exception:
                 flops = 0
 
@@ -183,7 +188,7 @@ def profile(input, ops, n=10, device=None):
                         t[2] = float('nan')
                     tf += (t[1] - t[0]) * 1000 / n  # ms per op forward
                     tb += (t[2] - t[1]) * 1000 / n  # ms per op backward
-                mem = torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0  # (GB)
+                mem = torch.cuda.memory_reserved() / 1e9 if torch.cuda.is_available() else 0  # (GB)
                 s_in, s_out = (tuple(x.shape) if isinstance(x, torch.Tensor) else 'list' for x in (x, y))  # shapes
                 p = sum(x.numel() for x in m.parameters()) if isinstance(m, nn.Module) else 0  # parameters
                 print(f'{p:12}{flops:12.4g}{mem:>14.3f}{tf:14.4g}{tb:14.4g}{str(s_in):>24s}{str(s_out):>24s}')
@@ -234,6 +239,7 @@ def sparsity(model):
 def prune(model, amount=0.3):
     # Prune model to requested global sparsity
     import torch.nn.utils.prune as prune
+
     for name, m in model.named_modules():
         if isinstance(m, nn.Conv2d):
             prune.l1_unstructured(m, name='weight', amount=amount)  # prune
@@ -243,14 +249,20 @@ def prune(model, amount=0.3):
 
 def fuse_conv_and_bn(conv, bn):
     # Fuse Conv2d() and BatchNorm2d() layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
-    fusedconv = nn.Conv2d(conv.in_channels,
-                          conv.out_channels,
-                          kernel_size=conv.kernel_size,
-                          stride=conv.stride,
-                          padding=conv.padding,
-                          dilation=conv.dilation,
-                          groups=conv.groups,
-                          bias=True).requires_grad_(False).to(conv.weight.device)
+    fusedconv = (
+        nn.Conv2d(
+            conv.in_channels,
+            conv.out_channels,
+            kernel_size=conv.kernel_size,
+            stride=conv.stride,
+            padding=conv.padding,
+            dilation=conv.dilation,
+            groups=conv.groups,
+            bias=True,
+        )
+        .requires_grad_(False)
+        .to(conv.weight.device)
+    )
 
     # Prepare filters
     w_conv = conv.weight.clone().view(conv.out_channels, -1)
@@ -273,14 +285,16 @@ def model_info(model, verbose=False, imgsz=640):
         print(f"{'layer':>5} {'name':>40} {'gradient':>9} {'parameters':>12} {'shape':>20} {'mu':>10} {'sigma':>10}")
         for i, (name, p) in enumerate(model.named_parameters()):
             name = name.replace('module_list.', '')
-            print('%5g %40s %9s %12g %20s %10.3g %10.3g' %
-                  (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std()))
+            print(
+                '%5g %40s %9s %12g %20s %10.3g %10.3g'
+                % (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std())
+            )
 
     try:  # FLOPs
         p = next(model.parameters())
         stride = max(int(model.stride.max()), 32) if hasattr(model, 'stride') else 32  # max stride
         im = torch.empty((1, p.shape[1], stride, stride), device=p.device)  # input image in BCHW format
-        flops = thop.profile(deepcopy(model), inputs=(im,), verbose=False)[0] / 1E9 * 2  # stride GFLOPs
+        flops = thop.profile(deepcopy(model), inputs=(im,), verbose=False)[0] / 1e9 * 2  # stride GFLOPs
         imgsz = imgsz if isinstance(imgsz, list) else [imgsz, imgsz]  # expand if int/float
         fs = f', {flops * imgsz[0] / stride * imgsz[1] / stride:.1f} GFLOPs'  # 640x640 GFLOPs
     except Exception:
@@ -315,7 +329,7 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
     # YOLOv5 3-param group optimizer: 0) weights with decay, 1) weights no decay, 2) biases no decay
     g = [], [], []  # optimizer parameter groups
     bn = tuple(v for k, v in nn.__dict__.items() if 'Norm' in k)  # normalization layers, i.e. BatchNorm2d()
-    #for v in model.modules():
+    # for v in model.modules():
     #    for p_name, p in v.named_parameters(recurse=0):
     #        if p_name == 'bias':  # bias (no decay)
     #            g[2].append(p)
@@ -323,7 +337,7 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
     #            g[1].append(p)
     #        else:
     #            g[0].append(p)  # weight (with decay)
-                
+
     for v in model.modules():
         if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):  # bias (no decay)
             g[2].append(v.bias)
@@ -331,93 +345,93 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
             g[1].append(v.weight)
         elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
             g[0].append(v.weight)
-            
+
         if hasattr(v, 'im'):
-            if hasattr(v.im, 'implicit'):           
+            if hasattr(v.im, 'implicit'):
                 g[1].append(v.im.implicit)
             else:
                 for iv in v.im:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia'):
-            if hasattr(v.ia, 'implicit'):           
+            if hasattr(v.ia, 'implicit'):
                 g[1].append(v.ia.implicit)
             else:
                 for iv in v.ia:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im2'):
-            if hasattr(v.im2, 'implicit'):           
+            if hasattr(v.im2, 'implicit'):
                 g[1].append(v.im2.implicit)
             else:
                 for iv in v.im2:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia2'):
-            if hasattr(v.ia2, 'implicit'):           
+            if hasattr(v.ia2, 'implicit'):
                 g[1].append(v.ia2.implicit)
             else:
                 for iv in v.ia2:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im3'):
-            if hasattr(v.im3, 'implicit'):           
+            if hasattr(v.im3, 'implicit'):
                 g[1].append(v.im3.implicit)
             else:
                 for iv in v.im3:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia3'):
-            if hasattr(v.ia3, 'implicit'):           
+            if hasattr(v.ia3, 'implicit'):
                 g[1].append(v.ia3.implicit)
             else:
                 for iv in v.ia3:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im4'):
-            if hasattr(v.im4, 'implicit'):           
+            if hasattr(v.im4, 'implicit'):
                 g[1].append(v.im4.implicit)
             else:
                 for iv in v.im4:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia4'):
-            if hasattr(v.ia4, 'implicit'):           
+            if hasattr(v.ia4, 'implicit'):
                 g[1].append(v.ia4.implicit)
             else:
                 for iv in v.ia4:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im5'):
-            if hasattr(v.im5, 'implicit'):           
+            if hasattr(v.im5, 'implicit'):
                 g[1].append(v.im5.implicit)
             else:
                 for iv in v.im5:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia5'):
-            if hasattr(v.ia5, 'implicit'):           
+            if hasattr(v.ia5, 'implicit'):
                 g[1].append(v.ia5.implicit)
             else:
                 for iv in v.ia5:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im6'):
-            if hasattr(v.im6, 'implicit'):           
+            if hasattr(v.im6, 'implicit'):
                 g[1].append(v.im6.implicit)
             else:
                 for iv in v.im6:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia6'):
-            if hasattr(v.ia6, 'implicit'):           
+            if hasattr(v.ia6, 'implicit'):
                 g[1].append(v.ia6.implicit)
             else:
                 for iv in v.ia6:
                     g[1].append(iv.implicit)
-                    
+
         if hasattr(v, 'im7'):
-            if hasattr(v.im7, 'implicit'):           
+            if hasattr(v.im7, 'implicit'):
                 g[1].append(v.im7.implicit)
             else:
                 for iv in v.im7:
                     g[1].append(iv.implicit)
         if hasattr(v, 'ia7'):
-            if hasattr(v.ia7, 'implicit'):           
+            if hasattr(v.ia7, 'implicit'):
                 g[1].append(v.ia7.implicit)
             else:
                 for iv in v.ia7:
@@ -438,8 +452,10 @@ def smart_optimizer(model, name='Adam', lr=0.001, momentum=0.9, decay=1e-5):
 
     optimizer.add_param_group({'params': g[0], 'weight_decay': decay})  # add g0 with weight_decay
     optimizer.add_param_group({'params': g[1], 'weight_decay': 0.0})  # add g1 (BatchNorm2d weights)
-    LOGGER.info(f"{colorstr('optimizer:')} {type(optimizer).__name__}(lr={lr}) with parameter groups "
-                f"{len(g[1])} weight(decay=0.0), {len(g[0])} weight(decay={decay}), {len(g[2])} bias")
+    LOGGER.info(
+        f"{colorstr('optimizer:')} {type(optimizer).__name__}(lr={lr}) with parameter groups "
+        f"{len(g[1])} weight(decay=0.0), {len(g[0])} weight(decay={decay}), {len(g[2])} bias"
+    )
     return optimizer
 
 
@@ -466,8 +482,10 @@ def smart_resume(ckpt, optimizer, ema=None, weights='yolov5s.pt', epochs=300, re
         ema.ema.load_state_dict(ckpt['ema'].float().state_dict())  # EMA
         ema.updates = ckpt['updates']
     if resume:
-        assert start_epoch > 0, f'{weights} training to {epochs} epochs is finished, nothing to resume.\n' \
-                                f"Start a new training without --resume, i.e. 'python train.py --weights {weights}'"
+        assert start_epoch > 0, (
+            f'{weights} training to {epochs} epochs is finished, nothing to resume.\n'
+            f"Start a new training without --resume, i.e. 'python train.py --weights {weights}'"
+        )
         LOGGER.info(f'Resuming training from {weights} from epoch {start_epoch} to {epochs} total epochs')
     if epochs < start_epoch:
         LOGGER.info(f"{weights} has been trained for {ckpt['epoch']} epochs. Fine-tuning for {epochs} more epochs.")
@@ -491,15 +509,17 @@ class EarlyStopping:
         self.possible_stop = delta >= (self.patience - 1)  # possible stop may occur next epoch
         stop = delta >= self.patience  # stop training if patience exceeded
         if stop:
-            LOGGER.info(f'Stopping training early as no improvement observed in last {self.patience} epochs. '
-                        f'Best results observed at epoch {self.best_epoch}, best model saved as best.pt.\n'
-                        f'To update EarlyStopping(patience={self.patience}) pass a new patience value, '
-                        f'i.e. `python train.py --patience 300` or use `--patience 0` to disable EarlyStopping.')
+            LOGGER.info(
+                f'Stopping training early as no improvement observed in last {self.patience} epochs. '
+                f'Best results observed at epoch {self.best_epoch}, best model saved as best.pt.\n'
+                f'To update EarlyStopping(patience={self.patience}) pass a new patience value, '
+                f'i.e. `python train.py --patience 300` or use `--patience 0` to disable EarlyStopping.'
+            )
         return stop
 
 
 class ModelEMA:
-    """ Updated Exponential Moving Average (EMA) from https://github.com/rwightman/pytorch-image-models
+    """Updated Exponential Moving Average (EMA) from https://github.com/rwightman/pytorch-image-models
     Keeps a moving average of everything in the model state_dict (parameters and buffers)
     For EMA details see https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
     """
