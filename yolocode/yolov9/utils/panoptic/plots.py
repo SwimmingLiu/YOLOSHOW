@@ -16,7 +16,6 @@ from ..plots import Annotator, colors
 
 @threaded
 def plot_images_and_masks(images, targets, masks, semasks, paths=None, fname='images.jpg', names=None):
-
     try:
         if images.shape[-2:] != semasks.shape[-2:]:
             m = torch.nn.Upsample(scale_factor=4, mode='nearest')
@@ -24,13 +23,11 @@ def plot_images_and_masks(images, targets, masks, semasks, paths=None, fname='im
 
         for idx in range(images.shape[0]):
             output_img = draw_segmentation_masks(
-                image = images[idx, :, :, :].cpu().to(dtype = torch.uint8),
-                masks = semasks[idx, :, :, :].cpu().to(dtype = torch.bool),
-                alpha = 1)
-            cv2.imwrite(
-                '{}_{}.jpg'.format(fname, idx),
-                torch.permute(output_img, (1, 2, 0)).numpy()
+                image=images[idx, :, :, :].cpu().to(dtype=torch.uint8),
+                masks=semasks[idx, :, :, :].cpu().to(dtype=torch.bool),
+                alpha=1,
             )
+            cv2.imwrite('{}_{}.jpg'.format(fname, idx), torch.permute(output_img, (1, 2, 0)).numpy())
     except:
         pass
 
@@ -48,7 +45,7 @@ def plot_images_and_masks(images, targets, masks, semasks, paths=None, fname='im
     max_subplots = 16  # max image subplots, i.e. 4x4
     bs, _, h, w = images.shape  # batch size, _, height, width
     bs = min(bs, max_subplots)  # limit plot images
-    ns = np.ceil(bs ** 0.5)  # number of subplots (square)
+    ns = np.ceil(bs**0.5)  # number of subplots (square)
     if np.max(images[0]) <= 1:
         images *= 255  # de-normalise (optional)
 
@@ -59,7 +56,7 @@ def plot_images_and_masks(images, targets, masks, semasks, paths=None, fname='im
             break
         x, y = int(w * (i // ns)), int(h * (i % ns))  # block origin
         im = im.transpose(1, 2, 0)
-        mosaic[y:y + h, x:x + w, :] = im
+        mosaic[y : y + h, x : x + w, :] = im
 
     # Resize (optional)
     scale = max_size / ns / max(h, w)
@@ -124,7 +121,9 @@ def plot_images_and_masks(images, targets, masks, semasks, paths=None, fname='im
                         else:
                             mask = image_masks[j].astype(bool)
                         with contextlib.suppress(Exception):
-                            im[y:y + h, x:x + w, :][mask] = im[y:y + h, x:x + w, :][mask] * 0.4 + np.array(color) * 0.6
+                            im[y : y + h, x : x + w, :][mask] = (
+                                im[y : y + h, x : x + w, :][mask] * 0.4 + np.array(color) * 0.6
+                            )
                 annotator.fromarray(im)
     annotator.im.save(fname)  # save
 
@@ -139,8 +138,9 @@ def plot_results_with_masks(file="path/to/results.csv", dir="", best=True):
     for f in files:
         try:
             data = pd.read_csv(f)
-            index = np.argmax(0.9 * data.values[:, 8] + 0.1 * data.values[:, 7] + 0.9 * data.values[:, 12] +
-                              0.1 * data.values[:, 11])
+            index = np.argmax(
+                0.9 * data.values[:, 8] + 0.1 * data.values[:, 7] + 0.9 * data.values[:, 12] + 0.1 * data.values[:, 11]
+            )
             s = [x.strip() for x in data.columns]
             x = data.values[:, 0]
             for i, j in enumerate([1, 2, 3, 4, 5, 6, 9, 10, 13, 14, 15, 16, 7, 8, 11, 12]):

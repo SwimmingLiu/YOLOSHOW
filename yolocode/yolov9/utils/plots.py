@@ -15,8 +15,18 @@ import torch
 from PIL import Image, ImageDraw, ImageFont
 
 from yolocode.yolov9.utils import TryExcept, threaded
-from yolocode.yolov9.utils.general import (CONFIG_DIR, FONT, LOGGER, check_font, check_requirements, clip_boxes, increment_path,
-                           is_ascii, xywh2xyxy, xyxy2xywh)
+from yolocode.yolov9.utils.general import (
+    CONFIG_DIR,
+    FONT,
+    LOGGER,
+    check_font,
+    check_requirements,
+    clip_boxes,
+    increment_path,
+    is_ascii,
+    xywh2xyxy,
+    xyxy2xywh,
+)
 from yolocode.yolov9.utils.metrics import fitness
 from yolocode.yolov9.utils.segment.general import scale_image
 
@@ -30,8 +40,28 @@ class Colors:
     # Ultralytics color palette https://ultralytics.com/
     def __init__(self):
         # hex = matplotlib.colors.TABLEAU_COLORS.values()
-        hexs = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
-                '2C99A8', '00C2FF', '344593', '6473FF', '0018EC', '8438FF', '520085', 'CB38FF', 'FF95C8', 'FF37C7')
+        hexs = (
+            'FF3838',
+            'FF9D97',
+            'FF701F',
+            'FFB21D',
+            'CFD231',
+            '48F90A',
+            '92CC17',
+            '3DDB86',
+            '1A9334',
+            '00D4BB',
+            '2C99A8',
+            '00C2FF',
+            '344593',
+            '6473FF',
+            '0018EC',
+            '8438FF',
+            '520085',
+            'CB38FF',
+            'FF95C8',
+            'FF37C7',
+        )
         self.palette = [self.hex2rgb(f'#{c}') for c in hexs]
         self.n = len(self.palette)
 
@@ -41,7 +71,7 @@ class Colors:
 
     @staticmethod
     def hex2rgb(h):  # rgb order (PIL)
-        return tuple(int(h[1 + i:1 + i + 2], 16) for i in (0, 2, 4))
+        return tuple(int(h[1 + i : 1 + i + 2], 16) for i in (0, 2, 4))
 
 
 colors = Colors()  # create instance for 'from utils.plots import colors'
@@ -72,8 +102,10 @@ class Annotator:
         if self.pil:  # use PIL
             self.im = im if isinstance(im, Image.Image) else Image.fromarray(im)
             self.draw = ImageDraw.Draw(self.im)
-            self.font = check_pil_font(font='Arial.Unicode.ttf' if non_ascii else font,
-                                       size=font_size or max(round(sum(self.im.size) / 2 * 0.035), 12))
+            self.font = check_pil_font(
+                font='Arial.Unicode.ttf' if non_ascii else font,
+                size=font_size or max(round(sum(self.im.size) / 2 * 0.035), 12),
+            )
         else:  # use cv2
             self.im = im
         self.lw = line_width or max(round(sum(im.shape) / 2 * 0.003), 2)  # line width
@@ -86,8 +118,12 @@ class Annotator:
                 w, h = self.font.getsize(label)  # text width, height
                 outside = box[1] - h >= 0  # label fits outside box
                 self.draw.rectangle(
-                    (box[0], box[1] - h if outside else box[1], box[0] + w + 1,
-                     box[1] + 1 if outside else box[1] + h + 1),
+                    (
+                        box[0],
+                        box[1] - h if outside else box[1],
+                        box[0] + w + 1,
+                        box[1] + 1 if outside else box[1] + h + 1,
+                    ),
                     fill=color,
                 )
                 # self.draw.text((box[0], box[1]), label, fill=txt_color, font=self.font, anchor='ls')  # for PIL>8.0
@@ -101,13 +137,16 @@ class Annotator:
                 outside = p1[1] - h >= 3
                 p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
                 cv2.rectangle(self.im, p1, p2, color, -1, cv2.LINE_AA)  # filled
-                cv2.putText(self.im,
-                            label, (p1[0], p1[1] - 2 if outside else p1[1] + h + 2),
-                            0,
-                            self.lw / 3,
-                            txt_color,
-                            thickness=tf,
-                            lineType=cv2.LINE_AA)
+                cv2.putText(
+                    self.im,
+                    label,
+                    (p1[0], p1[1] - 2 if outside else p1[1] + h + 2),
+                    0,
+                    self.lw / 3,
+                    txt_color,
+                    thickness=tf,
+                    lineType=cv2.LINE_AA,
+                )
 
     def masks(self, masks, colors, im_gpu=None, alpha=0.5):
         """Plot masks at once.
@@ -248,7 +287,7 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None):
     max_subplots = 16  # max image subplots, i.e. 4x4
     bs, _, h, w = images.shape  # batch size, _, height, width
     bs = min(bs, max_subplots)  # limit plot images
-    ns = np.ceil(bs ** 0.5)  # number of subplots (square)
+    ns = np.ceil(bs**0.5)  # number of subplots (square)
     if np.max(images[0]) <= 1:
         images *= 255  # de-normalise (optional)
 
@@ -259,7 +298,7 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None):
             break
         x, y = int(w * (i // ns)), int(h * (i % ns))  # block origin
         im = im.transpose(1, 2, 0)
-        mosaic[y:y + h, x:x + w, :] = im
+        mosaic[y : y + h, x : x + w, :] = im
 
     # Resize (optional)
     scale = max_size / ns / max(h, w)
@@ -367,19 +406,24 @@ def plot_val_study(file='', dir='', x=None):  # from utils.plots import *; plot_
                 ax[i].set_title(s[i])
 
         j = y[3].argmax() + 1
-        ax2.plot(y[5, 1:j],
-                 y[3, 1:j] * 1E2,
-                 '.-',
-                 linewidth=2,
-                 markersize=8,
-                 label=f.stem.replace('study_coco_', '').replace('yolo', 'YOLO'))
+        ax2.plot(
+            y[5, 1:j],
+            y[3, 1:j] * 1e2,
+            '.-',
+            linewidth=2,
+            markersize=8,
+            label=f.stem.replace('study_coco_', '').replace('yolo', 'YOLO'),
+        )
 
-    ax2.plot(1E3 / np.array([209, 140, 97, 58, 35, 18]), [34.6, 40.5, 43.0, 47.5, 49.7, 51.5],
-             'k.-',
-             linewidth=2,
-             markersize=8,
-             alpha=.25,
-             label='EfficientDet')
+    ax2.plot(
+        1e3 / np.array([209, 140, 97, 58, 35, 18]),
+        [34.6, 40.5, 43.0, 47.5, 49.7, 51.5],
+        'k.-',
+        linewidth=2,
+        markersize=8,
+        alpha=0.25,
+        label='EfficientDet',
+    )
 
     ax2.grid(alpha=0.2)
     ax2.set_yticks(np.arange(20, 60, 5))
@@ -444,10 +488,11 @@ def imshow_cls(im, labels=None, pred=None, names=None, nmax=25, verbose=False, f
     from utils.augmentations import denormalize
 
     names = names or [f'class{i}' for i in range(1000)]
-    blocks = torch.chunk(denormalize(im.clone()).cpu().float(), len(im),
-                         dim=0)  # select batch index 0, block by channels
+    blocks = torch.chunk(
+        denormalize(im.clone()).cpu().float(), len(im), dim=0
+    )  # select batch index 0, block by channels
     n = min(len(blocks), nmax)  # number of plots
-    m = min(8, round(n ** 0.5))  # 8 x 8 default
+    m = min(8, round(n**0.5))  # 8 x 8 default
     fig, ax = plt.subplots(math.ceil(n / m), m)  # 8 rows x n/8 cols
     ax = ax.ravel() if m > 1 else [ax]
     # plt.subplots_adjust(wspace=0.05, hspace=0.05)
@@ -483,7 +528,7 @@ def plot_evolve(evolve_csv='path/to/evolve.csv'):  # from utils.plots import *; 
         v = x[:, 7 + i]
         mu = v[j]  # best single result
         plt.subplot(6, 5, i + 1)
-        plt.scatter(v, f, c=hist2d(v, f, 20), cmap='viridis', alpha=.8, edgecolors='none')
+        plt.scatter(v, f, c=hist2d(v, f, 20), cmap='viridis', alpha=0.8, edgecolors='none')
         plt.plot(mu, f.max(), 'k+', markersize=15)
         plt.title(f'{k} = {mu:.3g}', fontdict={'size': 9})  # limit to 40 characters
         if i % 5 != 0:
@@ -532,7 +577,7 @@ def profile_idetection(start=0, stop=0, labels=(), save_dir=''):
             n = results.shape[1]  # number of rows
             x = np.arange(start, min(stop, n) if stop else n)
             results = results[:, x]
-            t = (results[0] - results[0].min())  # set t0=0s
+            t = results[0] - results[0].min()  # set t0=0s
             results[0] = x
             for i, a in enumerate(ax):
                 if i < len(results):
@@ -561,7 +606,7 @@ def save_one_box(xyxy, im, file=Path('im.jpg'), gain=1.02, pad=10, square=False,
     b[:, 2:] = b[:, 2:] * gain + pad  # box wh * gain + pad
     xyxy = xywh2xyxy(b).long()
     clip_boxes(xyxy, im.shape)
-    crop = im[int(xyxy[0, 1]):int(xyxy[0, 3]), int(xyxy[0, 0]):int(xyxy[0, 2]), ::(1 if BGR else -1)]
+    crop = im[int(xyxy[0, 1]) : int(xyxy[0, 3]), int(xyxy[0, 0]) : int(xyxy[0, 2]), :: (1 if BGR else -1)]
     if save:
         file.parent.mkdir(parents=True, exist_ok=True)  # make directory
         f = str(increment_path(file).with_suffix('.jpg'))

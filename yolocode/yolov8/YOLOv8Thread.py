@@ -32,7 +32,7 @@ class YOLOv8Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv8Thread, self).__init__()
@@ -74,13 +74,12 @@ class YOLOv8Thread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
 
     def run(self):
-
         if not self.model:
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
@@ -106,7 +105,9 @@ class YOLOv8Thread(QThread):
             self.setup_source(source)
             self.detect()
 
-    def detect(self, ):
+    def detect(
+        self,
+    ):
         # warmup model
         if not self.done_warmup:
             self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
@@ -231,7 +232,6 @@ class YOLOv8Thread(QThread):
                     self.send_target_num.emit(target_nums)
                     self.results_picture = self.labels_dict
 
-
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
                         self.res_path = self.save_preds(self.vid_cap, i, save_path)
@@ -293,10 +293,10 @@ class YOLOv8Thread(QThread):
         )
         self.source_type = self.dataset.source_type
         if not getattr(self, "stream", True) and (
-                self.source_type.stream
-                or self.source_type.screenshot
-                or len(self.dataset) > 1000  # many images
-                or any(getattr(self.dataset, "video_flag", [False]))
+            self.source_type.stream
+            or self.source_type.screenshot
+            or len(self.dataset) > 1000  # many images
+            or any(getattr(self.dataset, "video_flag", [False]))
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
         self.vid_path = [None] * self.dataset.bs
@@ -390,7 +390,6 @@ class YOLOv8Thread(QThread):
             # Write video
             self.vid_writer[idx].write(im0)
             return str(Path(save_path).with_suffix(suffix))
-
 
     def write_results(self, idx, results, batch):
         """Write inference results to a file or directory."""

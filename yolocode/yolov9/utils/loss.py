@@ -175,16 +175,20 @@ class ComputeLoss:
         gain = torch.ones(6, device=self.device)  # normalized to gridspace gain
 
         g = 0.3  # bias
-        off = torch.tensor(
-            [
-                [0, 0],
-                [1, 0],
-                [0, 1],
-                [-1, 0],
-                [0, -1],  # j,k,l,m
-                # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
-            ],
-            device=self.device).float() * g  # offsets
+        off = (
+            torch.tensor(
+                [
+                    [0, 0],
+                    [1, 0],
+                    [0, 1],
+                    [-1, 0],
+                    [0, -1],  # j,k,l,m
+                    # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
+                ],
+                device=self.device,
+            ).float()
+            * g
+        )  # offsets
 
         for i in range(self.nl):
             shape = p[i].shape
@@ -273,11 +277,15 @@ class ComputeLoss_NEW:
                 iou = bbox_iou(pbox, tbox[i], CIoU=True).squeeze()  # iou(predicted_box, target_box)
                 obj_target = iou.detach().clamp(0).type(pi.dtype)  # objectness targets
 
-                all_loss.append([(1.0 - iou) * self.hyp['box'],
-                                 self.BCE_base(pobj.squeeze(), torch.ones_like(obj_target)) * self.hyp['obj'],
-                                 self.BCE_base(pcls, F.one_hot(tcls[i], self.nc).float()).mean(2) * self.hyp['cls'],
-                                 obj_target,
-                                 tbox[i][..., 2] > 0.0])  # valid
+                all_loss.append(
+                    [
+                        (1.0 - iou) * self.hyp['box'],
+                        self.BCE_base(pobj.squeeze(), torch.ones_like(obj_target)) * self.hyp['obj'],
+                        self.BCE_base(pcls, F.one_hot(tcls[i], self.nc).float()).mean(2) * self.hyp['cls'],
+                        obj_target,
+                        tbox[i][..., 2] > 0.0,
+                    ]
+                )  # valid
 
         # Lowest 3 losses per label
         n_assign = 4  # top n matches
@@ -316,7 +324,8 @@ class ComputeLoss_NEW:
                 [0, -1],  # j,k,l,m
                 # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
             ],
-            device=self.device).float()  # offsets
+            device=self.device,
+        ).float()  # offsets
 
         for i in range(self.nl):
             shape = p[i].shape

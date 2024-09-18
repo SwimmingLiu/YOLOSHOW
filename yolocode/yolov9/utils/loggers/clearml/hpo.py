@@ -1,13 +1,16 @@
 from clearml import Task
+
 # Connecting ClearML with the current process,
 # from here on everything is logged automatically
 from clearml.automation import HyperParameterOptimizer, UniformParameterRange
 from clearml.automation.optuna import OptimizerOptuna
 
-task = Task.init(project_name='Hyper-Parameter Optimization',
-                 task_name='YOLOv5',
-                 task_type=Task.TaskTypes.optimizer,
-                 reuse_last_task_id=False)
+task = Task.init(
+    project_name='Hyper-Parameter Optimization',
+    task_name='YOLOv5',
+    task_type=Task.TaskTypes.optimizer,
+    reuse_last_task_id=False,
+)
 
 # Example use case:
 optimizer = HyperParameterOptimizer(
@@ -47,7 +50,8 @@ optimizer = HyperParameterOptimizer(
         UniformParameterRange('Hyperparameters/fliplr', min_value=0.0, max_value=1.0),
         UniformParameterRange('Hyperparameters/mosaic', min_value=0.0, max_value=1.0),
         UniformParameterRange('Hyperparameters/mixup', min_value=0.0, max_value=1.0),
-        UniformParameterRange('Hyperparameters/copy_paste', min_value=0.0, max_value=1.0)],
+        UniformParameterRange('Hyperparameters/copy_paste', min_value=0.0, max_value=1.0),
+    ],
     # this is the objective metric we want to maximize/minimize
     objective_metric_title='metrics',
     objective_metric_series='mAP_0.5',

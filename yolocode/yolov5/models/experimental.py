@@ -1,5 +1,6 @@
 # YOLOv5 🚀 by Ultralytics, AGPL-3.0 license
 """Experimental modules."""
+
 import math
 
 import numpy as np
@@ -72,6 +73,7 @@ class Ensemble(nn.ModuleList):
 def attempt_load(weights, device=None, inplace=True, fuse=True):
     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
     from models.yolo import Detect_YOLOv5, Model_YOLOv5
+
     # import sys
     # sys.path.insert(0, self.parent_workpath + 'yolocode/yolov7')
     # os.chdir(self.parent_workpath + 'yolocode/yolov7')

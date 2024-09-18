@@ -31,7 +31,7 @@ def url_getsize(url='https://ultralytics.com/images/bus.jpg'):
     return int(response.headers.get('content-length', -1))
 
 
-def safe_download(file, url, url2=None, min_bytes=1E0, error_msg=''):
+def safe_download(file, url, url2=None, min_bytes=1e0, error_msg=''):
     # Attempts to download file from url or url2, checks and removes incomplete downloads < min_bytes
     from utils.general import LOGGER
 
@@ -75,7 +75,7 @@ def attempt_download_YOLOV9(file, repo='ultralytics/yolov5', release='v7.0'):
             if Path(file).is_file():
                 LOGGER.info(f'Found {url} locally at {file}')  # file already exists
             else:
-                safe_download(file=file, url=url, min_bytes=1E5)
+                safe_download(file=file, url=url, min_bytes=1e5)
             return file
 
         # GitHub assets
@@ -97,7 +97,8 @@ def attempt_download_YOLOV9(file, repo='ultralytics/yolov5', release='v7.0'):
             safe_download(
                 file,
                 url=f'https://github.com/{repo}/releases/download/{tag}/{name}',
-                min_bytes=1E5,
-                error_msg=f'{file} missing, try downloading from https://github.com/{repo}/releases/{tag} or {url3}')
+                min_bytes=1e5,
+                error_msg=f'{file} missing, try downloading from https://github.com/{repo}/releases/{tag} or {url3}',
+            )
 
     return str(file)

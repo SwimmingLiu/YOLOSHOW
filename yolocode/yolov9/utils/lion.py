@@ -1,4 +1,5 @@
 """PyTorch implementation of the Lion optimizer."""
+
 import torch
 from torch.optim.optimizer import Optimizer
 

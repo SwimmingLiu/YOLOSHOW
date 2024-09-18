@@ -24,9 +24,23 @@ from torch.cuda import amp
 
 from yolocode.yolov9.utils import TryExcept
 from yolocode.yolov9.utils.dataloaders import exif_transpose, letterbox
-from yolocode.yolov9.utils.general import (LOGGER, ROOT, Profile, check_requirements, check_suffix, check_version, colorstr,
-                           increment_path, is_notebook, make_divisible, non_max_suppression, scale_boxes,
-                           xywh2xyxy, xyxy2xywh, yaml_load)
+from yolocode.yolov9.utils.general import (
+    LOGGER,
+    ROOT,
+    Profile,
+    check_requirements,
+    check_suffix,
+    check_version,
+    colorstr,
+    increment_path,
+    is_notebook,
+    make_divisible,
+    non_max_suppression,
+    scale_boxes,
+    xywh2xyxy,
+    xyxy2xywh,
+    yaml_load,
+)
 from yolocode.yolov9.utils.plots import Annotator, colors, save_one_box
 from yolocode.yolov9.utils.torch_utils import copy_attr, smart_inference_mode
 
@@ -76,7 +90,7 @@ class ADown(nn.Module):
 
     def forward(self, x):
         x = torch.nn.functional.avg_pool2d(x, 2, 1, 0, False, True)
-        x1,x2 = x.chunk(2, 1)
+        x1, x2 = x.chunk(2, 1)
         x1 = self.cv1(x1)
         x2 = torch.nn.functional.max_pool2d(x2, 3, 2, 1)
         x2 = self.cv2(x2)
@@ -87,6 +101,7 @@ class RepConvN(nn.Module):
     """RepConv is a basic rep-style block, including training and deploy status
     This code is based on https://github.com/DingXiaoH/RepVGG/blob/main/repvgg.py
     """
+
     default_act = nn.SiLU()  # default activation
 
     def __init__(self, c1, c2, k=3, s=1, p=1, g=1, d=1, act=True, bn=False, deploy=False):
@@ -122,7 +137,7 @@ class RepConvN(nn.Module):
         kernel_size = avgp.kernel_size
         input_dim = channels // groups
         k = torch.zeros((channels, input_dim, kernel_size, kernel_size))
-        k[np.arange(channels), np.tile(np.arange(input_dim), groups), :, :] = 1.0 / kernel_size ** 2
+        k[np.arange(channels), np.tile(np.arange(input_dim), groups), :, :] = 1.0 / kernel_size**2
         return k
 
     def _pad_1x1_to_3x3_tensor(self, kernel1x1):
@@ -162,14 +177,16 @@ class RepConvN(nn.Module):
         if hasattr(self, 'conv'):
             return
         kernel, bias = self.get_equivalent_kernel_bias()
-        self.conv = nn.Conv2d(in_channels=self.conv1.conv.in_channels,
-                              out_channels=self.conv1.conv.out_channels,
-                              kernel_size=self.conv1.conv.kernel_size,
-                              stride=self.conv1.conv.stride,
-                              padding=self.conv1.conv.padding,
-                              dilation=self.conv1.conv.dilation,
-                              groups=self.conv1.conv.groups,
-                              bias=True).requires_grad_(False)
+        self.conv = nn.Conv2d(
+            in_channels=self.conv1.conv.in_channels,
+            out_channels=self.conv1.conv.out_channels,
+            kernel_size=self.conv1.conv.kernel_size,
+            stride=self.conv1.conv.stride,
+            padding=self.conv1.conv.padding,
+            dilation=self.conv1.conv.dilation,
+            groups=self.conv1.conv.groups,
+            bias=True,
+        ).requires_grad_(False)
         self.conv.weight.data = kernel
         self.conv.bias.data = bias
         for para in self.parameters():
@@ -234,7 +251,7 @@ class DFL(nn.Module):
     def __init__(self, c1=17):
         super().__init__()
         self.conv = nn.Conv2d(c1, 1, 1, bias=False).requires_grad_(False)
-        self.conv.weight.data[:] = nn.Parameter(torch.arange(c1, dtype=torch.float).view(1, c1, 1, 1)) # / 120.0
+        self.conv.weight.data[:] = nn.Parameter(torch.arange(c1, dtype=torch.float).view(1, c1, 1, 1))  # / 120.0
         self.c1 = c1
         # self.bn = nn.BatchNorm2d(4)
 
@@ -413,9 +430,8 @@ class SPP(nn.Module):
             warnings.simplefilter('ignore')  # suppress torch 1.9.0 max_pool2d() warning
             return self.cv2(torch.cat([x] + [m(x) for m in self.m], 1))
 
-        
-class ASPP(torch.nn.Module):
 
+class ASPP(torch.nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
         kernel_sizes = [1, 3, 3, 1]
@@ -430,14 +446,15 @@ class ASPP(torch.nn.Module):
                 stride=1,
                 dilation=dilations[aspp_idx],
                 padding=paddings[aspp_idx],
-                bias=True)
+                bias=True,
+            )
             self.aspp.append(conv)
         self.gap = torch.nn.AdaptiveAvgPool2d(1)
         self.aspp_num = len(kernel_sizes)
         for m in self.modules():
             if isinstance(m, torch.nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
+                m.weight.data.normal_(0, math.sqrt(2.0 / n))
                 m.bias.data.fill_(0)
 
     def forward(self, x):
@@ -493,8 +510,8 @@ class SPPF(nn.Module):
 
 import torch.nn.functional as F
 from torch.nn.modules.utils import _pair
-    
-    
+
+
 class ReOrg(nn.Module):
     # yolo
     def __init__(self):
@@ -527,9 +544,9 @@ class Expand(nn.Module):
     def forward(self, x):
         b, c, h, w = x.size()  # assert C / s ** 2 == 0, 'Indivisible gain'
         s = self.gain
-        x = x.view(b, s, s, c // s ** 2, h, w)  # x(1,2,2,16,80,80)
+        x = x.view(b, s, s, c // s**2, h, w)  # x(1,2,2,16,80,80)
         x = x.permute(0, 3, 4, 1, 5, 2).contiguous()  # x(1,16,80,2,80,2)
-        return x.view(b, c // s ** 2, h * s, w * s)  # x(1,16,160,160)
+        return x.view(b, c // s**2, h * s, w * s)  # x(1,16,160,160)
 
 
 class Concat(nn.Module):
@@ -548,18 +565,20 @@ class Shortcut(nn.Module):
         self.d = dimension
 
     def forward(self, x):
-        return x[0]+x[1]
-    
-    
+        return x[0] + x[1]
+
+
 class Silence(nn.Module):
     def __init__(self):
         super(Silence, self).__init__()
-    def forward(self, x):    
+
+    def forward(self, x):
         return x
 
 
-##### GELAN #####        
-        
+##### GELAN #####
+
+
 class SPPELAN(nn.Module):
     # spp-elan
     def __init__(self, c1, c2, c3):  # ch_in, ch_out, number, shortcut, groups, expansion
@@ -569,23 +588,23 @@ class SPPELAN(nn.Module):
         self.cv2 = SP(5)
         self.cv3 = SP(5)
         self.cv4 = SP(5)
-        self.cv5 = Conv(4*c3, c2, 1, 1)
+        self.cv5 = Conv(4 * c3, c2, 1, 1)
 
     def forward(self, x):
         y = [self.cv1(x)]
         y.extend(m(y[-1]) for m in [self.cv2, self.cv3, self.cv4])
         return self.cv5(torch.cat(y, 1))
-        
-        
+
+
 class RepNCSPELAN4(nn.Module):
     # csp-elan
     def __init__(self, c1, c2, c3, c4, c5=1):  # ch_in, ch_out, number, shortcut, groups, expansion
         super().__init__()
-        self.c = c3//2
+        self.c = c3 // 2
         self.cv1 = Conv(c1, c3, 1, 1)
-        self.cv2 = nn.Sequential(RepNCSP(c3//2, c4, c5), Conv(c4, c4, 3, 1))
+        self.cv2 = nn.Sequential(RepNCSP(c3 // 2, c4, c5), Conv(c4, c4, 3, 1))
         self.cv3 = nn.Sequential(RepNCSP(c4, c4, c5), Conv(c4, c4, 3, 1))
-        self.cv4 = Conv(c3+(2*c4), c2, 1, 1)
+        self.cv4 = Conv(c3 + (2 * c4), c2, 1, 1)
 
     def forward(self, x):
         y = list(self.cv1(x).chunk(2, 1))
@@ -597,17 +616,19 @@ class RepNCSPELAN4(nn.Module):
         y.extend(m(y[-1]) for m in [self.cv2, self.cv3])
         return self.cv4(torch.cat(y, 1))
 
+
 #################
 
 
 ##### YOLOR #####
+
 
 class ImplicitA(nn.Module):
     def __init__(self, channel):
         super(ImplicitA, self).__init__()
         self.channel = channel
         self.implicit = nn.Parameter(torch.zeros(1, channel, 1, 1))
-        nn.init.normal_(self.implicit, std=.02)        
+        nn.init.normal_(self.implicit, std=0.02)
 
     def forward(self, x):
         return self.implicit + x
@@ -618,15 +639,17 @@ class ImplicitM(nn.Module):
         super(ImplicitM, self).__init__()
         self.channel = channel
         self.implicit = nn.Parameter(torch.ones(1, channel, 1, 1))
-        nn.init.normal_(self.implicit, mean=1., std=.02)        
+        nn.init.normal_(self.implicit, mean=1.0, std=0.02)
 
     def forward(self, x):
         return self.implicit * x
+
 
 #################
 
 
 ##### CBNet #####
+
 
 class CBLinear(nn.Module):
     def __init__(self, c1, c2s, k=1, s=1, p=None, g=1):  # ch_in, ch_outs, kernel, stride, padding, groups
@@ -638,6 +661,7 @@ class CBLinear(nn.Module):
         outs = self.conv(x).split(self.c2s, dim=1)
         return outs
 
+
 class CBFuse(nn.Module):
     def __init__(self, idx):
         super(CBFuse, self).__init__()
@@ -648,6 +672,7 @@ class CBFuse(nn.Module):
         res = [F.interpolate(x[self.idx[i]], size=target_size, mode='nearest') for i, x in enumerate(xs[:-1])]
         out = torch.sum(torch.stack(res + xs[-1:]), dim=0)
         return out
+
 
 #################
 
@@ -692,9 +717,10 @@ class DetectMultiBackend(nn.Module):
             model = torch.jit.load(w, _extra_files=extra_files, map_location=device)
             model.half() if fp16 else model.float()
             if extra_files['config.txt']:  # load metadata dict
-                d = json.loads(extra_files['config.txt'],
-                               object_hook=lambda d: {int(k) if k.isdigit() else k: v
-                                                      for k, v in d.items()})
+                d = json.loads(
+                    extra_files['config.txt'],
+                    object_hook=lambda d: {int(k) if k.isdigit() else k: v for k, v in d.items()},
+                )
                 stride, names = int(d['stride']), d['names']
         elif dnn:  # ONNX OpenCV DNN
             LOGGER.info(f'Loading {w} for ONNX OpenCV DNN inference...')
@@ -704,6 +730,7 @@ class DetectMultiBackend(nn.Module):
             LOGGER.info(f'Loading {w} for ONNX Runtime inference...')
             check_requirements(('onnx', 'onnxruntime-gpu' if cuda else 'onnxruntime'))
             import onnxruntime
+
             providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
             session = onnxruntime.InferenceSession(w, providers=providers)
             output_names = [x.name for x in session.get_outputs()]
@@ -714,6 +741,7 @@ class DetectMultiBackend(nn.Module):
             LOGGER.info(f'Loading {w} for OpenVINO inference...')
             check_requirements('openvino')  # requires openvino-dev: https://pypi.org/project/openvino-dev/
             from openvino.runtime import Core, Layout, get_batch
+
             ie = Core()
             if not Path(w).is_file():  # if not *.xml
                 w = next(Path(w).glob('*.xml'))  # get *.xml file from *_openvino_model dir
@@ -728,6 +756,7 @@ class DetectMultiBackend(nn.Module):
         elif engine:  # TensorRT
             LOGGER.info(f'Loading {w} for TensorRT inference...')
             import tensorrt as trt  # https://developer.nvidia.com/nvidia-tensorrt-download
+
             check_version(trt.__version__, '7.0.0', hard=True)  # require tensorrt>=7.0.0
             if device.type == 'cpu':
                 device = torch.device('cuda:0')
@@ -759,10 +788,12 @@ class DetectMultiBackend(nn.Module):
         elif coreml:  # CoreML
             LOGGER.info(f'Loading {w} for CoreML inference...')
             import coremltools as ct
+
             model = ct.models.MLModel(w)
         elif saved_model:  # TF SavedModel
             LOGGER.info(f'Loading {w} for TensorFlow SavedModel inference...')
             import tensorflow as tf
+
             keras = False  # assume TF1 saved_model
             model = tf.keras.models.load_model(w) if keras else tf.saved_model.load(w)
         elif pb:  # GraphDef https://www.tensorflow.org/guide/migrate#a_graphpb_or_graphpbtxt
@@ -790,13 +821,16 @@ class DetectMultiBackend(nn.Module):
                 from tflite_runtime.interpreter import Interpreter, load_delegate
             except ImportError:
                 import tensorflow as tf
-                Interpreter, load_delegate = tf.lite.Interpreter, tf.lite.experimental.load_delegate,
+
+                Interpreter, load_delegate = (
+                    tf.lite.Interpreter,
+                    tf.lite.experimental.load_delegate,
+                )
             if edgetpu:  # TF Edge TPU https://coral.ai/software/#edgetpu-runtime
                 LOGGER.info(f'Loading {w} for TensorFlow Lite Edge TPU inference...')
-                delegate = {
-                    'Linux': 'libedgetpu.so.1',
-                    'Darwin': 'libedgetpu.1.dylib',
-                    'Windows': 'edgetpu.dll'}[platform.system()]
+                delegate = {'Linux': 'libedgetpu.so.1', 'Darwin': 'libedgetpu.1.dylib', 'Windows': 'edgetpu.dll'}[
+                    platform.system()
+                ]
                 interpreter = Interpreter(model_path=w, experimental_delegates=[load_delegate(delegate)])
             else:  # TFLite
                 LOGGER.info(f'Loading {w} for TensorFlow Lite inference...')
@@ -816,6 +850,7 @@ class DetectMultiBackend(nn.Module):
             LOGGER.info(f'Loading {w} for PaddlePaddle inference...')
             check_requirements('paddlepaddle-gpu' if cuda else 'paddlepaddle')
             import paddle.inference as pdi
+
             if not Path(w).is_file():  # if not *.pdmodel
                 w = next(Path(w).rglob('*.pdmodel'))  # get *.pdmodel file from *_paddle_model dir
             weights = Path(w).with_suffix('.pdiparams')
@@ -829,6 +864,7 @@ class DetectMultiBackend(nn.Module):
             LOGGER.info(f'Using {w} as Triton Inference Server...')
             check_requirements('tritonclient[all]')
             from utils.triton import TritonRemoteModel
+
             model = TritonRemoteModel(url=w)
             nhwc = model.runtime.startswith("tensorflow")
         else:
@@ -941,6 +977,7 @@ class DetectMultiBackend(nn.Module):
         # types = [pt, jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs, paddle]
         from export import export_formats
         from utils.downloads import is_url
+
         sf = list(export_formats().Suffix)  # export suffixes
         if not is_url(p, check=False):
             check_suffix(p, sf)  # checks
@@ -986,6 +1023,7 @@ class AutoShape(nn.Module):
         # Apply to(), cpu(), cuda(), half() to model tensors that are not parameters or registered buffers
         self = super()._apply(fn)
         from models.yolo import Detect, Segment
+
         if self.pt:
             m = self.model.model.model[-1] if self.dmb else self.model.model[-1]  # Detect()
             if isinstance(m, (Detect, Segment)):
@@ -1046,13 +1084,15 @@ class AutoShape(nn.Module):
 
             # Post-process
             with dt[2]:
-                y = non_max_suppression(y if self.dmb else y[0],
-                                        self.conf,
-                                        self.iou,
-                                        self.classes,
-                                        self.agnostic,
-                                        self.multi_label,
-                                        max_det=self.max_det)  # NMS
+                y = non_max_suppression(
+                    y if self.dmb else y[0],
+                    self.conf,
+                    self.iou,
+                    self.classes,
+                    self.agnostic,
+                    self.multi_label,
+                    max_det=self.max_det,
+                )  # NMS
                 for i in range(n):
                     scale_boxes(shape1, y[i][:, :4], shape0[i])
 
@@ -1075,7 +1115,7 @@ class Detections:
         self.xyxyn = [x / g for x, g in zip(self.xyxy, gn)]  # xyxy normalized
         self.xywhn = [x / g for x, g in zip(self.xywh, gn)]  # xywh normalized
         self.n = len(self.pred)  # number of images (batch size)
-        self.t = tuple(x.t / self.n * 1E3 for x in times)  # timestamps (ms)
+        self.t = tuple(x.t / self.n * 1e3 for x in times)  # timestamps (ms)
         self.s = tuple(shape)  # inference BCHW shape
 
     def _run(self, pprint=False, show=False, save=False, crop=False, render=False, labels=True, save_dir=Path('')):
@@ -1093,12 +1133,15 @@ class Detections:
                         label = f'{self.names[int(cls)]} {conf:.2f}'
                         if crop:
                             file = save_dir / 'crops' / self.names[int(cls)] / self.files[i] if save else None
-                            crops.append({
-                                'box': box,
-                                'conf': conf,
-                                'cls': cls,
-                                'label': label,
-                                'im': save_one_box(box, im, file=file, save=save)})
+                            crops.append(
+                                {
+                                    'box': box,
+                                    'conf': conf,
+                                    'cls': cls,
+                                    'label': label,
+                                    'im': save_one_box(box, im, file=file, save=save),
+                                }
+                            )
                         else:  # all others
                             annotator.box_label(box, label if labels else '', color=colors(cls))
                     im = annotator.im

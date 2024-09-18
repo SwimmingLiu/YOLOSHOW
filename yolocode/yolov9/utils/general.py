@@ -114,22 +114,27 @@ def set_logging(name=LOGGING_NAME, verbose=True):
     # sets up logging for the given name
     rank = int(os.getenv('RANK', -1))  # rank in world for Multi-GPU trainings
     level = logging.INFO if verbose and rank in {-1, 0} else logging.ERROR
-    logging.config.dictConfig({
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            name: {
-                "format": "%(message)s"}},
-        "handlers": {
-            name: {
-                "class": "logging.StreamHandler",
-                "formatter": name,
-                "level": level,}},
-        "loggers": {
-            name: {
-                "level": level,
-                "handlers": [name],
-                "propagate": False,}}})
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {name: {"format": "%(message)s"}},
+            "handlers": {
+                name: {
+                    "class": "logging.StreamHandler",
+                    "formatter": name,
+                    "level": level,
+                }
+            },
+            "loggers": {
+                name: {
+                    "level": level,
+                    "handlers": [name],
+                    "propagate": False,
+                }
+            },
+        }
+    )
 
 
 set_logging(LOGGING_NAME)  # run before defining LOGGER
@@ -264,7 +269,7 @@ def get_latest_run(search_dir='.'):
 
 def file_age(path=__file__):
     # Return days since last file update
-    dt = (datetime.now() - datetime.fromtimestamp(Path(path).stat().st_mtime))  # delta
+    dt = datetime.now() - datetime.fromtimestamp(Path(path).stat().st_mtime)  # delta
     return dt.days  # + dt.seconds / 86400  # fractional days
 
 
@@ -343,6 +348,7 @@ def check_git_info(path='.'):
     # YOLO git info check, return {remote, branch, commit}
     check_requirements('gitpython')
     import git
+
     try:
         repo = git.Repo(path)
         remote = repo.remotes.origin.url.replace('.git', '')  # i.e. 'https://github.com/WongKinYiu/yolov9'
@@ -401,8 +407,10 @@ def check_requirements(requirements=ROOT / 'requirements.txt', exclude=(), insta
             # assert check_online(), "AutoUpdate skipped (offline)"
             LOGGER.info(check_output(f'pip install {s} {cmds}', shell=True).decode())
             source = file if 'file' in locals() else requirements
-            s = f"{prefix} {n} package{'s' * (n > 1)} updated per {source}\n" \
+            s = (
+                f"{prefix} {n} package{'s' * (n > 1)} updated per {source}\n"
                 f"{prefix} ⚠️ {colorstr('bold', 'Restart runtime or rerun command for updates to take effect')}\n"
+            )
             LOGGER.info(s)
         except Exception as e:
             LOGGER.warning(f'{prefix} ❌ {e}')
@@ -469,7 +477,9 @@ def check_file(file, suffix=''):
             assert Path(file).exists() and Path(file).stat().st_size > 0, f'File download failed: {url}'  # check
         return file
     elif file.startswith('clearml://'):  # ClearML Dataset ID
-        assert 'clearml' in sys.modules, "ClearML is not installed, so cannot use ClearML dataset. Try running 'pip install clearml'."
+        assert (
+            'clearml' in sys.modules
+        ), "ClearML is not installed, so cannot use ClearML dataset. Try running 'pip install clearml'."
         return file
     else:  # search
         files = []
@@ -575,7 +585,7 @@ def check_amp(model):
     f = ROOT / 'data' / 'images' / 'bus.jpg'  # image to check
     im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if check_online() else np.ones((640, 640, 3))
     try:
-        #assert amp_allclose(deepcopy(model), im) or amp_allclose(DetectMultiBackend('yolo.pt', device), im)
+        # assert amp_allclose(deepcopy(model), im) or amp_allclose(DetectMultiBackend('yolo.pt', device), im)
         LOGGER.info(f'{prefix}checks passed ✅')
         return True
     except Exception:
@@ -626,7 +636,8 @@ def download(url, dir='.', unzip=True, delete=True, curl=False, threads=1, retry
                 if curl:
                     s = 'sS' if threads > 1 else ''  # silent
                     r = os.system(
-                        f'curl -# -{s}L "{url}" -o "{f}" --retry 9 -C -')  # curl download with retry, continue
+                        f'curl -# -{s}L "{url}" -o "{f}" --retry 9 -C -'
+                    )  # curl download with retry, continue
                     success = r == 0
                 else:
                     torch.hub.download_url_to_file(url, f, progress=threads == 1)  # torch download
@@ -680,8 +691,12 @@ def one_cycle(y1=0.0, y2=1.0, steps=100):
 
 def one_flat_cycle(y1=0.0, y2=1.0, steps=100):
     # lambda function for sinusoidal ramp from y1 to y2 https://arxiv.org/pdf/1812.01187.pdf
-    #return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
-    return lambda x: ((1 - math.cos((x - (steps // 2)) * math.pi / (steps // 2))) / 2) * (y2 - y1) + y1 if (x > (steps // 2)) else y1
+    # return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
+    return (
+        lambda x: ((1 - math.cos((x - (steps // 2)) * math.pi / (steps // 2))) / 2) * (y2 - y1) + y1
+        if (x > (steps // 2))
+        else y1
+    )
 
 
 def colorstr(*input):
@@ -706,7 +721,8 @@ def colorstr(*input):
         'bright_white': '\033[97m',
         'end': '\033[0m',  # misc
         'bold': '\033[1m',
-        'underline': '\033[4m'}
+        'underline': '\033[4m',
+    }
     return ''.join(colors[x] for x in args) + f'{string}' + colors['end']
 
 
@@ -743,9 +759,87 @@ def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
     # x1 = [list(a[i] == b).index(True) + 1 for i in range(80)]  # darknet to coco
     # x2 = [list(b[i] == a).index(True) if any(b[i] == a) else None for i in range(91)]  # coco to darknet
     return [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34,
-        35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-        64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        27,
+        28,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        67,
+        70,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+    ]
 
 
 def xyxy2xywh(x):
@@ -802,7 +896,10 @@ def segment2box(segment, width=640, height=640):
     # Convert 1 segment label to 1 box label, applying inside-image constraint, i.e. (xy1, xy2, ...) to (xyxy)
     x, y = segment.T  # segment xy
     inside = (x >= 0) & (y >= 0) & (x <= width) & (y <= height)
-    x, y, = x[inside], y[inside]
+    (
+        x,
+        y,
+    ) = x[inside], y[inside]
     return np.array([x.min(), y.min(), x.max(), y.max()]) if any(x) else np.zeros((1, 4))  # xyxy
 
 
@@ -883,15 +980,15 @@ def clip_segments(segments, shape):
 
 
 def non_max_suppression(
-        prediction,
-        conf_thres=0.25,
-        iou_thres=0.45,
-        classes=None,
-        agnostic=False,
-        multi_label=False,
-        labels=(),
-        max_det=300,
-        nm=0,  # number of masks
+    prediction,
+    conf_thres=0.25,
+    iou_thres=0.45,
+    classes=None,
+    agnostic=False,
+    multi_label=False,
+    labels=(),
+    max_det=300,
+    nm=0,  # number of masks
 ):
     """Non-Maximum Suppression (NMS) on inference results to reject overlapping detections
 
@@ -978,7 +1075,7 @@ def non_max_suppression(
         i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
         if i.shape[0] > max_det:  # limit detections
             i = i[:max_det]
-        if merge and (1 < n < 3E3):  # Merge NMS (boxes merged using weighted mean)
+        if merge and (1 < n < 3e3):  # Merge NMS (boxes merged using weighted mean)
             # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
             iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
             weights = iou * scores[None]  # box weights
@@ -1008,7 +1105,7 @@ def strip_optimizer(f='best.pt', s=''):  # from utils.general import *; strip_op
     for p in x['model'].parameters():
         p.requires_grad = False
     torch.save(x, s or f)
-    mb = os.path.getsize(s or f) / 1E6  # filesize
+    mb = os.path.getsize(s or f) / 1e6  # filesize
     LOGGER.info(f"Optimizer stripped from {f},{f' saved as {s},' if s else ''} {mb:.1f}MB")
 
 
@@ -1037,15 +1134,30 @@ def print_mutation(keys, results, hyp, save_dir, bucket, prefix=colorstr('evolve
         data = data.rename(columns=lambda x: x.strip())  # strip keys
         i = np.argmax(fitness(data.values[:, :4]))  #
         generations = len(data)
-        f.write('# YOLO Hyperparameter Evolution Results\n' + f'# Best generation: {i}\n' +
-                f'# Last generation: {generations - 1}\n' + '# ' + ', '.join(f'{x.strip():>20s}' for x in keys[:7]) +
-                '\n' + '# ' + ', '.join(f'{x:>20.5g}' for x in data.values[i, :7]) + '\n\n')
+        f.write(
+            '# YOLO Hyperparameter Evolution Results\n'
+            + f'# Best generation: {i}\n'
+            + f'# Last generation: {generations - 1}\n'
+            + '# '
+            + ', '.join(f'{x.strip():>20s}' for x in keys[:7])
+            + '\n'
+            + '# '
+            + ', '.join(f'{x:>20.5g}' for x in data.values[i, :7])
+            + '\n\n'
+        )
         yaml.safe_dump(data.loc[i][7:].to_dict(), f, sort_keys=False)
 
     # Print to screen
-    LOGGER.info(prefix + f'{generations} generations finished, current result:\n' + prefix +
-                ', '.join(f'{x.strip():>20s}' for x in keys) + '\n' + prefix + ', '.join(f'{x:20.5g}'
-                                                                                         for x in vals) + '\n\n')
+    LOGGER.info(
+        prefix
+        + f'{generations} generations finished, current result:\n'
+        + prefix
+        + ', '.join(f'{x.strip():>20s}' for x in keys)
+        + '\n'
+        + prefix
+        + ', '.join(f'{x:20.5g}' for x in vals)
+        + '\n\n'
+    )
 
     if bucket:
         os.system(f'gsutil cp {evolve_csv} {evolve_yaml} gs://{bucket}')  # upload
@@ -1072,7 +1184,7 @@ def apply_classifier(x, model, img, im0):
             pred_cls1 = d[:, 5].long()
             ims = []
             for a in d:
-                cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
+                cutout = im0[i][int(a[1]) : int(a[3]), int(a[0]) : int(a[2])]
                 im = cv2.resize(cutout, (224, 224))  # BGR
 
                 im = im[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416

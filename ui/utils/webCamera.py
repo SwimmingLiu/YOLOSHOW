@@ -37,6 +37,7 @@ class WebcamThread(QThread):
             self.changePixmap.emit(frame)
         cap.release()
 
+
 if __name__ == '__main__':
     cam = Camera()
     cam_num, devices = cam.get_cam_num()

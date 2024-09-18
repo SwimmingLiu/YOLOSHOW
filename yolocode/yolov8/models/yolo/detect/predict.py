@@ -42,6 +42,7 @@ class DetectionPredictor(BasePredictor):
             results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
         return results
 
+
 if __name__ == "__main__":
     predictor = DetectionPredictor()
     predictor.args.imgsz = 640

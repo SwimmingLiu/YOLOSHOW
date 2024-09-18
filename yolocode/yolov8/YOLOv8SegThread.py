@@ -1,4 +1,3 @@
-
 import os.path
 import time
 
@@ -33,7 +32,7 @@ class YOLOv8SegThread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv8SegThread, self).__init__()
@@ -49,7 +48,7 @@ class YOLOv8SegThread(QThread):
         self.speed_thres = 10  # delay, ms
         self.labels_dict = {}  # return a dictionary of results
         self.progress_value = 0  # progress bar
-        self.res_status = False # result status
+        self.res_status = False  # result status
         self.parent_workpath = None  # parent work path
 
         # YOLOv8 参数设置
@@ -65,23 +64,22 @@ class YOLOv8SegThread(QThread):
         self.stream_buffer = False
         self.crop_fraction = 1.0
         self.done_warmup = False
-        self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
+        self.vid_path, self.vid_writerm, self.vid_cap = None, None, None
         self.batch = None
         self.batchsize = 1
         self.project = 'runs/segment'
         self.name = 'exp'
         self.exist_ok = False
-        self.vid_stride = 1     # 视频帧率
-        self.max_det = 1000     # 最大检测数
-        self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
+        self.vid_stride = 1  # 视频帧率
+        self.max_det = 1000  # 最大检测数
+        self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
 
     def run(self):
-
         if not self.model:
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
@@ -99,7 +97,6 @@ class YOLOv8SegThread(QThread):
             self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
 
-
         if self.is_folder:
             for source in self.source:
                 self.setup_source(source)
@@ -108,12 +105,14 @@ class YOLOv8SegThread(QThread):
             self.setup_source(source)
             self.detect()
 
-    def detect(self,):
+    def detect(
+        self,
+    ):
         # warmup model
         if not self.done_warmup:
             self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
             self.done_warmup = True
-        self.seen, self.windows,self.dt, self.batch = 0, [],(ops.Profile(),ops.Profile(),ops.Profile()), None
+        self.seen, self.windows, self.dt, self.batch = 0, [], (ops.Profile(), ops.Profile(), ops.Profile()), None
         datasets = iter(self.dataset)
         self.vid_cap = self.dataset.cap if self.dataset.mode == "video" else None
         count = 0
@@ -236,8 +235,7 @@ class YOLOv8SegThread(QThread):
 
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
-                        self.res_path = self.save_preds(self.vid_cap, i ,save_path)
-
+                        self.res_path = self.save_preds(self.vid_cap, i, save_path)
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
@@ -259,7 +257,6 @@ class YOLOv8SegThread(QThread):
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
                     break
-
 
     def setup_model(self, model, verbose=True):
         """Initialize YOLO model with given parameters and set it to evaluation mode."""
@@ -297,10 +294,10 @@ class YOLOv8SegThread(QThread):
         )
         self.source_type = self.dataset.source_type
         if not getattr(self, "stream", True) and (
-                self.source_type.stream
-                or self.source_type.screenshot
-                or len(self.dataset) > 1000  # many images
-                or any(getattr(self.dataset, "video_flag", [False]))
+            self.source_type.stream
+            or self.source_type.screenshot
+            or len(self.dataset) > 1000  # many images
+            or any(getattr(self.dataset, "video_flag", [False]))
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
         self.vid_path = [None] * self.dataset.bs
@@ -401,10 +398,9 @@ class YOLOv8SegThread(QThread):
             self.vid_writer[idx].write(im0)
             return str(Path(save_path).with_suffix(suffix))
 
-
     def write_results(self, idx, results, batch):
         """Write inference results to a file or directory."""
-        p, im,_ = batch
+        p, im, _ = batch
         log_string = ""
         self.data_path = p
         result = results[idx]

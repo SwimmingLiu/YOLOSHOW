@@ -36,8 +36,16 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import DetectMultiBackend
 from yolocode.yolov9.utils.dataloaders import create_classification_dataloader
-from yolocode.yolov9.utils.general import (LOGGER, TQDM_BAR_FORMAT, Profile, check_img_size, check_requirements, colorstr,
-                           increment_path, print_args)
+from yolocode.yolov9.utils.general import (
+    LOGGER,
+    TQDM_BAR_FORMAT,
+    Profile,
+    check_img_size,
+    check_requirements,
+    colorstr,
+    increment_path,
+    print_args,
+)
 from yolocode.yolov9.utils.torch_utils import select_device, smart_inference_mode
 
 
@@ -89,12 +97,9 @@ def run(
         # Dataloader
         data = Path(data)
         test_dir = data / 'test' if (data / 'test').exists() else data / 'val'  # data/test or data/val
-        dataloader = create_classification_dataloader(path=test_dir,
-                                                      imgsz=imgsz,
-                                                      batch_size=batch_size,
-                                                      augment=False,
-                                                      rank=-1,
-                                                      workers=workers)
+        dataloader = create_classification_dataloader(
+            path=test_dir, imgsz=imgsz, batch_size=batch_size, augment=False, rank=-1, workers=workers
+        )
 
     model.eval()
     pred, targets, loss, dt = [], [], 0, (Profile(), Profile(), Profile())
@@ -133,7 +138,7 @@ def run(
             LOGGER.info(f"{c:>24}{aci.shape[0]:>12}{top1i:>12.3g}{top5i:>12.3g}")
 
         # Print results
-        t = tuple(x.t / len(dataloader.dataset.samples) * 1E3 for x in dt)  # speeds per image
+        t = tuple(x.t / len(dataloader.dataset.samples) * 1e3 for x in dt)  # speeds per image
         shape = (1, 3, imgsz, imgsz)
         LOGGER.info(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms post-process per image at shape {shape}' % t)
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}")

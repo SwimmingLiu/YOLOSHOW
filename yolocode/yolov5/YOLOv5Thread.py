@@ -38,7 +38,7 @@ class YOLOv5Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv5Thread, self).__init__()
@@ -75,9 +75,8 @@ class YOLOv5Thread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
-
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
 
     def run(self):
         source = str(self.source)
@@ -119,7 +118,8 @@ class YOLOv5Thread(QThread):
         elif self.is_folder:
             for source_i in self.source:
                 dataset_list.append(
-                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
+                )
         else:
             dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
         self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
@@ -216,15 +216,16 @@ class YOLOv5Thread(QThread):
                                 pred = self.model(image, augment=False, visualize=visualize).unsqueeze(0)
                             else:
                                 pred = torch.cat(
-                                    (pred, self.model(image, augment=False, visualize=visualize).unsqueeze(0)),
-                                    dim=0)
+                                    (pred, self.model(image, augment=False, visualize=visualize).unsqueeze(0)), dim=0
+                                )
                         pred = [pred, None]
                     else:
                         pred = self.model(im, augment=False, visualize=visualize)
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False,
-                                               max_det=self.max_det)
+                    pred = non_max_suppression(
+                        pred, self.conf_thres, self.iou_thres, self.classes, False, max_det=self.max_det
+                    )
 
                 # Process predictions
                 for i, det in enumerate(pred):
@@ -291,9 +292,11 @@ class YOLOv5Thread(QThread):
                                 else:  # stream
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
                                 save_path = str(
-                                    Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps,
-                                                                     (w, h))
+                                    Path(save_path).with_suffix(".mp4")
+                                )  # force *.mp4 suffix on results videos
+                                self.vid_writer[i] = cv2.VideoWriter(
+                                    save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h)
+                                )
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:

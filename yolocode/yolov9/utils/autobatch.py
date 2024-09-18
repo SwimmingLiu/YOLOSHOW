@@ -52,7 +52,7 @@ def autobatch(model, imgsz=640, fraction=0.8, batch_size=16):
 
     # Fit a solution
     y = [x[2] for x in results if x]  # memory [2]
-    p = np.polyfit(batch_sizes[:len(y)], y, deg=1)  # first degree polynomial fit
+    p = np.polyfit(batch_sizes[: len(y)], y, deg=1)  # first degree polynomial fit
     b = int((f * fraction - p[1]) / p[0])  # y intercept (optimal batch size)
     if None in results:  # some sizes failed
         i = results.index(None)  # first fail index

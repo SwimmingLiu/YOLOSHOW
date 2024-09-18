@@ -20,16 +20,18 @@ def mixup(im, labels, segments, seg_cls, semantic_masks, im2, labels2, segments2
     return im, labels, segments, seg_cls, semantic_masks
 
 
-def random_perspective(im,
-                       targets=(),
-                       segments=(),
-                       semantic_masks = (),
-                       degrees=10,
-                       translate=.1,
-                       scale=.1,
-                       shear=10,
-                       perspective=0.0,
-                       border=(0, 0)):
+def random_perspective(
+    im,
+    targets=(),
+    segments=(),
+    semantic_masks=(),
+    degrees=10,
+    translate=0.1,
+    scale=0.1,
+    shear=10,
+    perspective=0.0,
+    border=(0, 0),
+):
     # torchvision.transforms.RandomAffine(degrees=(-10, 10), translate=(.1, .1), scale=(.9, 1.1), shear=(-10, 10))
     # targets = [cls, xyxy]
 
@@ -61,8 +63,8 @@ def random_perspective(im,
 
     # Translation
     T = np.eye(3)
-    T[0, 2] = (random.uniform(0.5 - translate, 0.5 + translate) * width)  # x translation (pixels)
-    T[1, 2] = (random.uniform(0.5 - translate, 0.5 + translate) * height)  # y translation (pixels)
+    T[0, 2] = random.uniform(0.5 - translate, 0.5 + translate) * width  # x translation (pixels)
+    T[1, 2] = random.uniform(0.5 - translate, 0.5 + translate) * height  # y translation (pixels)
 
     # Combined rotation matrix
     M = T @ S @ R @ P @ C  # order of operations (right to left) is IMPORTANT
@@ -89,7 +91,7 @@ def random_perspective(im,
             xy = np.ones((len(segment), 3))
             xy[:, :2] = segment
             xy = xy @ M.T  # transform
-            xy = (xy[:, :2] / xy[:, 2:3] if perspective else xy[:, :2])  # perspective rescale or affine
+            xy = xy[:, :2] / xy[:, 2:3] if perspective else xy[:, :2]  # perspective rescale or affine
 
             # clip
             new[i] = segment2box(xy, width, height)
@@ -97,7 +99,7 @@ def random_perspective(im,
 
         semantic_masks = resample_segments(semantic_masks)
         for i, semantic_mask in enumerate(semantic_masks):
-            #if i < n:
+            # if i < n:
             #    xy = np.ones((len(segments[i]), 3))
             #    xy[:, :2] = segments[i]
             #    xy = xy @ M.T  # transform
@@ -109,7 +111,7 @@ def random_perspective(im,
             xy_s = np.ones((len(semantic_mask), 3))
             xy_s[:, :2] = semantic_mask
             xy_s = xy_s @ M.T  # transform
-            xy_s = (xy_s[:, :2] / xy_s[:, 2:3] if perspective else xy_s[:, :2])  # perspective rescale or affine
+            xy_s = xy_s[:, :2] / xy_s[:, 2:3] if perspective else xy_s[:, :2]  # perspective rescale or affine
 
             new_semantic_masks.append(xy_s)
 

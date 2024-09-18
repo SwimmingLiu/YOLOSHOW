@@ -26,8 +26,15 @@ def attempt_download(file, repo='WongKinYiu/yolov7'):
             assets = [x['name'] for x in response['assets']]  # release assets
             tag = response['tag_name']  # i.e. 'v1.0'
         except:  # fallback plan
-            assets = ['yolov7.pt', 'yolov7-tiny.pt', 'yolov7x.pt', 'yolov7-d6.pt', 'yolov7-e6.pt', 
-                      'yolov7-e6e.pt', 'yolov7-w6.pt']
+            assets = [
+                'yolov7.pt',
+                'yolov7-tiny.pt',
+                'yolov7x.pt',
+                'yolov7-d6.pt',
+                'yolov7-e6.pt',
+                'yolov7-e6e.pt',
+                'yolov7-w6.pt',
+            ]
             tag = subprocess.check_output('git tag', shell=True).decode().split()[-1]
 
         name = file.name
@@ -38,7 +45,7 @@ def attempt_download(file, repo='WongKinYiu/yolov7'):
                 url = f'https://github.com/{repo}/releases/download/{tag}/{name}'
                 print(f'Downloading {url} to {file}...')
                 torch.hub.download_url_to_file(url, file)
-                assert file.exists() and file.stat().st_size > 1E6  # check
+                assert file.exists() and file.stat().st_size > 1e6  # check
             except Exception as e:  # GCP
                 print(f'Download error: {e}')
                 assert redundant, 'No secondary mirror'
@@ -46,7 +53,7 @@ def attempt_download(file, repo='WongKinYiu/yolov7'):
                 print(f'Downloading {url} to {file}...')
                 os.system(f'curl -L {url} -o {file}')  # torch.hub.download_url_to_file(url, weights)
             finally:
-                if not file.exists() or file.stat().st_size < 1E6:  # check
+                if not file.exists() or file.stat().st_size < 1e6:  # check
                     file.unlink(missing_ok=True)  # remove partial downloads
                     print(f'ERROR: Download failure: {msg}')
                 print('')
@@ -94,6 +101,7 @@ def get_token(cookie="./cookie"):
             if "download" in line:
                 return line.split()[-1]
     return ""
+
 
 # def upload_blob(bucket_name, source_file_name, destination_blob_name):
 #     # Uploads a file to a bucket

@@ -714,11 +714,12 @@ class v8OBBLoss(v8DetectionLoss):
             pred_dist = pred_dist.view(b, a, 4, c // 4).softmax(3).matmul(self.proj.type(pred_dist.dtype))
         return torch.cat((dist2rbox(pred_dist, pred_angle, anchor_points), pred_angle), dim=-1)
 
+
 class v10DetectLoss:
     def __init__(self, model):
         self.one2many = v8DetectionLoss(model, tal_topk=10)
         self.one2one = v8DetectionLoss(model, tal_topk=1)
-    
+
     def __call__(self, preds, batch):
         one2many = preds["one2many"]
         loss_one2many = self.one2many(one2many, batch)

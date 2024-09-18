@@ -27,8 +27,9 @@ class VarifocalLoss(nn.Module):
     def forward(self, pred_score, gt_score, label, alpha=0.75, gamma=2.0):
         weight = alpha * pred_score.sigmoid().pow(gamma) * (1 - label) + gt_score * label
         with torch.cuda.amp.autocast(enabled=False):
-            loss = (F.binary_cross_entropy_with_logits(pred_score.float(), gt_score.float(),
-                                                       reduction="none") * weight).sum()
+            loss = (
+                F.binary_cross_entropy_with_logits(pred_score.float(), gt_score.float(), reduction="none") * weight
+            ).sum()
         return loss
 
 
@@ -74,20 +75,20 @@ class BboxLoss(nn.Module):
         pred_bboxes_pos = torch.masked_select(pred_bboxes, bbox_mask).view(-1, 4)
         target_bboxes_pos = torch.masked_select(target_bboxes, bbox_mask).view(-1, 4)
         bbox_weight = torch.masked_select(target_scores.sum(-1), fg_mask).unsqueeze(-1)
-        
+
         iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, CIoU=True)
         loss_iou = 1.0 - iou
-                
+
         #### wiou
-        #iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, WIoU=True, scale=True)
-        #if type(iou) is tuple:
+        # iou = bbox_iou(pred_bboxes_pos, target_bboxes_pos, xywh=False, WIoU=True, scale=True)
+        # if type(iou) is tuple:
         #    if len(iou) == 2:
         #        loss_iou = (iou[1].detach() * (1 - iou[0]))
         #        iou = iou[0]
         #    else:
         #        loss_iou = (iou[0] * iou[1])
         #        iou = iou[-1]
-        #else:
+        # else:
         #    loss_iou = (1.0 - iou)  # iou loss
 
         loss_iou *= bbox_weight
@@ -112,10 +113,18 @@ class BboxLoss(nn.Module):
         target_right = target_left + 1
         weight_left = target_right.to(torch.float) - target
         weight_right = 1 - weight_left
-        loss_left = F.cross_entropy(pred_dist.view(-1, self.reg_max + 1), target_left.view(-1), reduction="none").view(
-            target_left.shape) * weight_left
-        loss_right = F.cross_entropy(pred_dist.view(-1, self.reg_max + 1), target_right.view(-1),
-                                     reduction="none").view(target_left.shape) * weight_right
+        loss_left = (
+            F.cross_entropy(pred_dist.view(-1, self.reg_max + 1), target_left.view(-1), reduction="none").view(
+                target_left.shape
+            )
+            * weight_left
+        )
+        loss_right = (
+            F.cross_entropy(pred_dist.view(-1, self.reg_max + 1), target_right.view(-1), reduction="none").view(
+                target_left.shape
+            )
+            * weight_right
+        )
         return (loss_left + loss_right).mean(-1, keepdim=True)
 
 
@@ -149,10 +158,12 @@ class ComputeLoss:
         self.reg_max = m.reg_max
         self.device = device
 
-        self.assigner = TaskAlignedAssigner(topk=int(os.getenv('YOLOM', 10)),
-                                            num_classes=self.nc,
-                                            alpha=float(os.getenv('YOLOA', 0.5)),
-                                            beta=float(os.getenv('YOLOB', 6.0)))
+        self.assigner = TaskAlignedAssigner(
+            topk=int(os.getenv('YOLOM', 10)),
+            num_classes=self.nc,
+            alpha=float(os.getenv('YOLOA', 0.5)),
+            beta=float(os.getenv('YOLOB', 6.0)),
+        )
         self.bbox_loss = BboxLoss(m.reg_max - 1, use_dfl=use_dfl).to(device)
         self.proj = torch.arange(m.reg_max).float().to(device)  # / 120.0
         self.use_dfl = use_dfl
@@ -185,7 +196,8 @@ class ComputeLoss:
         feats, pred_masks, proto, psemasks = p if len(p) == 4 else p[1]
         batch_size, _, mask_h, mask_w = proto.shape
         pred_distri, pred_scores = torch.cat([xi.view(feats[0].shape[0], self.no, -1) for xi in feats], 2).split(
-            (self.reg_max * 4, self.nc), 1)
+            (self.reg_max * 4, self.nc), 1
+        )
         pred_scores = pred_scores.permute(0, 2, 1).contiguous()
         pred_distri = pred_distri.permute(0, 2, 1).contiguous()
         pred_masks = pred_masks.permute(0, 2, 1).contiguous()
@@ -204,7 +216,6 @@ class ComputeLoss:
         except RuntimeError as e:
             raise TypeError('ERROR.') from e
 
-
         # pboxes
         pred_bboxes = self.bbox_decode(anchor_points, pred_distri)  # xyxy, (b, h*w, 4)
 
@@ -214,7 +225,8 @@ class ComputeLoss:
             anchor_points * stride_tensor,
             gt_labels,
             gt_bboxes,
-            mask_gt)
+            mask_gt,
+        )
 
         target_scores_sum = target_scores.sum()
 
@@ -224,18 +236,20 @@ class ComputeLoss:
 
         # bbox loss
         if fg_mask.sum():
-            loss[0], loss[3], _ = self.bbox_loss(pred_distri, 
-                                                  pred_bboxes, 
-                                                  anchor_points, 
-                                                  target_bboxes / stride_tensor,
-                                                  target_scores, 
-                                                  target_scores_sum, 
-                                                  fg_mask)
-            
+            loss[0], loss[3], _ = self.bbox_loss(
+                pred_distri,
+                pred_bboxes,
+                anchor_points,
+                target_bboxes / stride_tensor,
+                target_scores,
+                target_scores_sum,
+                fg_mask,
+            )
+
             # masks loss
             if tuple(masks.shape[-2:]) != (mask_h, mask_w):  # downsample
                 masks = F.interpolate(masks[None], (mask_h, mask_w), mode='nearest')[0]
-                
+
             for i in range(batch_size):
                 if fg_mask[i].sum():
                     mask_idx = target_gt_idx[i][fg_mask[i]]
@@ -246,35 +260,36 @@ class ComputeLoss:
                     xyxyn = target_bboxes[i][fg_mask[i]] / imgsz[[1, 0, 1, 0]]
                     marea = xyxy2xywh(xyxyn)[:, 2:].prod(1)
                     mxyxy = xyxyn * torch.tensor([mask_w, mask_h, mask_w, mask_h], device=self.device)
-                    loss[1] += self.single_mask_loss(gt_mask, pred_masks[i][fg_mask[i]], proto[i], mxyxy,
-                                                     marea)  # seg loss
+                    loss[1] += self.single_mask_loss(
+                        gt_mask, pred_masks[i][fg_mask[i]], proto[i], mxyxy, marea
+                    )  # seg loss
         # Semantic Segmentation
         # focal loss
-        pt = torch.flatten(psemasks, start_dim = 2).permute(0, 2, 1)
-        gt = torch.flatten(semasks, start_dim = 2).permute(0, 2, 1)
+        pt = torch.flatten(psemasks, start_dim=2).permute(0, 2, 1)
+        gt = torch.flatten(semasks, start_dim=2).permute(0, 2, 1)
 
         bs, _, _ = gt.shape
-        #torch.clamp(torch.sigmoid(logits), min=eps, max= 1 - eps)
-        #total_loss = (sigmoid_focal_loss(pt.float(), gt.float(), alpha = .25, gamma = 2., reduction = 'mean')) / 2.
-        #total_loss = (sigmoid_focal_loss(pt.clamp(-16., 16.), gt, alpha = .25, gamma = 2., reduction = 'mean')) / 2.
-        total_loss = (sigmoid_focal_loss(pt, gt, alpha = .25, gamma = 2., reduction = 'mean')) / 2.
-        loss[4] += total_loss * 20.
+        # torch.clamp(torch.sigmoid(logits), min=eps, max= 1 - eps)
+        # total_loss = (sigmoid_focal_loss(pt.float(), gt.float(), alpha = .25, gamma = 2., reduction = 'mean')) / 2.
+        # total_loss = (sigmoid_focal_loss(pt.clamp(-16., 16.), gt, alpha = .25, gamma = 2., reduction = 'mean')) / 2.
+        total_loss = (sigmoid_focal_loss(pt, gt, alpha=0.25, gamma=2.0, reduction='mean')) / 2.0
+        loss[4] += total_loss * 20.0
 
         # dice loss
-        pt = torch.flatten(psemasks.softmax(dim = 1))
+        pt = torch.flatten(psemasks.softmax(dim=1))
         gt = torch.flatten(semasks)
 
         inter_mask = torch.sum(torch.mul(pt, gt))
         union_mask = torch.sum(torch.add(pt, gt))
-        dice_coef = (2. * inter_mask + 1.) / (union_mask + 1.)
-        loss[5] += (1. - dice_coef) / 2.
+        dice_coef = (2.0 * inter_mask + 1.0) / (union_mask + 1.0)
+        loss[5] += (1.0 - dice_coef) / 2.0
 
         loss[0] *= 7.5  # box gain
         loss[1] *= 2.5 / batch_size
         loss[2] *= 0.5  # cls gain
         loss[3] *= 1.5  # dfl gain
-        loss[4] *= 2.5 #/ batch_size
-        loss[5] *= 2.5 #/ batch_size
+        loss[4] *= 2.5  # / batch_size
+        loss[5] *= 2.5  # / batch_size
 
         return loss.sum() * batch_size, loss.detach()  # loss(box, cls, dfl)
 

@@ -49,7 +49,7 @@ except (ModuleNotFoundError, ImportError, AssertionError):
     comet_ml = None
 
 
-class Loggers():
+class Loggers:
     # YOLO Loggers class
     def __init__(self, save_dir=None, weights=None, opt=None, hyp=None, logger=None, include=LOGGERS):
         self.save_dir = save_dir
@@ -72,7 +72,8 @@ class Loggers():
             'val/dfl_loss',  # val loss
             'x/lr0',
             'x/lr1',
-            'x/lr2']  # params
+            'x/lr2',
+        ]  # params
         self.best_keys = ['best/epoch', 'best/precision', 'best/recall', 'best/mAP_0.5', 'best/mAP_0.5:0.95']
         for k in LOGGERS:
             setattr(self, k, None)  # init empty logger dictionary
@@ -256,9 +257,9 @@ class Loggers():
             if self.wandb:
                 self.wandb.log_model(last.parent, self.opt, epoch, fi, best_model=best_fitness == fi)
             if self.clearml:
-                self.clearml.task.update_output_model(model_path=str(last),
-                                                      model_name='Latest Model',
-                                                      auto_delete_file=False)
+                self.clearml.task.update_output_model(
+                    model_path=str(last), model_name='Latest Model', auto_delete_file=False
+                )
 
         if self.comet_logger:
             self.comet_logger.on_model_save(last, epoch, final_epoch, best_fitness, fi)
@@ -280,16 +281,18 @@ class Loggers():
             self.wandb.log({"Results": [wandb.Image(str(f), caption=f.name) for f in files]})
             # Calling wandb.log. TODO: Refactor this into WandbLogger.log_model
             if not self.opt.evolve:
-                wandb.log_artifact(str(best if best.exists() else last),
-                                   type='model',
-                                   name=f'run_{self.wandb.wandb_run.id}_model',
-                                   aliases=['latest', 'best', 'stripped'])
+                wandb.log_artifact(
+                    str(best if best.exists() else last),
+                    type='model',
+                    name=f'run_{self.wandb.wandb_run.id}_model',
+                    aliases=['latest', 'best', 'stripped'],
+                )
             self.wandb.finish_run()
 
         if self.clearml and not self.opt.evolve:
-            self.clearml.task.update_output_model(model_path=str(best if best.exists() else last),
-                                                  name='Best Model',
-                                                  auto_delete_file=False)
+            self.clearml.task.update_output_model(
+                model_path=str(best if best.exists() else last), name='Best Model', auto_delete_file=False
+            )
 
         if self.comet_logger:
             final_results = dict(zip(self.keys[3:10], results))
@@ -322,13 +325,14 @@ class GenericLogger:
         if 'tb' in self.include:
             prefix = colorstr('TensorBoard: ')
             self.console_logger.info(
-                f"{prefix}Start with 'tensorboard --logdir {self.save_dir.parent}', view at http://localhost:6006/")
+                f"{prefix}Start with 'tensorboard --logdir {self.save_dir.parent}', view at http://localhost:6006/"
+            )
             self.tb = SummaryWriter(str(self.save_dir))
 
         if wandb and 'wandb' in self.include:
-            self.wandb = wandb.init(project=web_project_name(str(opt.project)),
-                                    name=None if opt.name == "exp" else opt.name,
-                                    config=opt)
+            self.wandb = wandb.init(
+                project=web_project_name(str(opt.project)), name=None if opt.name == "exp" else opt.name, config=opt
+            )
         else:
             self.wandb = None
 

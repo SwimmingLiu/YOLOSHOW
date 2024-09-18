@@ -1,6 +1,7 @@
 import logging
 from colorlog import ColoredFormatter
 
+
 class LoggerUtils:
     def __init__(self):
         # 创建一个日志器
