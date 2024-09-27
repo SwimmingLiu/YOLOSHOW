@@ -32,7 +32,7 @@ class YOLOv8Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv8Thread, self).__init__()
@@ -74,8 +74,8 @@ class YOLOv8Thread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
 
@@ -88,7 +88,10 @@ class YOLOv8Thread(QThread):
 
         source = str(self.source)
         # 判断输入源类型
-        self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        if isinstance(IMG_FORMATS, str) or isinstance(IMG_FORMATS, tuple):
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        else:
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
         self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
         self.webcam = source.isnumeric() or source.endswith(".streams") or (self.is_url and not self.is_file)
         self.screenshot = source.lower().startswith("screen")
@@ -230,7 +233,6 @@ class YOLOv8Thread(QThread):
                     self.send_class_num.emit(class_nums)
                     self.send_target_num.emit(target_nums)
                     self.results_picture = self.labels_dict
-
 
                     if self.save_res:
                         save_path = str(self.save_path / p.name)  # im.jpg
@@ -390,7 +392,6 @@ class YOLOv8Thread(QThread):
             # Write video
             self.vid_writer[idx].write(im0)
             return str(Path(save_path).with_suffix(suffix))
-
 
     def write_results(self, idx, results, batch):
         """Write inference results to a file or directory."""

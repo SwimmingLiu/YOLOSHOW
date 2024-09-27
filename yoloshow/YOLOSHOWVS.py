@@ -468,7 +468,7 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
             elif yoloname == "yolov8-obb":
                 self.yolov8obb_thread1 = YOLOv8ObbThread()
                 self.initModel(self.yolov8obb_thread1, "yolov8-obb", "left")
-            self.run_button.setChecked(True)
+            self.ui.run_button.setChecked(True)
             self.ContinueAnotherModel(mode="right")
             self.runModel(True)
         else:
@@ -502,7 +502,7 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
             elif yoloname == "yolov8-obb":
                 self.yolov8obb_thread2 = YOLOv8ObbThread()
                 self.initModel(self.yolov8obb_thread2, "yolov8-obb", "right")
-            self.run_button.setChecked(True)
+            self.ui.run_button.setChecked(True)
             self.ContinueAnotherModel(mode="left")
             self.runModel(True)
 

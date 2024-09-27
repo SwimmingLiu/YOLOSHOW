@@ -1,12 +1,14 @@
-
 import os.path
 import time
 import numpy as np
 import torch
 from PySide6.QtCore import QThread, Signal
 from pathlib import Path
+
+from ultralytics.data.utils import IMG_FORMATS, VID_FORMATS
+
 from models.common import DetectMultiBackend_YOLOv5
-from yolocode.yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
+from yolocode.yolov5.utils.dataloaders import LoadImages, LoadScreenshots, LoadStreams
 from ultralytics.utils.plotting import Annotator, colors
 from yolocode.yolov5.utils.general import (
     LOGGER,
@@ -27,6 +29,7 @@ from yolocode.yolov5.utils.general import (
 from yolocode.yolov5.utils.segment.general import process_mask, process_mask_native
 from yolocode.yolov5.utils.torch_utils import select_device, smart_inference_mode
 
+
 class YOLOv5SegThread(QThread):
     # 输入 输出 消息
     send_input = Signal(np.ndarray)
@@ -39,7 +42,7 @@ class YOLOv5SegThread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv5SegThread, self).__init__()
@@ -55,7 +58,7 @@ class YOLOv5SegThread(QThread):
         self.speed_thres = 10  # delay, ms
         self.labels_dict = {}  # return a dictionary of results
         self.progress_value = 0  # progress bar
-        self.res_status = False # result status
+        self.res_status = False  # result status
         self.parent_workpath = None  # parent work path
 
         # YOLOv5 参数设置
@@ -64,7 +67,7 @@ class YOLOv5SegThread(QThread):
         self.imgsz = (640, 640)
         self.device = ''
         self.dataset = None
-        self.vid_path, self.vid_writerm,self.vid_cap = None, None, None
+        self.vid_path, self.vid_writerm, self.vid_cap = None, None, None
         self.annotator = None
         self.data_path = None
         self.source_type = None
@@ -72,19 +75,22 @@ class YOLOv5SegThread(QThread):
         self.project = 'runs/segment'
         self.name = 'exp'
         self.exist_ok = False
-        self.vid_stride = 1     # 视频帧率
-        self.max_det = 1000     # 最大检测数
-        self.classes = None     # 指定检测类别  --class 0, or --class 0 2 3
+        self.vid_stride = 1  # 视频帧率
+        self.max_det = 1000  # 最大检测数
+        self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
         self.retina_masks = False
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
 
     def run(self):
         source = str(self.source)
         # save_img = not nosave and not source.endswith(".txt")  # save inference images
         # 判断输入源类型
-        self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        if isinstance(IMG_FORMATS, str) or isinstance(IMG_FORMATS, tuple):
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        else:
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
         self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
         self.webcam = source.isnumeric() or source.endswith(".streams") or (self.is_url and not self.is_file)
         self.screenshot = source.lower().startswith("screen")
@@ -97,7 +103,6 @@ class YOLOv5SegThread(QThread):
             # 保存文件的路径
             self.save_path = increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok)  # increment run
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
-
 
         # 加载模型
         device = select_device(self.device)
@@ -119,10 +124,11 @@ class YOLOv5SegThread(QThread):
             dataset = LoadScreenshots(source, img_size=self.imgsz, stride=self.stride, auto=self.pt)
         elif self.is_folder:
             for source_i in self.source:
-                dataset_list.append(LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                dataset_list.append(
+                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
         else:
             dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
-        self.vid_path, self.vid_writer = [None] * bs, [None] * bs     # 视频路径 视频写入器
+        self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
         model.warmup(imgsz=(1 if self.pt or model.triton else bs, 3, *self.imgsz))  # warmup
         self.model = model
         if self.is_folder:
@@ -131,7 +137,7 @@ class YOLOv5SegThread(QThread):
         else:
             self.detect(dataset, device, bs)
 
-    def detect(self,dataset,device,bs):
+    def detect(self, dataset, device, bs):
         seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
         # seen 表示图片计数
         datasets = iter(dataset)
@@ -165,7 +171,7 @@ class YOLOv5SegThread(QThread):
                 data = self.data
                 self.send_msg.emit(f'Loading Model: {os.path.basename(weights)}')
                 self.model = DetectMultiBackend_YOLOv5(weights, device=device, dnn=False, data=data, fp16=False)
-                stride, names, pt =  self.model.stride,  self.model.names,  self.model.pt
+                stride, names, pt = self.model.stride, self.model.names, self.model.pt
                 imgsz = check_img_size(self.imgsz, s=stride)  # check image size
                 self.model.warmup(imgsz=(1 if pt or self.model.triton else bs, 3, *imgsz))  # warmup
                 seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
@@ -210,7 +216,8 @@ class YOLOv5SegThread(QThread):
 
                 # NMS
                 with dt[2]:
-                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False, max_det=self.max_det,nm=32)
+                    pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, self.classes, False,
+                                               max_det=self.max_det, nm=32)
 
                 # Process predictions
                 for i, det in enumerate(pred):
@@ -269,7 +276,6 @@ class YOLOv5SegThread(QThread):
                             label = f"{self.names[c]} {conf:.2f}"
                             annotator.box_label(xyxy, label, color=colors(c, True))
 
-
                     # 发送结果
                     im0 = annotator.result()
                     self.send_output.emit(im0)  # 输出图片
@@ -291,8 +297,10 @@ class YOLOv5SegThread(QThread):
                                     h = int(self.vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                                 else:  # stream
                                     fps, w, h = 30, im0.shape[1], im0.shape[0]
-                                save_path = str(Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
-                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
+                                save_path = str(
+                                    Path(save_path).with_suffix(".mp4"))  # force *.mp4 suffix on results videos
+                                self.vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps,
+                                                                     (w, h))
                             self.vid_writer[i].write(im0)
 
                     if self.speed_thres != 0:
@@ -315,4 +323,3 @@ class YOLOv5SegThread(QThread):
                     if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                         self.vid_writer[-1].release()  # release final video writer
                     break
-

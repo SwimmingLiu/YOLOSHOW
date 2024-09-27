@@ -90,7 +90,10 @@ class YOLOv8PoseThread(QThread):
 
         source = str(self.source)
         # 判断输入源类型
-        self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        if isinstance(IMG_FORMATS, str) or isinstance(IMG_FORMATS, tuple):
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
+        else:
+            self.is_file = Path(source).suffix[1:] in (IMG_FORMATS | VID_FORMATS)
         self.is_url = source.lower().startswith(("rtsp://", "rtmp://", "http://", "https://"))
         self.webcam = source.isnumeric() or source.endswith(".streams") or (self.is_url and not self.is_file)
         self.screenshot = source.lower().startswith("screen")
