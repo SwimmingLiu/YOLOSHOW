@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
+    <width>1550</width>
     <height>839</height>
    </rect>
   </property>
@@ -404,9 +404,9 @@ Spacer{
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">image: url(:/leftbox/images/swimmingliu_icon.png);
-border:2px solid rgba(0,0,0,5%);
-border-radius: 10%;
+                   <string notr="true">image: url(:/leftbox/images/yoloshow.png);
+border:2px solid rgba(0,0,0,15%);
+border-radius: 15%;
 </string>
                   </property>
                   <property name="frameShape">

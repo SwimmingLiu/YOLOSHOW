@@ -118,29 +118,30 @@ class YOLOv5SegThread(QThread):
         vid_stride = self.vid_stride
         dataset_list = []
         if self.webcam:
-            dataset = LoadStreams(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
-            bs = len(dataset)
+            self.dataset = LoadStreams(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
+            bs = len(self.dataset)
         elif self.screenshot:
-            dataset = LoadScreenshots(source, img_size=self.imgsz, stride=self.stride, auto=self.pt)
+            self.dataset = LoadScreenshots(source, img_size=self.imgsz, stride=self.stride, auto=self.pt)
         elif self.is_folder:
             for source_i in self.source:
-                dataset_list.append(
-                    LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
+                dataset_list.append(LoadImages(source_i, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride))
         else:
-            dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
+            self.dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride, auto=self.pt, vid_stride=vid_stride)
         self.vid_path, self.vid_writer = [None] * bs, [None] * bs  # 视频路径 视频写入器
         model.warmup(imgsz=(1 if self.pt or model.triton else bs, 3, *self.imgsz))  # warmup
         self.model = model
         if self.is_folder:
-            for dataset in dataset_list:
-                self.detect(dataset, device, bs)
+            for index, dataset in enumerate(dataset_list):
+                is_folder_last = True if index + 1 == len(dataset_list) else False
+                self.dataset = dataset
+                self.detect(device, bs, is_folder_last=is_folder_last)
         else:
-            self.detect(dataset, device, bs)
+            self.detect(device, bs)
 
-    def detect(self, dataset, device, bs):
+    def detect(self, device, bs, is_folder_last=False):
         seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
         # seen 表示图片计数
-        datasets = iter(dataset)
+        datasets = iter(self.dataset)
         count = 0  # run location frame
         start_time = time.time()  # used to calculate the frame rate
         while True:
@@ -155,12 +156,12 @@ class YOLOv5SegThread(QThread):
                 self.results_table = list()
                 # --- 发送图片和表格结果 --- #
                 # 释放资源
-                if hasattr(dataset, 'threads'):
-                    for thread in dataset.threads:
+                if hasattr(self.dataset, 'threads'):
+                    for thread in self.dataset.threads:
                         if thread.is_alive():
                             thread.join(timeout=1)  # Add timeout
-                if hasattr(dataset, 'cap') and dataset.cap is not None:
-                    dataset.cap.release()
+                if hasattr(self.dataset, 'cap') and self.dataset.cap is not None:
+                    self.dataset.cap.release()
                 cv2.destroyAllWindows()
                 if isinstance(self.vid_writer[-1], cv2.VideoWriter):
                     self.vid_writer[-1].release()
@@ -224,9 +225,9 @@ class YOLOv5SegThread(QThread):
                     seen += 1
                     # per image
                     if self.webcam:  # batch_size >= 1
-                        p, im0, frame = path[i], im0s[i].copy(), dataset.count
+                        p, im0, frame = path[i], im0s[i].copy(), self.dataset.count
                     else:
-                        p, im0, frame = path, im0s.copy(), getattr(dataset, "frame", 0)
+                        p, im0, frame = path, im0s.copy(), getattr(self.dataset, "frame", 0)
 
                     p = Path(p)  # to Path
                     if self.save_res:
@@ -284,7 +285,7 @@ class YOLOv5SegThread(QThread):
                     self.results_picture = self.labels_dict
 
                     if self.save_res:
-                        if dataset.mode == "image":
+                        if self.dataset.mode == "image":
                             cv2.imwrite(save_path, im0)
                         else:  # 'video' or 'stream'
                             if self.vid_path[i] != save_path:  # new video
@@ -305,6 +306,9 @@ class YOLOv5SegThread(QThread):
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
+
+                if self.is_folder and not is_folder_last:
+                    break
 
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)

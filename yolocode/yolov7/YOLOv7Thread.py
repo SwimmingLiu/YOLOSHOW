@@ -11,11 +11,13 @@ from PySide6.QtCore import QThread
 from numpy import random
 from yolocode.yolov7.models.experimental import attempt_load
 from yolocode.yolov7.utils.datasets import LoadStreams, LoadImages
-from yolocode.yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
+from yolocode.yolov7.utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, \
+    apply_classifier, \
     scale_coords, strip_optimizer, set_logging, increment_path
 from yolocode.yolov7.utils.plots import plot_one_box
 from yolocode.yolov7.utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 from yolocode.yolov5.utils.dataloaders import IMG_FORMATS, VID_FORMATS
+
 
 class YOLOv7Thread(QThread):
     # 输入 输出 消息
@@ -28,7 +30,7 @@ class YOLOv7Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv7Thread, self).__init__()
@@ -64,8 +66,8 @@ class YOLOv7Thread(QThread):
         self.max_det = 1000  # 最大检测数
         self.classes = None  # 指定检测类别  --class 0, or --class 0 2 3
         self.line_thickness = 3
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
 
     @torch.no_grad()
     def run(self):
@@ -82,7 +84,8 @@ class YOLOv7Thread(QThread):
         self.is_folder = isinstance(self.source, list)
 
         if self.save_res:
-            self.save_dir = Path(increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok))  # increment run
+            self.save_dir = Path(
+                increment_path(Path(self.project) / self.name, exist_ok=self.exist_ok))  # increment run
             self.save_dir.mkdir(parents=True, exist_ok=True)  # make dir
 
         # 显卡选择
@@ -107,19 +110,18 @@ class YOLOv7Thread(QThread):
         else:
             dataset = LoadImages(source, img_size=imgsz, stride=stride)
 
-
         # Run inference
         if device.type != 'cpu':
             model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
 
         if self.is_folder:
-            for dataset in dataset_list:
-                self.detect(dataset, device, imgsz,model)
+            for index, dataset in enumerate(dataset_list):
+                is_folder_last = True if index + 1 == len(dataset_list) else False
+                self.detect(dataset, device, imgsz, model, is_folder_last=is_folder_last)
         else:
-            self.detect(dataset, device, imgsz,model)
+            self.detect(dataset, device, imgsz, model)
 
-
-    def detect(self,dataset, device, imgsz, model):
+    def detect(self, dataset, device, imgsz, model, is_folder_last=False):
 
         datasets = iter(dataset)
         # 参数设置
@@ -260,8 +262,8 @@ class YOLOv7Thread(QThread):
                             # Add bbox to image
                             c = int(cls)  # integer class
                             label = f'{names[int(cls)]} {conf:.2f}'
-                            plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=self.line_thickness)
-
+                            plot_one_box(xyxy, im0, label=label, color=colors[int(cls)],
+                                         line_thickness=self.line_thickness)
 
                     self.send_output.emit(im0)  # 输出图片
                     self.send_class_num.emit(class_nums)
@@ -292,6 +294,10 @@ class YOLOv7Thread(QThread):
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
+
+                if self.is_folder and not is_folder_last:
+                    break
+
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)
                     self.send_msg.emit('Finish Detection')
@@ -309,4 +315,3 @@ class YOLOv7Thread(QThread):
                     if isinstance(self.vid_writer, cv2.VideoWriter):
                         self.vid_writer.release()  # release final video writer
                     break
-

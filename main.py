@@ -15,7 +15,7 @@ from yoloshow.ChangeWindow import yoloshow2vs, vs2yoloshow
 
 if __name__ == '__main__':
     app = QApplication([])  # 创建应用程序实例
-    app.setWindowIcon(QIcon('images/swimmingliu.ico'))  # 设置应用程序图标
+    app.setWindowIcon(QIcon('images/yoloshow.ico'))  # 设置应用程序图标
 
     # 为整个应用程序设置样式表，去除所有QFrame的边框
     app.setStyleSheet("QFrame { border: none; }")

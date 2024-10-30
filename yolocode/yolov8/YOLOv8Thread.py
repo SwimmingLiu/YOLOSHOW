@@ -102,14 +102,15 @@ class YOLOv8Thread(QThread):
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
 
         if self.is_folder:
-            for source in self.source:
+            for index, source in enumerate(self.source):
+                is_folder_last = True if index + 1 == len(self.source) else False
                 self.setup_source(source)
-                self.detect()
+                self.detect(is_folder_last=is_folder_last)
         else:
             self.setup_source(source)
             self.detect()
 
-    def detect(self, ):
+    def detect(self, is_folder_last=False):
         # warmup model
         if not self.done_warmup:
             self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
@@ -240,6 +241,9 @@ class YOLOv8Thread(QThread):
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
+
+                if self.is_folder and not is_folder_last:
+                    break
 
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)

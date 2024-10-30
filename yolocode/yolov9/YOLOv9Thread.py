@@ -119,12 +119,13 @@ class YOLOv9Thread(QThread):
         model.warmup(imgsz=(1 if self.pt or model.triton else bs, 3, *self.imgsz))  # warmup
         self.model = model
         if self.is_folder:
-            for dataset in dataset_list:
-                self.detect(dataset, device, bs)
+            for index, dataset in enumerate(dataset_list):
+                is_folder_last = True if index + 1 == len(dataset_list) else False
+                self.detect(dataset, device, bs, is_folder_last=is_folder_last)
         else:
             self.detect(dataset, device, bs)
 
-    def detect(self, dataset, device, bs):
+    def detect(self, dataset, device, bs, is_folder_last=False):
         seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
         # seen 表示图片计数
         datasets = iter(dataset)
@@ -280,6 +281,9 @@ class YOLOv9Thread(QThread):
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
+
+                if self.is_folder and not is_folder_last:
+                    break
 
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)

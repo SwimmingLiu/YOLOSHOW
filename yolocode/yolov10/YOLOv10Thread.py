@@ -32,8 +32,7 @@ class YOLOv10Thread(QThread):
     send_class_num = Signal(int)  # Number of categories detected
     send_target_num = Signal(int)  # Targets detected
     send_result_picture = Signal(dict)  # Send the result picture
-    send_result_table = Signal(list)    # Send the result table
-
+    send_result_table = Signal(list)  # Send the result table
 
     def __init__(self):
         super(YOLOv10Thread, self).__init__()
@@ -157,8 +156,8 @@ class YOLOv10Thread(QThread):
             78: "hair drier",
             79: "toothbrush"
         }
-        self.results_picture = dict()     # 结果图片
-        self.results_table = list()         # 结果表格
+        self.results_picture = dict()  # 结果图片
+        self.results_table = list()  # 结果表格
         self.callbacks = defaultdict(list, callbacks.default_callbacks)  # add callbacks
         callbacks.add_integration_callbacks(self)
 
@@ -168,7 +167,8 @@ class YOLOv10Thread(QThread):
             self.send_msg.emit("Loading model: {}".format(os.path.basename(self.new_model_name)))
             self.setup_model(self.new_model_name)
             self.used_model_name = self.new_model_name
-            self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value in self.model.names.items() if isinstance(value, int)}
+            self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value in
+                                self.model.names.items() if isinstance(value, int)}
 
         source = str(self.source)
         # 判断输入源类型
@@ -183,14 +183,15 @@ class YOLOv10Thread(QThread):
             self.save_path.mkdir(parents=True, exist_ok=True)  # make dir
 
         if self.is_folder:
-            for source in self.source:
+            for index, source in enumerate(self.source):
+                is_folder_last = True if index + 1 == len(self.source) else False
                 self.setup_source(source)
-                self.detect()
+                self.detect(is_folder_last=is_folder_last)
         else:
             self.setup_source(source)
             self.detect()
 
-    def detect(self, ):
+    def detect(self, is_folder_last=False):
         # warmup model
         if not self.done_warmup:
             self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
@@ -232,7 +233,8 @@ class YOLOv10Thread(QThread):
                 self.send_msg.emit('Loading Model: {}'.format(os.path.basename(self.new_model_name)))
                 self.setup_model(self.new_model_name)
                 self.current_model_name = self.new_model_name
-                self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value in self.model.names.items()}
+                self.model.names = {key: self.names_map[int(value)] if isinstance(value, int) else value for key, value
+                                    in self.model.names.items()}
             if self.is_continue:
                 if self.is_file:
                     self.send_msg.emit("Detecting File: {}".format(os.path.basename(self.source)))
@@ -322,6 +324,9 @@ class YOLOv10Thread(QThread):
 
                     if self.speed_thres != 0:
                         time.sleep(self.speed_thres / 1000)  # delay , ms
+
+                if self.is_folder and not is_folder_last:
+                    break
 
                 if percent == self.progress_value and not self.webcam:
                     self.send_progress.emit(0)
@@ -484,7 +489,6 @@ class YOLOv10Thread(QThread):
             # Write video
             self.vid_writer[idx].write(im0)
             return str(Path(save_path).with_suffix(suffix))
-
 
     def write_results(self, idx, results, batch):
         """Write inference results to a file or directory."""

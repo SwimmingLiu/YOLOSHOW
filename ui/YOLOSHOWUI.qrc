@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="leftbox">
+    <file>../images/yoloshow.png</file>
     <file>../images/newsize/statistics.png</file>
     <file>../images/newsize/table.png</file>
     <file>../images/newsize/single.png</file>
@@ -9,8 +10,6 @@
     <file>../images/newsize/close.png</file>
     <file>../images/newsize/max.png</file>
     <file>../images/newsize/min.png</file>
-    <file>../images/swimmingliu_icon.png</file>
-    <file>../images/SwimmingLiu.png</file>
     <file>../images/newsize/folder.png</file>
     <file>../images/newsize/gallery.png</file>
     <file>../images/newsize/menu.png</file>
