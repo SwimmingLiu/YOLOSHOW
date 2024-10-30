@@ -8,7 +8,7 @@
   English &nbsp; | &nbsp; <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README_cn.md">简体中文</a>
  </p>
 
-![YOLOSHOW-Screen](assest\YOLOSHOW-screen.png)
+![YOLOSHOW-Screen](assest/YOLOSHOW-screen.png)
 
 ## Demo Video
 

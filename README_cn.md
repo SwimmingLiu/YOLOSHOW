@@ -7,7 +7,7 @@
 <p align="center"> 
   <a href="https://github.com/SwimmingLiu/YOLOSHOW/blob/master/README.md"> English</a> &nbsp; | &nbsp; 简体中文</a>
  </p>
-![YOLOSHOW-Screen](assest\YOLOSHOW-screen.png)
+![YOLOSHOW-Screen](assest/YOLOSHOW-screen.png)
 
 ## 演示视频
 
