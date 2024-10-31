@@ -2614,10 +2614,12 @@ if "yolov7" in yolo_name:
 ### --- YOLOv7 Code --- ###
 
 ### --- YOLOv8 Code --- ###
-if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
+if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name or "yolov11" in yolo_name:
     from ultralytics.utils import ARM64, IS_JETSON, IS_RASPBERRYPI, LINUX, LOGGER, ROOT, yaml_load
     from ultralytics.utils.checks import check_requirements, check_suffix, check_version, check_yaml
     from ultralytics.utils.downloads import attempt_download_asset, is_url
+
+
     def check_class_names(names):
         """
         Check class names.
@@ -2639,12 +2641,18 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 names_map = yaml_load(ROOT / "cfg/datasets/ImageNet.yaml")["map"]  # human-readable names
                 names = {k: names_map[v] for k, v in names.items()}
         return names
+
+
     def default_class_names(data=None):
         """Applies default class names to an input YAML file or returns numerical class names."""
         if data:
-            with contextlib.suppress(Exception):
+            try:
                 return yaml_load(check_yaml(data))["names"]
+            except Exception:
+                pass
         return {i: f"class{i}" for i in range(999)}  # return default if above errors
+
+
     class AutoBackend(nn.Module):
         """
         Handles dynamic backend selection for running inference using Ultralytics YOLO models.
@@ -2653,21 +2661,22 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
         range of formats, each with specific naming conventions as outlined below:
 
             Supported Formats and Naming Conventions:
-                | Format                | File Suffix      |
-                |-----------------------|------------------|
-                | PyTorch               | *.pt             |
-                | TorchScript           | *.torchscript    |
-                | ONNX Runtime          | *.onnx           |
-                | ONNX OpenCV DNN       | *.onnx (dnn=True)|
-                | OpenVINO              | *openvino_model/ |
-                | CoreML                | *.mlpackage      |
-                | TensorRT              | *.engine         |
-                | TensorFlow SavedModel | *_saved_model    |
-                | TensorFlow GraphDef   | *.pb             |
-                | TensorFlow Lite       | *.tflite         |
-                | TensorFlow Edge TPU   | *_edgetpu.tflite |
-                | PaddlePaddle          | *_paddle_model   |
-                | NCNN                  | *_ncnn_model     |
+                | Format                | File Suffix       |
+                |-----------------------|-------------------|
+                | PyTorch               | *.pt              |
+                | TorchScript           | *.torchscript     |
+                | ONNX Runtime          | *.onnx            |
+                | ONNX OpenCV DNN       | *.onnx (dnn=True) |
+                | OpenVINO              | *openvino_model/  |
+                | CoreML                | *.mlpackage       |
+                | TensorRT              | *.engine          |
+                | TensorFlow SavedModel | *_saved_model/    |
+                | TensorFlow GraphDef   | *.pb              |
+                | TensorFlow Lite       | *.tflite          |
+                | TensorFlow Edge TPU   | *_edgetpu.tflite  |
+                | PaddlePaddle          | *_paddle_model/   |
+                | MNN                   | *.mnn             |
+                | NCNN                  | *_ncnn_model/     |
 
         This class offers dynamic backend switching capabilities based on the input model format, making it easier to deploy
         models across various platforms.
@@ -2676,7 +2685,7 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
         @torch.no_grad()
         def __init__(
                 self,
-                weights="yolov8n.pt",
+                weights="yolo11n.pt",
                 device=torch.device("cpu"),
                 dnn=False,
                 data=None,
@@ -2714,13 +2723,14 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 edgetpu,
                 tfjs,
                 paddle,
+                mnn,
                 ncnn,
                 triton,
             ) = self._model_type(w)
             fp16 &= pt or jit or onnx or xml or engine or nn_module or triton  # FP16
             nhwc = coreml or saved_model or pb or tflite or edgetpu  # BHWC formats (vs torch BCWH)
             stride = 32  # default stride
-            model, metadata = None, None
+            model, metadata, task = None, None, None
 
             # Set device
             cuda = torch.cuda.is_available() and device.type != "cpu"  # use CUDA
@@ -2783,10 +2793,32 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                     check_requirements("numpy==1.23.5")
                 import onnxruntime
 
-                providers = ["CUDAExecutionProvider", "CPUExecutionProvider"] if cuda else ["CPUExecutionProvider"]
+                providers = onnxruntime.get_available_providers()
+                if not cuda and "CUDAExecutionProvider" in providers:
+                    providers.remove("CUDAExecutionProvider")
+                elif cuda and "CUDAExecutionProvider" not in providers:
+                    LOGGER.warning("WARNING ⚠️ Failed to start ONNX Runtime session with CUDA. Falling back to CPU...")
+                    device = torch.device("cpu")
+                    cuda = False
+                LOGGER.info(f"Preferring ONNX Runtime {providers[0]}")
                 session = onnxruntime.InferenceSession(w, providers=providers)
                 output_names = [x.name for x in session.get_outputs()]
                 metadata = session.get_modelmeta().custom_metadata_map
+                dynamic = isinstance(session.get_outputs()[0].shape[0], str)
+                if not dynamic:
+                    io = session.io_binding()
+                    bindings = []
+                    for output in session.get_outputs():
+                        y_tensor = torch.empty(output.shape, dtype=torch.float16 if fp16 else torch.float32).to(device)
+                        io.bind_output(
+                            name=output.name,
+                            device_type=device.type,
+                            device_id=device.index if cuda else 0,
+                            element_type=np.float16 if fp16 else np.float32,
+                            shape=tuple(y_tensor.shape),
+                            buffer_ptr=y_tensor.data_ptr(),
+                        )
+                        bindings.append(y_tensor)
 
             # OpenVINO
             elif xml:
@@ -2820,10 +2852,10 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                     import tensorrt as trt  # noqa https://developer.nvidia.com/nvidia-tensorrt-download
                 except ImportError:
                     if LINUX:
-                        check_requirements("tensorrt>7.0.0,<=10.1.0")
+                        check_requirements("tensorrt>7.0.0,!=10.1.0")
                     import tensorrt as trt  # noqa
                 check_version(trt.__version__, ">=7.0.0", hard=True)
-                check_version(trt.__version__, "<=10.1.0", msg="https://github.com/ultralytics/ultralytics/pull/14239")
+                check_version(trt.__version__, "!=10.1.0", msg="https://github.com/ultralytics/ultralytics/pull/14239")
                 if device.type == "cpu":
                     device = torch.device("cuda:0")
                 Binding = namedtuple("Binding", ("name", "dtype", "shape", "data", "ptr"))
@@ -2859,8 +2891,8 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                             if -1 in tuple(model.get_tensor_shape(name)):
                                 dynamic = True
                                 context.set_input_shape(name, tuple(model.get_tensor_profile_shape(name, 0)[1]))
-                                if dtype == np.float16:
-                                    fp16 = True
+                            if dtype == np.float16:
+                                fp16 = True
                         else:
                             output_names.append(name)
                         shape = tuple(context.get_tensor_shape(name))
@@ -2916,8 +2948,10 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 with open(w, "rb") as f:
                     gd.ParseFromString(f.read())
                 frozen_func = wrap_frozen_graph(gd, inputs="x:0", outputs=gd_outputs(gd))
-                with contextlib.suppress(StopIteration):  # find metadata in SavedModel alongside GraphDef
+                try:  # find metadata in SavedModel alongside GraphDef
                     metadata = next(Path(w).resolve().parent.rglob(f"{Path(w).stem}_saved_model*/metadata.yaml"))
+                except StopIteration:
+                    pass
 
             # TFLite or TFLite Edge TPU
             elif tflite or edgetpu:  # https://www.tensorflow.org/lite/guide/python#install_tensorflow_lite_for_python
@@ -2928,11 +2962,16 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
 
                     Interpreter, load_delegate = tf.lite.Interpreter, tf.lite.experimental.load_delegate
                 if edgetpu:  # TF Edge TPU https://coral.ai/software/#edgetpu-runtime
-                    LOGGER.info(f"Loading {w} for TensorFlow Lite Edge TPU inference...")
+                    device = device[3:] if str(device).startswith("tpu") else ":0"
+                    LOGGER.info(f"Loading {w} on device {device[1:]} for TensorFlow Lite Edge TPU inference...")
                     delegate = {"Linux": "libedgetpu.so.1", "Darwin": "libedgetpu.1.dylib", "Windows": "edgetpu.dll"}[
                         platform.system()
                     ]
-                    interpreter = Interpreter(model_path=w, experimental_delegates=[load_delegate(delegate)])
+                    interpreter = Interpreter(
+                        model_path=w,
+                        experimental_delegates=[load_delegate(delegate, options={"device": device})],
+                    )
+                    device = "cpu"  # Required, otherwise PyTorch will try to use the wrong device
                 else:  # TFLite
                     LOGGER.info(f"Loading {w} for TensorFlow Lite inference...")
                     interpreter = Interpreter(model_path=w)  # load TFLite model
@@ -2940,10 +2979,12 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 input_details = interpreter.get_input_details()  # inputs
                 output_details = interpreter.get_output_details()  # outputs
                 # Load metadata
-                with contextlib.suppress(zipfile.BadZipFile):
+                try:
                     with zipfile.ZipFile(w, "r") as model:
                         meta_file = model.namelist()[0]
                         metadata = ast.literal_eval(model.read(meta_file).decode("utf-8"))
+                except zipfile.BadZipFile:
+                    pass
 
             # TF.js
             elif tfjs:
@@ -2965,6 +3006,26 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 input_handle = predictor.get_input_handle(predictor.get_input_names()[0])
                 output_names = predictor.get_output_names()
                 metadata = w.parents[1] / "metadata.yaml"
+
+            # MNN
+            elif mnn:
+                LOGGER.info(f"Loading {w} for MNN inference...")
+                check_requirements("MNN")  # requires MNN
+                import os
+
+                import MNN
+
+                config = {}
+                config["precision"] = "low"
+                config["backend"] = "CPU"
+                config["numThread"] = (os.cpu_count() + 1) // 2
+                rt = MNN.nn.create_runtime_manager((config,))
+                net = MNN.nn.load_module_from_file(w, [], [], runtime_manager=rt, rearrange=True)
+
+                def torch_to_mnn(x):
+                    return MNN.expr.const(x.data_ptr(), x.shape)
+
+                metadata = json.loads(net.get_info()["bizCode"])
 
             # NCNN
             elif ncnn:
@@ -3062,8 +3123,22 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
 
             # ONNX Runtime
             elif self.onnx:
-                im = im.cpu().numpy()  # torch to numpy
-                y = self.session.run(self.output_names, {self.session.get_inputs()[0].name: im})
+                if self.dynamic:
+                    im = im.cpu().numpy()  # torch to numpy
+                    y = self.session.run(self.output_names, {self.session.get_inputs()[0].name: im})
+                else:
+                    if not self.cuda:
+                        im = im.cpu()
+                    self.io.bind_input(
+                        name="images",
+                        device_type=im.device.type,
+                        device_id=im.device.index if im.device.type == "cuda" else 0,
+                        element_type=np.float16 if self.fp16 else np.float32,
+                        shape=tuple(im.shape),
+                        buffer_ptr=im.data_ptr(),
+                    )
+                    self.session.run_with_iobinding(self.io)
+                    y = self.bindings
 
             # OpenVINO
             elif self.xml:
@@ -3092,7 +3167,7 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
 
             # TensorRT
             elif self.engine:
-                if self.dynamic or im.shape != self.bindings["images"].shape:
+                if self.dynamic and im.shape != self.bindings["images"].shape:
                     if self.is_trt10:
                         self.context.set_input_shape("images", im.shape)
                         self.bindings["images"] = self.bindings["images"]._replace(shape=im.shape)
@@ -3139,6 +3214,12 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 self.input_handle.copy_from_cpu(im)
                 self.predictor.run()
                 y = [self.predictor.get_output_handle(x).copy_to_cpu() for x in self.output_names]
+
+            # MNN
+            elif self.mnn:
+                input_var = self.torch_to_mnn(im)
+                output_var = self.net.onForward([input_var])
+                y = [x.read() for x in output_var]
 
             # NCNN
             elif self.ncnn:
@@ -3265,6 +3346,7 @@ if "yolov8" in yolo_name or "rtdetr" in yolo_name or "yolov10" in yolo_name:
                 triton = bool(url.netloc) and bool(url.path) and url.scheme in {"http", "grpc"}
 
             return types + [triton]
+
 ### --- YOLOv8 Code --- ###
 
 ### --- YOLOv9 Code --- ###

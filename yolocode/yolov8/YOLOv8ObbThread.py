@@ -267,7 +267,7 @@ class YOLOv8ObbThread(QThread):
     def setup_model(self, model, verbose=True):
         """Initialize YOLO model with given parameters and set it to evaluation mode."""
         self.model = AutoBackend(
-            model or self.model,
+            weights=model or self.model,
             device=select_device(self.device, verbose=verbose),
             dnn=self.dnn,
             data=self.data,

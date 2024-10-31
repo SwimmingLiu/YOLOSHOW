@@ -17,7 +17,7 @@ from ui.utils.TableView import TableViewQWidget
 from ui.utils.drawFigure import PlottingThread
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import QFileDialog, QGraphicsDropShadowEffect, QFrame, QPushButton
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QPoint, QTimer
 from qfluentwidgets import RoundMenu, MenuAnimationType, Action
 import importlib
 from ui.utils.rtspDialog import CustomMessageBox
