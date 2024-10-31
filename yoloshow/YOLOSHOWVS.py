@@ -61,6 +61,7 @@ class YOLOSHOWVS(QMainWindow, YOLOSHOWBASE):
 
         # --- 自动加载/动态改变 PT 模型 --- #
         self.pt_Path = f"{self.current_workpath}/ptfiles/"
+        os.makedirs(self.pt_Path, exist_ok=True)
         self.pt_list = os.listdir(f'{self.current_workpath}/ptfiles/')
         self.pt_list = [file for file in self.pt_list if file.endswith('.pt')]
         self.pt_list.sort(key=lambda x: os.path.getsize(f'{self.current_workpath}/ptfiles/' + x))
